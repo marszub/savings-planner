@@ -1,0 +1,86 @@
+openapi: "3.0.3"
+
+info:
+  title: "Savings Planner API"
+  description: "HTTP endpoints docs"
+  version: "1.0"
+
+paths:
+  "/api/auth/users":
+    post:
+      summary: "Creates new user account"
+      requestBody:
+        description: "User data"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/RegistrationRequest"
+      responses:
+        "200":
+          description: "User has been created"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/AccessTokenResponse"
+        "400":
+          description: "Invalid request body"
+        "409":
+          description: "Email or nick already taken"
+
+  "/api/auth/access-token":
+    post:
+      summary: "Gets new access token"
+      requestBody:
+        description: "User credentials"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: "Login successful"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/AccessTokenResponse"
+        "400":
+          description: "Invalid request body"
+        "401":
+          description: "Wrong login or password"
+
+components:
+  schemas:
+    RegistrationRequest:
+      type: "object"
+      properties:
+        nick:
+          type: "string"
+          pattern: ^\w{3,16}$
+        email:
+          type: "string"
+          format: "email"
+        password:
+          type: "string"
+          format: "password"
+          minLength: 7
+          maxLength: 100
+
+    LoginRequest:
+      type: "object"
+      properties:
+        login:
+          type: "string"
+          format: "nick or email"
+        password:
+          type: "string"
+          format: "password"
+          minLength: 7
+          maxLength: 100
+
+    AccessTokenResponse:
+      type: "object"
+      properties:
+        accessToken:
+          type: "string"
