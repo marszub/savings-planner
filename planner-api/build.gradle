@@ -2,8 +2,8 @@ plugins {
     id 'org.springframework.boot' version '2.6.5'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'org.asciidoctor.convert' version '1.5.8'
-    id "org.openapi.generator" version "5.4.0"
     id 'java'
+    id 'org.hidetake.swagger.generator' version '2.19.2'
 }
 
 group = 'pl.edu.agh.kuce'
@@ -31,11 +31,14 @@ dependencies {
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'com.h2database:h2:2.1.210'
+
+    swaggerUI 'org.webjars:swagger-ui:4.8.1'
+    swaggerCodegen 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.33'  // or Swagger Codegen V3
 }
 
-openApiGenerate {
-    generatorName = 'html2'
-    inputSpec = 'api-docs.yaml'
+tasks.named('generateSwaggerUI') {
+    inputFile = file('openapi.yaml')
+    outputDir = file("docs")
 }
 
 tasks.named('test') {

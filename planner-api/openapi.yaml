@@ -1,28 +1,28 @@
-openapi: "3.0.0"
+openapi: "3.0.3"
 
 info:
+  title: "Savings Planner API"
   description: "HTTP endpoints docs"
   version: "1.0"
-  title: "Savings Planner API"
 
 paths:
   "/api/auth/users":
     post:
-      summary: "Create a new user account"
+      summary: "Creates new user account"
       requestBody:
         description: "User data"
         required: true
         content:
           "application/json":
             schema:
-              $ref: "#/components/schemas/RegistrationRequest"
+              "$ref": "#/components/schemas/RegistrationRequest"
       responses:
         "200":
           description: "User has been created"
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/AccessTokenResponse"
+                "$ref": "#/components/schemas/AccessTokenResponse"
         "400":
           description: "Invalid request body"
         "409":
@@ -30,21 +30,21 @@ paths:
 
   "/api/auth/access-token":
     post:
-      summary: "Get new access token"
+      summary: "Gets new access token"
       requestBody:
         description: "User credentials"
         required: true
         content:
           "application/json":
             schema:
-              $ref: "#/components/schemas/LoginRequest"
+              "$ref": "#/components/schemas/LoginRequest"
       responses:
         "200":
-          description: "User has been created"
+          description: "Login successful"
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/AccessTokenResponse"
+                "$ref": "#/components/schemas/AccessTokenResponse"
         "400":
           description: "Invalid request body"
         "401":
