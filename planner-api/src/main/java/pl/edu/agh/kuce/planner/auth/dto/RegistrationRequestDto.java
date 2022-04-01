@@ -9,7 +9,7 @@ import javax.validation.constraints.Pattern;
 public record RegistrationRequestDto(
 
     @NotNull
-    @Pattern(regexp = "\\w{3,16}")
+    @Pattern(regexp = "^\\w{3,16}$")
     String nick,
 
     @NotNull

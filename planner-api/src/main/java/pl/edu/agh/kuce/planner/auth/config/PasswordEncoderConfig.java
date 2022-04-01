@@ -11,11 +11,11 @@ public class PasswordEncoderConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder(
-            @Value("argon2.salt-length") int saltLength,
-            @Value("argon2.hash-length") int hashLength,
-            @Value("argon2.parallelism") int parallelism,
-            @Value("argon2.memory") int memory,
-            @Value("argon2.iterations") int iterations
+            @Value("${argon2.salt-length}") int saltLength,
+            @Value("${argon2.hash-length}") int hashLength,
+            @Value("${argon2.parallelism}") int parallelism,
+            @Value("${argon2.memory}") int memory,
+            @Value("${argon2.iterations}") int iterations
     ) {
         return new Argon2PasswordEncoder(saltLength, hashLength, parallelism, memory, iterations);
     }
