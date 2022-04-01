@@ -12,7 +12,7 @@ import pl.edu.agh.kuce.planner.auth.service.AuthService;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService authService;

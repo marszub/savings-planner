@@ -33,8 +33,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .and()
                 .formLogin().disable()
                 .authorizeRequests()
-                        .antMatchers("/auth/access-token").permitAll()
-                        .antMatchers("/auth/users").permitAll()
-                .anyRequest().authenticated();
+                        .antMatchers("/api/auth/access-token").permitAll()
+                        .antMatchers("/api/auth/users").permitAll()
+                        .antMatchers("/api/**").authenticated()
+                        .anyRequest().permitAll(); // static files at '/'
     }
 }

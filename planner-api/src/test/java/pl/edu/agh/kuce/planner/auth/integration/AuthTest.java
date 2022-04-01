@@ -53,7 +53,7 @@ class AuthTest {
                              "eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNjQ4NzYwODAxfQ." +
                              "jDa3CL4InUwyCu_bYHJ4-JfVs5g7t19h3iCjyT6fr1w";
 
-        mockMvc.perform(post("/auth/users").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
+        mockMvc.perform(post("/api/auth/users").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.accessToken", is(expectedJwt)));
@@ -64,7 +64,7 @@ class AuthTest {
     void givenValidCredentials_register_savesUser() throws Exception {
         var request = new RegistrationRequestDto("user", "email@example.com", "password");
 
-        mockMvc.perform(post("/auth/users").contentType(MediaType.APPLICATION_JSON).content(toJson(request)));
+        mockMvc.perform(post("/api/auth/users").contentType(MediaType.APPLICATION_JSON).content(toJson(request)));
 
         assertThat(userRepository.findOneByNickOrEmail("user")).isPresent();
     }
@@ -74,7 +74,7 @@ class AuthTest {
     void givenInvalidRequestBody_register_returns400() throws Exception {
         var request = new RegistrationRequestDto("us", "email@example.com", "password");
 
-        mockMvc.perform(post("/auth/users").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
+        mockMvc.perform(post("/api/auth/users").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -89,7 +89,7 @@ class AuthTest {
                 "eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNjQ4NzYwODAxfQ." +
                 "jDa3CL4InUwyCu_bYHJ4-JfVs5g7t19h3iCjyT6fr1w";
 
-        mockMvc.perform(post("/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
+        mockMvc.perform(post("/api/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.accessToken", is(expectedJwt)));
@@ -106,7 +106,7 @@ class AuthTest {
                 "eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNjQ4NzYwODAxfQ." +
                 "jDa3CL4InUwyCu_bYHJ4-JfVs5g7t19h3iCjyT6fr1w";
 
-        mockMvc.perform(post("/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
+        mockMvc.perform(post("/api/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.accessToken", is(expectedJwt)));
@@ -119,7 +119,7 @@ class AuthTest {
 
         var request = new LoginRequestDto("user", "p");
 
-        mockMvc.perform(post("/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
+        mockMvc.perform(post("/api/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -130,7 +130,7 @@ class AuthTest {
 
         var request = new LoginRequestDto("nonExistingNick", "password");
 
-        mockMvc.perform(post("/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
+        mockMvc.perform(post("/api/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -141,24 +141,30 @@ class AuthTest {
 
         var request = new LoginRequestDto("user", "wrongPassword");
 
-        mockMvc.perform(post("/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
+        mockMvc.perform(post("/api/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void givenFakeSecuredEndpoint_requestWithoutJwt_returns401() throws Exception {
-        mockMvc.perform(get("/fake-endpoint/fake-path"))
+    void givenFakeSecuredApiEndpoint_requestWithoutJwt_returns401() throws Exception {
+        mockMvc.perform(get("/api/fake-endpoint/fake-path"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void givenFakeSecuredEndpoint_requestWithJwt_returns404() throws Exception {
+    void givenFakeSecuredApiEndpoint_requestWithJwt_returns404() throws Exception {
         String validToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9." +
                 "eyJzdWIiOiJ1c2VyIiwiZXhwIjoyMTQ3NDgzNjQ3fQ." +
                 "ZDr5cWMLgEzxAS6kJ6nbMOP0B4R1iY1QeH0CpnWulag";
         String headerValue = "Bearer " + validToken;
 
-        mockMvc.perform(get("/fake-endpoint/fake-path").header("Authorization", headerValue))
+        mockMvc.perform(get("/api/fake-endpoint/fake-path").header("Authorization", headerValue))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void givenFakeStaticFileEndpoint_requestWithoutJwt_returns404() throws Exception {
+        mockMvc.perform(get("/fake-static/fake-path"))
                 .andExpect(status().isNotFound());
     }
 
