@@ -18,6 +18,7 @@ import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -142,6 +143,23 @@ class AuthTest {
 
         mockMvc.perform(post("/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void givenFakeSecuredEndpoint_requestWithoutJwt_returns401() throws Exception {
+        mockMvc.perform(get("/fake-endpoint/fake-path"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void givenFakeSecuredEndpoint_requestWithJwt_returns404() throws Exception {
+        String validToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9." +
+                "eyJzdWIiOiJ1c2VyIiwiZXhwIjoyMTQ3NDgzNjQ3fQ." +
+                "ZDr5cWMLgEzxAS6kJ6nbMOP0B4R1iY1QeH0CpnWulag";
+        String headerValue = "Bearer " + validToken;
+
+        mockMvc.perform(get("/fake-endpoint/fake-path").header("Authorization", headerValue))
+                .andExpect(status().isNotFound());
     }
 
     private String toJson(Object object) throws JsonProcessingException {
