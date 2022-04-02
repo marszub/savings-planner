@@ -84,3 +84,30 @@ components:
       properties:
         accessToken:
           type: "string"
+          format: "encoded access token"
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMSIsImV4cCI6MjE0NzQ4MzY0N30.L-OzhC0g5TVQr0tcg75S1pGn57vr1MjumtHT_atU3Ag"
+
+    AccessToken:
+      type: "object"
+      description: "Decoded token structure"
+      properties:
+        header:
+          type: "object"
+          properties:
+            alg:
+              type: "string"
+              default: "HS256"
+            typ:
+              type: "string"
+              default: "JWT"
+        payload:
+          type: "object"
+          properties:
+            sub:
+              type: "string"
+              format: "nick"
+              description: "Owner of the token"
+            exp:
+              type: "integer"
+              format: "int64"
+              description: "Expiration (Unix epoch second)"
