@@ -76,7 +76,7 @@ public class OneTimeEvent {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent event = (pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent) o;
+        OneTimeEvent event = (OneTimeEvent) o;
         return Objects.equals(id, event.id);
     }
 
