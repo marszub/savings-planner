@@ -31,7 +31,8 @@ public class OneTimeEventTest {
     @Transactional
     void single_one_time_event_is_properly_saved_in_database()
     {
-        OneTimeEvent testEvent = new OneTimeEvent(1, "test", 11.40, new Timestamp(System.currentTimeMillis()));
+        OneTimeEvent testEvent = new OneTimeEvent(1, "test", 11.40,
+                new Timestamp(System.currentTimeMillis()));
         oneTimeEventRepository.save(testEvent);
         Collection<OneTimeEvent> result = oneTimeEventRepository.findByUserId(1);
         assertThat(result.toArray()[0]).isEqualTo(testEvent);
@@ -41,8 +42,10 @@ public class OneTimeEventTest {
     @Transactional
     void multiple_one_time_events_are_saved_properly_in_database()
     {
-        OneTimeEvent testEvent1 = new OneTimeEvent(1, "test1", 11.40, new Timestamp(System.currentTimeMillis()));
-        OneTimeEvent testEvent2 = new OneTimeEvent(1, "test2", 12.50, new Timestamp(System.currentTimeMillis()));
+        OneTimeEvent testEvent1 = new OneTimeEvent(1, "test1", 11.40,
+                new Timestamp(System.currentTimeMillis()));
+        OneTimeEvent testEvent2 = new OneTimeEvent(1, "test2", 12.50,
+                new Timestamp(System.currentTimeMillis()));
         oneTimeEventRepository.save(testEvent1);
         oneTimeEventRepository.save(testEvent2);
         Collection<OneTimeEvent> result = oneTimeEventRepository.findByUserId(1);
