@@ -10,6 +10,10 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { SignUpForm } from "../../models/sign-up-form";
+import { userValidators } from "../../utils/user-validators";
+import { userService } from "../../services/user-service";
+import { HTTP_BAD_REQUEST, HTTP_CONFLICT, HTTP_OK } from "../../utils/http-status";
 
 function Copyright(props) {
     return (
@@ -29,11 +33,40 @@ const theme = createTheme();
 export default function SignUp() {
     const handleSubmit = (event) => {
         event.preventDefault();
+
         const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
+        const formModel = new SignUpForm(
+            data.get('nick'),
+            data.get('email'),
+            data.get('password'),
+            data.get('repeatPassword')
+        );
+
+        if (userValidators.validateNick(formModel.nick)
+            || userValidators.validateEmail(formModel.email)
+            || userValidators.validatePassword(formModel.password)
+            || userValidators.validatePasswordsMatch(formModel.password, formModel.repeatPassword))
+            return;
+
+        userService.signUp(formModel)
+            .then(res => {
+                switch (res.status) {
+                    case HTTP_OK:
+                        console.log("User has been created");
+                        break;
+                    case HTTP_BAD_REQUEST:
+                        console.log("Invalid request body");
+                        break;
+                    case HTTP_CONFLICT:
+                        console.log("Email or nick already taken");
+                        break;
+                    default:
+                        console.log("Unexpected error")
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
     };
 
     return (
@@ -84,6 +117,17 @@ export default function SignUp() {
                                     label="Password"
                                     type="password"
                                     id="password"
+                                    autoComplete="new-password"
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    name="repeatPassword"
+                                    label="Repeat Password"
+                                    type="password"
+                                    id="repeatPassword"
                                     autoComplete="new-password"
                                 />
                             </Grid>

@@ -10,6 +10,10 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { userValidators } from "../../utils/user-validators";
+import { userService } from "../../services/user-service";
+import { HTTP_BAD_REQUEST, HTTP_OK, HTTP_UNAUTHORIZED } from "../../utils/http-status";
+import { SignInForm } from "../../models/sign-in-form";
 
 function Copyright(props) {
     return (
@@ -29,11 +33,36 @@ const theme = createTheme();
 export default function SignIn() {
     const handleSubmit = (event) => {
         event.preventDefault();
+
         const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
+        const formModel = new SignInForm(
+            data.get('login'),
+            data.get('password')
+        );
+
+        if (userValidators.validateLogin(formModel.login)
+            || userValidators.validatePassword(formModel.password))
+            return;
+
+        userService.signIn(formModel)
+            .then(res => {
+                switch (res.status) {
+                    case HTTP_OK:
+                        console.log("Login successful");
+                        break;
+                    case HTTP_BAD_REQUEST:
+                        console.log("Invalid request body");
+                        break;
+                    case HTTP_UNAUTHORIZED:
+                        console.log("Wrong login or password");
+                        break;
+                    default:
+                        console.log("Unexpected error");
+                }
+            })
+            .catch(err => {
+                console.log(err);
+        })
     };
 
     return (
