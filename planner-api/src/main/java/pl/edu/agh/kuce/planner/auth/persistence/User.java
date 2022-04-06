@@ -1,6 +1,9 @@
 package pl.edu.agh.kuce.planner.auth.persistence;
 
+import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
+
 import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -19,6 +22,9 @@ public class User {
 
     @Column(nullable = false)
     private String passwordHash;
+
+    @OneToMany(mappedBy = "user")
+    private List<OneTimeEvent> oneTimeEventList;
 
     public User() {}
 
