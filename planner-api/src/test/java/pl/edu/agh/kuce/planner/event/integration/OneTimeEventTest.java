@@ -5,6 +5,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import pl.edu.agh.kuce.planner.auth.persistence.User;
+import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 
@@ -22,6 +24,9 @@ public class OneTimeEventTest {
     @Autowired
     private OneTimeEventRepository oneTimeEventRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Test
     void contextLoads() {
         assertThat(mockMvc).isNotNull();
@@ -31,10 +36,12 @@ public class OneTimeEventTest {
     @Transactional
     void single_one_time_event_is_properly_saved_in_database()
     {
-        OneTimeEvent testEvent = new OneTimeEvent(1, "test", 11.40,
+        User user = new User("TEST", "TEST", "TEST");
+        userRepository.save(user);
+        OneTimeEvent testEvent = new OneTimeEvent(user, "test", 11.40,
                 new Timestamp(System.currentTimeMillis()));
         oneTimeEventRepository.save(testEvent);
-        Collection<OneTimeEvent> result = oneTimeEventRepository.findByUserId(1);
+        Collection<OneTimeEvent> result = oneTimeEventRepository.findByUsersNick("TEST");
         assertThat(result.toArray()[0]).isEqualTo(testEvent);
     }
 
@@ -42,13 +49,15 @@ public class OneTimeEventTest {
     @Transactional
     void multiple_one_time_events_are_saved_properly_in_database()
     {
-        OneTimeEvent testEvent1 = new OneTimeEvent(1, "test1", 11.40,
+        User user = new User("TEST", "TEST", "TEST");
+        userRepository.save(user);
+        OneTimeEvent testEvent1 = new OneTimeEvent(user, "test1", 11.40,
                 new Timestamp(System.currentTimeMillis()));
-        OneTimeEvent testEvent2 = new OneTimeEvent(1, "test2", 12.50,
+        OneTimeEvent testEvent2 = new OneTimeEvent(user, "test2", 12.50,
                 new Timestamp(System.currentTimeMillis()));
         oneTimeEventRepository.save(testEvent1);
         oneTimeEventRepository.save(testEvent2);
-        Collection<OneTimeEvent> result = oneTimeEventRepository.findByUserId(1);
+        Collection<OneTimeEvent> result = oneTimeEventRepository.findByUsersNick("TEST");
         assertThat(result.toArray()[0]).isEqualTo(testEvent1);
         assertThat(result.toArray()[1]).isEqualTo(testEvent2);
     }
