@@ -17,7 +17,7 @@ import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -46,17 +46,13 @@ class AuthTest {
 
     @Test
     @Transactional
-    void givenValidCredentials_register_returnsJwt() throws Exception {
+    void givenValidCredentials_register_returns200() throws Exception {
         var request = new RegistrationRequestDto("user", "email@example.com", "password");
-
-        String expectedJwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9." +
-                             "eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNjQ4NzYwODAxfQ." +
-                             "jDa3CL4InUwyCu_bYHJ4-JfVs5g7t19h3iCjyT6fr1w";
 
         mockMvc.perform(post("/api/auth/users").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.accessToken", is(expectedJwt)));
+                .andExpect(jsonPath("$.accessToken", matchesPattern("^.+\\..+\\..+$")));
     }
 
     @Test
@@ -80,36 +76,28 @@ class AuthTest {
 
     @Test
     @Transactional
-    void givenValidNickPassword_login_returnsJwt() throws Exception {
+    void givenValidNickPassword_login_returns200() throws Exception {
         userRepository.save(fakeUser());
 
         var request = new LoginRequestDto("user", "password");
 
-        String expectedJwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9." +
-                "eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNjQ4NzYwODAxfQ." +
-                "jDa3CL4InUwyCu_bYHJ4-JfVs5g7t19h3iCjyT6fr1w";
-
         mockMvc.perform(post("/api/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.accessToken", is(expectedJwt)));
+                .andExpect(jsonPath("$.accessToken", matchesPattern("^.+\\..+\\..+$")));
     }
 
     @Test
     @Transactional
-    void givenValidEmailPassword_login_returnsJwt() throws Exception {
+    void givenValidEmailPassword_login_returns200() throws Exception {
         userRepository.save(fakeUser());
 
         var request = new LoginRequestDto("email@example.com", "password");
 
-        String expectedJwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9." +
-                "eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNjQ4NzYwODAxfQ." +
-                "jDa3CL4InUwyCu_bYHJ4-JfVs5g7t19h3iCjyT6fr1w";
-
         mockMvc.perform(post("/api/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.accessToken", is(expectedJwt)));
+                .andExpect(jsonPath("$.accessToken", matchesPattern("^.+\\..+\\..+$")));
     }
 
     @Test
@@ -154,8 +142,8 @@ class AuthTest {
     @Test
     void givenFakeSecuredApiEndpoint_requestWithJwt_returns404() throws Exception {
         String validToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9." +
-                "eyJzdWIiOiJ1c2VyIiwiZXhwIjoyMTQ3NDgzNjQ3fQ." +
-                "ZDr5cWMLgEzxAS6kJ6nbMOP0B4R1iY1QeH0CpnWulag";
+                "eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoxLCJleHAiOjIxNDc0ODM2NDd9." +
+                "d5lbk3hpiyvPS1gVsdGwrDzXz_r794CHDUU6sP1lkiU";
         String headerValue = "Bearer " + validToken;
 
         mockMvc.perform(get("/api/fake-endpoint/fake-path").header("Authorization", headerValue))

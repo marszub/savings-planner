@@ -35,14 +35,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.replaceFirst(AUTH_HEADER_PREFIX, "");
-        var nick = jwtUtils.tryRetrieveNick(token);
-        if (nick.isEmpty()) {
+        var user = jwtUtils.verifyToken(token);
+        if (user.isEmpty()) {
             filterChain.doFilter(request, response);
             return;
         }
 
         SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(nick.get(), null, List.of())
+                new UsernamePasswordAuthenticationToken(user.get(), null, List.of())
         );
 
         filterChain.doFilter(request, response);
