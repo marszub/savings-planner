@@ -7,12 +7,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
-import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
-import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 import pl.edu.agh.kuce.planner.target.persistence.Target;
 import pl.edu.agh.kuce.planner.target.persistence.TargetRepository;
 
-import java.sql.Timestamp;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;

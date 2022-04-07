@@ -3,7 +3,6 @@ package pl.edu.agh.kuce.planner.target.persistence;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
