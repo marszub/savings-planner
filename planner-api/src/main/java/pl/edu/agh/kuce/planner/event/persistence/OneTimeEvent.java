@@ -1,5 +1,7 @@
 package pl.edu.agh.kuce.planner.event.persistence;
 
+import pl.edu.agh.kuce.planner.auth.persistence.User;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Objects;
@@ -11,8 +13,9 @@ public class OneTimeEvent {
     @GeneratedValue
     private Integer id;
 
-    @Column(nullable = false)
-    private Integer userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(nullable = false)
     private String title;
@@ -25,8 +28,8 @@ public class OneTimeEvent {
 
     public OneTimeEvent() {}
 
-    public OneTimeEvent(Integer userId, String title, Double amount, Timestamp timestamp) {
-        this.userId = userId;
+    public OneTimeEvent(User user, String title, Double amount, Timestamp timestamp) {
+        this.user = user;
         this.title = title;
         this.amount = amount;
         this.timestamp = timestamp;
@@ -40,12 +43,12 @@ public class OneTimeEvent {
         this.id = id;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getTitle() {
