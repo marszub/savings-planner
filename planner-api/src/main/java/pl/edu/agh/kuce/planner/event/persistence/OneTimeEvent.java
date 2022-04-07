@@ -21,14 +21,14 @@ public class OneTimeEvent {
     private String title;
 
     @Column(nullable = false)
-    private Double amount;
+    private Integer amount;
 
     @Column(nullable = false)
     private Timestamp timestamp;
 
     public OneTimeEvent() {}
 
-    public OneTimeEvent(User user, String title, Double amount, Timestamp timestamp) {
+    public OneTimeEvent(User user, String title, Integer amount, Timestamp timestamp) {
         this.user = user;
         this.title = title;
         this.amount = amount;
@@ -59,11 +59,11 @@ public class OneTimeEvent {
         this.title = title;
     }
 
-    public Double getAmount() {
+    public Integer getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(Integer amount) {
         this.amount = amount;
     }
 

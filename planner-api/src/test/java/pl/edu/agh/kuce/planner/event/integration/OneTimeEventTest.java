@@ -38,7 +38,7 @@ public class OneTimeEventTest {
     {
         User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        OneTimeEvent testEvent = new OneTimeEvent(user, "test", 11.40,
+        OneTimeEvent testEvent = new OneTimeEvent(user, "test", 110,
                 new Timestamp(System.currentTimeMillis()));
         oneTimeEventRepository.save(testEvent);
         Collection<OneTimeEvent> result = oneTimeEventRepository.findByUsersNick("TEST");
@@ -51,9 +51,9 @@ public class OneTimeEventTest {
     {
         User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        OneTimeEvent testEvent1 = new OneTimeEvent(user, "test1", 11.40,
+        OneTimeEvent testEvent1 = new OneTimeEvent(user, "test1", 10,
                 new Timestamp(System.currentTimeMillis()));
-        OneTimeEvent testEvent2 = new OneTimeEvent(user, "test2", 12.50,
+        OneTimeEvent testEvent2 = new OneTimeEvent(user, "test2", 120,
                 new Timestamp(System.currentTimeMillis()));
         oneTimeEventRepository.save(testEvent1);
         oneTimeEventRepository.save(testEvent2);
