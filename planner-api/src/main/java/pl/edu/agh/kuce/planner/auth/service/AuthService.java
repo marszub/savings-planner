@@ -27,7 +27,7 @@ public class AuthService {
                 new User(request.nick(), request.email(), passwordEncoder.encode(request.password()))
         );
 
-        return new AuthResponseDto(jwtUtils.createAccessToken(user.getNick()));
+        return new AuthResponseDto(jwtUtils.createAccessToken(user));
     }
 
     public AuthResponseDto login(LoginRequestDto request) {
@@ -40,6 +40,6 @@ public class AuthService {
             throw new BadCredentialsException("Wrong password");
         }
 
-        return new AuthResponseDto(jwtUtils.createAccessToken(user.get().getNick()));
+        return new AuthResponseDto(jwtUtils.createAccessToken(user.get()));
     }
 }
