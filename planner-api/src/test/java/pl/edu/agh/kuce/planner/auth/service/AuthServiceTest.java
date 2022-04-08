@@ -42,15 +42,13 @@ class AuthServiceTest {
         MockitoAnnotations.openMocks(this);
 
         when(userRepository.save(any())).thenReturn(fakeUser);
-        when(userRepository.save(any())).thenReturn(fakeUser);
-        when(userRepository.save(any())).thenReturn(fakeUser);
         when(userRepository.findOneByNickOrEmail(fakeUser.getNick())).thenReturn(Optional.of(fakeUser));
         when(userRepository.findOneByNickOrEmail(fakeUser.getEmail())).thenReturn(Optional.of(fakeUser));
 
         when(passwordEncoder.encode("password1")).thenReturn(fakeUser.getPasswordHash());
         when(passwordEncoder.matches("password1", "hashedPassword1")).thenReturn(true);
 
-        when(jwtService.createAccessToken(fakeUser.getNick())).thenReturn("token1");
+        when(jwtService.createAccessToken(fakeUser)).thenReturn("token1");
 
         authService = new AuthService(userRepository, passwordEncoder, jwtService);
     }

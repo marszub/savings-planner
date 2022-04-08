@@ -85,7 +85,7 @@ components:
         accessToken:
           type: "string"
           format: "encoded access token"
-          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMSIsImV4cCI6MjE0NzQ4MzY0N30.L-OzhC0g5TVQr0tcg75S1pGn57vr1MjumtHT_atU3Ag"
+          example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImV4cCI6MTY0OTk2MTYzOCwidXNlcklkIjoxfQ.rWcKHXk8Q-QWchLEEBRlxSS3owbbQa5azSM4ag5ogpY"
 
     AccessToken:
       type: "object"
@@ -111,3 +111,7 @@ components:
               type: "integer"
               format: "int64"
               description: "Expiration (Unix epoch second)"
+            userId:
+              type: "integer"
+              format: "int32"
+              description: "Owner's ID"
