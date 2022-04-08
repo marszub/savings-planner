@@ -39,7 +39,7 @@ public class TargetTest {
         userRepository.save(user);
         Target testTarget = new Target(user, "test", 11);
         targetRepository.save(testTarget);
-        Collection<Target> result = targetRepository.findByUsersNick("TEST");
+        Collection<Target> result = targetRepository.findByUserId(user.getId());
         assertThat(result.toArray()[0]).isEqualTo(testTarget);
     }
 
@@ -53,7 +53,7 @@ public class TargetTest {
         Target testTarget2 = new Target(user, "test", 112);
         targetRepository.save(testTarget1);
         targetRepository.save(testTarget2);
-        Collection<Target> result = targetRepository.findByUsersNick("TEST");
+        Collection<Target> result = targetRepository.findByUserId(user.getId());
         assertThat(result.toArray()[0]).isEqualTo(testTarget1);
         assertThat(result.toArray()[1]).isEqualTo(testTarget2);
     }

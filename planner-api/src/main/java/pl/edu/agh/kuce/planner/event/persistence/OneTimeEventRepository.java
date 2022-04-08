@@ -7,6 +7,6 @@ import java.util.Collection;
 
 public interface OneTimeEventRepository extends JpaRepository<OneTimeEvent, Integer> {
 
-    @Query("SELECT o FROM OneTimeEvent o WHERE o.user.nick = ?1")
-    Collection<OneTimeEvent> findByUsersNick(String userNick);
+    @Query("SELECT o FROM OneTimeEvent o WHERE o.user.id = ?1")
+    Collection<OneTimeEvent> findByUserId(Integer userId);
 }

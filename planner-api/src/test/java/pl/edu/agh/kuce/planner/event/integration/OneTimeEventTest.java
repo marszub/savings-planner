@@ -41,7 +41,7 @@ public class OneTimeEventTest {
         OneTimeEvent testEvent = new OneTimeEvent(user, "test", 11.40,
                 new Timestamp(System.currentTimeMillis()));
         oneTimeEventRepository.save(testEvent);
-        Collection<OneTimeEvent> result = oneTimeEventRepository.findByUsersNick("TEST");
+        Collection<OneTimeEvent> result = oneTimeEventRepository.findByUserId(user.getId());
         assertThat(result.toArray()[0]).isEqualTo(testEvent);
     }
 
@@ -57,7 +57,7 @@ public class OneTimeEventTest {
                 new Timestamp(System.currentTimeMillis()));
         oneTimeEventRepository.save(testEvent1);
         oneTimeEventRepository.save(testEvent2);
-        Collection<OneTimeEvent> result = oneTimeEventRepository.findByUsersNick("TEST");
+        Collection<OneTimeEvent> result = oneTimeEventRepository.findByUserId(user.getId());
         assertThat(result.toArray()[0]).isEqualTo(testEvent1);
         assertThat(result.toArray()[1]).isEqualTo(testEvent2);
     }
