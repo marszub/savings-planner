@@ -1,5 +1,6 @@
-import { HTTP_NO_CONTENT } from "../utils/http-status";
+import { HTTP_NO_CONTENT, HTTP_UNAUTHORIZED } from "../utils/http-status";
 import { backendUrl } from "../config";
+import { tokenStorage } from "./token-storage";
 
 export const httpService = {
     get(path, queryParams) {
@@ -27,7 +28,8 @@ function request(path, method, body = null) {
     return fetch(`${backendUrl}${path}`, {
         method: method,
         headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
+            'Content-Type': 'application/json; charset=UTF-8',
+            ...(tokenStorage.accessToken) && {'Authorization': 'Bearer ' + tokenStorage.accessToken},
         },
         credentials: 'include',
         body: body && JSON.stringify(body, replacer),
@@ -38,11 +40,14 @@ function request(path, method, body = null) {
 function onResponse(res) {
     if (res.status === HTTP_NO_CONTENT) {
         return new ResponseShort(res.status, res.body);
-    } else {
-        return new Promise((resolve, reject) => res.json()
+    }
+    if (res.status === HTTP_UNAUTHORIZED) {
+        console.log("Wrong login or password");
+        window.location.replace("/sign-up");
+    }
+    return new Promise((resolve, reject) => res.json()
             .then(body => resolve(new ResponseShort(res.status, body)))
             .catch(err => reject(err)));
-    }
 }
 
 function replacer(key, value) {

@@ -1,1 +1,1 @@
-export const backendUrl = "http://localhost/planner/api";
+export const backendUrl = "http://localhost:3000/api";
