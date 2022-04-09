@@ -42,8 +42,9 @@ function onResponse(res) {
         return new ResponseShort(res.status, res.body);
     }
     if (res.status === HTTP_UNAUTHORIZED) {
-        console.log("Wrong login or password");
-        window.location.replace("/sign-up");
+        console.log("User is unauthorized");
+        tokenStorage.revokeToken();
+        window.location.replace("/sign-in");
     }
     return new Promise((resolve, reject) => res.json()
             .then(body => resolve(new ResponseShort(res.status, body)))

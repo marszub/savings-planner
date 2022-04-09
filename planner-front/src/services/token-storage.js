@@ -7,5 +7,9 @@ export const tokenStorage = {
 
     set accessToken(newToken) {
         this._accessToken = newToken;
+    },
+
+    revokeToken() {
+        this._accessToken = "";
     }
 }
