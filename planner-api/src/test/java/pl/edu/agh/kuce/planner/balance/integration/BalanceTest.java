@@ -1,4 +1,4 @@
-package pl.edu.agh.kuce.planner.balance;
+package pl.edu.agh.kuce.planner.balance.integration;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
