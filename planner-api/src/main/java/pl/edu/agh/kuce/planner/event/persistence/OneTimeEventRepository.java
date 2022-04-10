@@ -2,11 +2,12 @@ package pl.edu.agh.kuce.planner.event.persistence;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import pl.edu.agh.kuce.planner.auth.persistence.User;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface OneTimeEventRepository extends JpaRepository<OneTimeEvent, Integer> {
 
-    @Query("SELECT o FROM OneTimeEvent o WHERE o.user.id = ?1")
-    Collection<OneTimeEvent> findByUserId(Integer userId);
+    List<OneTimeEvent> findByUser(User user);
 }

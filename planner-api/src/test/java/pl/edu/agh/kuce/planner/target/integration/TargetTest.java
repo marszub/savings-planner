@@ -11,6 +11,7 @@ import pl.edu.agh.kuce.planner.target.persistence.Target;
 import pl.edu.agh.kuce.planner.target.persistence.TargetRepository;
 
 import java.util.Collection;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,8 +40,8 @@ public class TargetTest {
         userRepository.save(user);
         Target testTarget = new Target(user, "test", 11);
         targetRepository.save(testTarget);
-        Collection<Target> result = targetRepository.findByUserId(user.getId());
-        assertThat(result.toArray()[0]).isEqualTo(testTarget);
+        List<Target> result = targetRepository.findByUser(user);
+        assertThat(result.get(0)).isEqualTo(testTarget);
     }
 
     @Test
@@ -53,8 +54,8 @@ public class TargetTest {
         Target testTarget2 = new Target(user, "test", 112);
         targetRepository.save(testTarget1);
         targetRepository.save(testTarget2);
-        Collection<Target> result = targetRepository.findByUserId(user.getId());
-        assertThat(result.toArray()[0]).isEqualTo(testTarget1);
-        assertThat(result.toArray()[1]).isEqualTo(testTarget2);
+        List<Target> result = targetRepository.findByUser(user);
+        assertThat(result.get(0)).isEqualTo(testTarget1);
+        assertThat(result.get(1)).isEqualTo(testTarget2);
     }
 }
