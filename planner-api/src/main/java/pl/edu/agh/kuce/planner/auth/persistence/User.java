@@ -1,6 +1,7 @@
 package pl.edu.agh.kuce.planner.auth.persistence;
 
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
+import pl.edu.agh.kuce.planner.target.persistence.Target;
 
 import javax.persistence.*;
 import java.util.List;
@@ -25,6 +26,9 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<OneTimeEvent> oneTimeEventList;
+
+    @OneToMany(mappedBy = "user")
+    private List<Target> targetList;
 
     public User() {}
 
