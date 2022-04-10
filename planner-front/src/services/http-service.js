@@ -1,10 +1,10 @@
 import { HTTP_NO_CONTENT, HTTP_UNAUTHORIZED } from "../utils/http-status";
-import { backendUrl } from "../config";
+import { BACKEND_URL } from "../config";
 import { tokenStorage } from "./token-storage";
 
 export const httpService = {
     get(path, queryParams) {
-        return request(`${path}?${new URLSearchParams(queryParams)}`, 'GET', null);
+        return request(`${path}?${new URLSearchParams(queryParams)}`, 'GET');
     },
 
     post(path, body) {
@@ -24,8 +24,8 @@ export const httpService = {
     }
 }
 
-function request(path, method, body = null) {
-    return fetch(`${backendUrl}${path}`, {
+function request(path, method, body=null) {
+    return fetch(`${BACKEND_URL}${path}`, {
         method: method,
         headers: {
             'Content-Type': 'application/json; charset=UTF-8',
@@ -41,7 +41,7 @@ function onResponse(res) {
     if (res.status === HTTP_NO_CONTENT) {
         return new ResponseShort(res.status, res.body);
     }
-    if (res.status === HTTP_UNAUTHORIZED) {
+    if (res.status === HTTP_UNAUTHORIZED && res.url !== `${BACKEND_URL}/auth/access-token`) {
         console.log("User is unauthorized");
         tokenStorage.revokeToken();
         window.location.replace("/sign-in");

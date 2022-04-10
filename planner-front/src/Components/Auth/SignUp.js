@@ -14,23 +14,26 @@ import { SignUpForm } from "../../models/sign-up-form";
 import { userValidators } from "../../utils/user-validators";
 import { userService } from "../../services/user-service";
 import { HTTP_BAD_REQUEST, HTTP_CONFLICT, HTTP_OK } from "../../utils/http-status";
-
-function Copyright(props) {
-    return (
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
-            {'Copyright © '}
-            <Link color="inherit" href="#">
-                Your Website
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const theme = createTheme();
 
 export default function SignUp() {
+    const navigate = useNavigate();
+
+    const [nickErrorMessage, setNickErrorMessage] = useState("");
+    const [isNickError, setIsNickError] = useState(false);
+
+    const [emailErrorMessage, setEmailErrorMessage] = useState("");
+    const [isEmailError, setIsEmailError] = useState(false);
+
+    const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
+    const [isPasswordError, setIsPasswordError] = useState(false);
+
+    const [repeatPasswordErrorMessage, setRepeatPasswordErrorMessage] = useState("");
+    const [isRepeatPasswordError, setIsRepeatPasswordError] = useState(false);
+
     const handleSubmit = (event) => {
         event.preventDefault();
 
@@ -42,30 +45,67 @@ export default function SignUp() {
             data.get('repeatPassword')
         );
 
-        if (userValidators.validateNick(formModel.nick)
-            || userValidators.validateEmail(formModel.email)
-            || userValidators.validatePassword(formModel.password)
-            || userValidators.validatePasswordsMatch(formModel.password, formModel.repeatPassword))
+        let nickError = userValidators.validateNick(formModel.nick);
+        setNickErrorMessage(nickError);
+        setIsNickError(!!nickError);
+        if (nickError) console.log(nickError);
+
+        let emailError = userValidators.validateEmail(formModel.email);
+        setEmailErrorMessage(emailError);
+        setIsEmailError(!!emailError);
+        if (emailError) console.log(emailError);
+
+        let passwordError = userValidators.validatePassword(formModel.password);
+        setPasswordErrorMessage(passwordError);
+        setIsPasswordError(!!passwordError);
+        if (passwordError) console.log(passwordError);
+
+        let repeatPasswordError = userValidators.validatePassword(formModel.repeatPassword);
+        setRepeatPasswordErrorMessage(repeatPasswordError);
+        setIsRepeatPasswordError(!!repeatPasswordError);
+        if (repeatPasswordError) console.log(repeatPasswordError);
+
+        let passwordMatchError = "";
+        if (!(passwordError || repeatPasswordError)) {
+            passwordMatchError = userValidators.validatePasswordsMatch(formModel.repeatPassword, formModel.password);
+            setPasswordErrorMessage(passwordMatchError);
+            setIsPasswordError(!!passwordMatchError);
+            setRepeatPasswordErrorMessage(passwordMatchError);
+            setIsRepeatPasswordError(!!passwordMatchError);
+            if (passwordMatchError) console.log(passwordMatchError);
+        }
+
+        if (nickError || emailError || passwordError || repeatPasswordError || passwordMatchError) {
             return;
+        }
 
         userService.signUp(formModel)
             .then(res => {
                 switch (res.status) {
                     case HTTP_OK:
                         console.log("User has been created");
+                        navigate("/");
                         break;
                     case HTTP_BAD_REQUEST:
                         console.log("Invalid request body");
+                        navigate("/error");
                         break;
                     case HTTP_CONFLICT:
-                        console.log("Email or nick already taken");
+                        let error = "Email or nick already taken";
+                        console.log(error);
+                        setNickErrorMessage(error);
+                        setIsNickError(true);
+                        setEmailErrorMessage(error);
+                        setIsEmailError(true);
                         break;
                     default:
                         console.log("Unexpected error")
+                        navigate("/error");
                 }
             })
             .catch(err => {
                 console.log(err);
+                navigate("/error");
             })
     };
 
@@ -97,6 +137,8 @@ export default function SignUp() {
                                     label="Nickname"
                                     name="nick"
                                     autoComplete="nickname"
+                                    error={isNickError}
+                                    helperText={nickErrorMessage}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -107,6 +149,8 @@ export default function SignUp() {
                                     label="Email Address"
                                     name="email"
                                     autoComplete="email"
+                                    error={isEmailError}
+                                    helperText={emailErrorMessage}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -118,6 +162,8 @@ export default function SignUp() {
                                     type="password"
                                     id="password"
                                     autoComplete="new-password"
+                                    error={isPasswordError}
+                                    helperText={passwordErrorMessage}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -129,6 +175,8 @@ export default function SignUp() {
                                     type="password"
                                     id="repeatPassword"
                                     autoComplete="new-password"
+                                    error={isRepeatPasswordError}
+                                    helperText={repeatPasswordErrorMessage}
                                 />
                             </Grid>
                         </Grid>
@@ -142,14 +190,13 @@ export default function SignUp() {
                         </Button>
                         <Grid container justifyContent="flex-end">
                             <Grid item>
-                                <Link href="#" variant="body2">
+                                <Link onClick={() => navigate("/sign-in")} href="#" variant="body2">
                                     Already have an account? Sign in
                                 </Link>
                             </Grid>
                         </Grid>
                     </Box>
                 </Box>
-                <Copyright sx={{ mt: 5 }} />
             </Container>
         </ThemeProvider>
     );

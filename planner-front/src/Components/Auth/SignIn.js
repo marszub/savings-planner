@@ -14,23 +14,20 @@ import { userValidators } from "../../utils/user-validators";
 import { userService } from "../../services/user-service";
 import { HTTP_BAD_REQUEST, HTTP_OK, HTTP_UNAUTHORIZED } from "../../utils/http-status";
 import { SignInForm } from "../../models/sign-in-form";
-
-function Copyright(props) {
-    return (
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
-            {'Copyright © '}
-            <Link color="inherit" href="#">
-                Your Website
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const theme = createTheme();
 
 export default function SignIn() {
+    const navigate = useNavigate();
+
+    const [loginErrorMessage, setLoginErrorMessage] = useState("");
+    const [isLoginError, setIsLoginError] = useState(false);
+
+    const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
+    const [isPasswordError, setIsPasswordError] = useState(false);
+
     const handleSubmit = (event) => {
         event.preventDefault();
 
@@ -40,28 +37,47 @@ export default function SignIn() {
             data.get('password')
         );
 
-        if (userValidators.validateLogin(formModel.login)
-            || userValidators.validatePassword(formModel.password))
+        let loginError = userValidators.validateLogin(formModel.login);
+        setLoginErrorMessage(loginError);
+        setIsLoginError(!!loginError);
+        if (loginError) console.log(loginError);
+
+        let passwordError = userValidators.validatePassword(formModel.password);
+        setPasswordErrorMessage(passwordError);
+        setIsPasswordError(!!passwordError);
+        if (passwordError) console.log(passwordError);
+
+        if (loginError || passwordError) {
             return;
+        }
 
         userService.signIn(formModel)
             .then(res => {
                 switch (res.status) {
                     case HTTP_OK:
                         console.log("Login successful");
+                        navigate("/");
                         break;
                     case HTTP_BAD_REQUEST:
                         console.log("Invalid request body");
+                        navigate("/error");
                         break;
                     case HTTP_UNAUTHORIZED:
-                        console.log("Wrong login or password");
+                        let error = "Wrong login or password";
+                        console.log(error);
+                        setLoginErrorMessage(error);
+                        setIsLoginError(true);
+                        setPasswordErrorMessage(error);
+                        setIsPasswordError(true);
                         break;
                     default:
                         console.log("Unexpected error");
+                        navigate("/error");
                 }
             })
             .catch(err => {
                 console.log(err);
+                navigate("/error");
         })
     };
 
@@ -93,6 +109,8 @@ export default function SignIn() {
                             name="login"
                             autoComplete="nickname"
                             autoFocus
+                            error={isLoginError}
+                            helperText={loginErrorMessage}
                         />
                         <TextField
                             margin="normal"
@@ -103,6 +121,8 @@ export default function SignIn() {
                             type="password"
                             id="password"
                             autoComplete="current-password"
+                            error={isPasswordError}
+                            helperText={passwordErrorMessage}
                         />
                         <Button
                             type="submit"
@@ -114,14 +134,13 @@ export default function SignIn() {
                         </Button>
                         <Grid container justifyContent="flex-end">
                             <Grid item>
-                                <Link href="#" variant="body2">
-                                    {"Don't have an account? Sign Up"}
+                                <Link onClick={() => navigate("/sign-up")} href="#" variant="body2">
+                                    Don't have an account? Sign Up
                                 </Link>
                             </Grid>
                         </Grid>
                     </Box>
                 </Box>
-                <Copyright sx={{ mt: 8, mb: 4 }} />
             </Container>
         </ThemeProvider>
     );
