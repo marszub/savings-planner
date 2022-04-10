@@ -7,22 +7,21 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
-import pl.edu.agh.kuce.planner.target.persistence.Target;
-import pl.edu.agh.kuce.planner.target.persistence.TargetRepository;
+import pl.edu.agh.kuce.planner.target.persistence.Goal;
+import pl.edu.agh.kuce.planner.target.persistence.GoalRepository;
 
-import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TargetTest {
+public class GoalTest {
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private TargetRepository targetRepository;
+    private GoalRepository targetRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -38,10 +37,10 @@ public class TargetTest {
     {
         User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        Target testTarget = new Target(user, "test", 11);
-        targetRepository.save(testTarget);
-        List<Target> result = targetRepository.findByUser(user);
-        assertThat(result.get(0)).isEqualTo(testTarget);
+        Goal testGoal = new Goal(user, "test", 11);
+        targetRepository.save(testGoal);
+        List<Goal> result = targetRepository.findByUser(user);
+        assertThat(result.get(0)).isEqualTo(testGoal);
     }
 
     @Test
@@ -50,12 +49,12 @@ public class TargetTest {
     {
         User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        Target testTarget1 = new Target(user, "test", 11);
-        Target testTarget2 = new Target(user, "test", 112);
-        targetRepository.save(testTarget1);
-        targetRepository.save(testTarget2);
-        List<Target> result = targetRepository.findByUser(user);
-        assertThat(result.get(0)).isEqualTo(testTarget1);
-        assertThat(result.get(1)).isEqualTo(testTarget2);
+        Goal testGoal1 = new Goal(user, "test", 11);
+        Goal testGoal2 = new Goal(user, "test", 112);
+        targetRepository.save(testGoal1);
+        targetRepository.save(testGoal2);
+        List<Goal> result = targetRepository.findByUser(user);
+        assertThat(result.get(0)).isEqualTo(testGoal1);
+        assertThat(result.get(1)).isEqualTo(testGoal2);
     }
 }

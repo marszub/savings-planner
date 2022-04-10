@@ -1,7 +1,7 @@
 package pl.edu.agh.kuce.planner.auth.persistence;
 
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
-import pl.edu.agh.kuce.planner.target.persistence.Target;
+import pl.edu.agh.kuce.planner.target.persistence.Goal;
 
 import javax.persistence.*;
 import java.util.List;
@@ -28,7 +28,7 @@ public class User {
     private List<OneTimeEvent> oneTimeEventList;
 
     @OneToMany(mappedBy = "user")
-    private List<Target> targetList;
+    private List<Goal> targetList;
 
     public User() {}
 
