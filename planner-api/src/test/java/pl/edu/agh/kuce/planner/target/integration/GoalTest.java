@@ -7,8 +7,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
-import pl.edu.agh.kuce.planner.target.persistence.Goal;
-import pl.edu.agh.kuce.planner.target.persistence.GoalRepository;
+import pl.edu.agh.kuce.planner.goal.persistence.Goal;
+import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package pl.edu.agh.kuce.planner.auth.persistence;
 
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
-import pl.edu.agh.kuce.planner.target.persistence.Goal;
+import pl.edu.agh.kuce.planner.goal.persistence.Goal;
 
 import javax.persistence.*;
 import java.util.List;

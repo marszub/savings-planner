@@ -1,4 +1,4 @@
-package pl.edu.agh.kuce.planner.target.persistence;
+package pl.edu.agh.kuce.planner.goal.persistence;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
