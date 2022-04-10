@@ -5,6 +5,7 @@ import Footer from "./Components/Footer";
 import SignIn from "./Components/Auth/SignIn";
 import SignUp from "./Components/Auth/SignUp";
 import Error from "./Components/Error";
+import PageNotFound from "./Components/PageNotFound";
 
 function App() {
     return (
@@ -14,6 +15,7 @@ function App() {
                 <Route path='/sign-in' element={ <SignIn /> } />
                 <Route path='/sign-up' element={ <SignUp /> } />
                 <Route path='/error' element={ <Error /> } />
+                <Route path='*' element={ <PageNotFound /> } />
             </Routes>
             <Footer sx={{ mt: 5 }} />
         </Router>
