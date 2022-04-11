@@ -1,12 +1,11 @@
 package pl.edu.agh.kuce.planner.auth.integration;
 
+import com.auth0.jwt.interfaces.Clock;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
+import java.util.Date;
 
 @TestConfiguration
 public class AuthTestConfig {
@@ -14,6 +13,6 @@ public class AuthTestConfig {
     @Bean
     @Primary
     public Clock fixedClock() {
-        return Clock.fixed(Instant.ofEpochSecond(1648760741), ZoneId.of("Europe/Warsaw")); //fixed 31.03.2022
+        return () -> new Date(1648760741000L); //fixed 31.03.2022
     }
 }
