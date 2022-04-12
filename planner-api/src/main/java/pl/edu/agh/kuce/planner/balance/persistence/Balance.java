@@ -1,38 +1,41 @@
 package pl.edu.agh.kuce.planner.balance.persistence;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import pl.edu.agh.kuce.planner.auth.persistence.User;
+
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
 @Table(name="balances")
 public class Balance {
     @Id
-    @Column(nullable = false)
-    private Integer userId;
+    @GeneratedValue
+    private Integer id;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(nullable = false)
     private Integer balance;
 
     public Balance(){}
 
-    public Balance(Integer userId, Integer balance){
-        this.userId = userId;
+    public Balance(User user, Integer balance){
+        this.user = user;
         this.balance = balance;
     }
 
-    void setUserId(Integer userId){
-        this.userId = userId;
+    void setUser(User user){
+        this.user = user;
     }
 
     void setBalance(Integer balance){
         this.balance = balance;
     }
 
-    Integer getUserId(){
-        return this.userId;
+    User getUser(){
+        return this.user;
     }
 
     Integer getBalance(){
@@ -44,11 +47,11 @@ public class Balance {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Balance balance = (Balance) o;
-        return Objects.equals(userId, balance.userId) && Objects.equals(this.balance, balance.balance);
+        return Objects.equals(this.user, balance.user) && Objects.equals(this.balance, balance.balance);
     }
 
     @Override
     public int hashCode(){
-        return Objects.hash(userId);
+        return Objects.hash(user);
     }
 }

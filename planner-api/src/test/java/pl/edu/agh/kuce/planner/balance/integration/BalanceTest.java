@@ -5,12 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import pl.edu.agh.kuce.planner.auth.persistence.User;
+import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
 import pl.edu.agh.kuce.planner.balance.persistence.Balance;
 import pl.edu.agh.kuce.planner.balance.persistence.BalanceRepository;
 
 import javax.transaction.Transactional;
 
-import java.util.Collection;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,56 +25,93 @@ public class BalanceTest {
     @Autowired
     private BalanceRepository balanceRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Test
     void contextLoad() { assertThat(mockMvc).isNotNull(); }
+
+    private final User user = new User("name", "email", "password");
 
     @Test
     @Transactional
     void singleAccountBalanceIsProperlySavedInDatabase() {
-        Balance testBalance = new Balance(1, 10000);
+        userRepository.save(user);
+        Balance testBalance = new Balance(user, 10000);
         balanceRepository.save(testBalance);
-        Collection<Balance> result = balanceRepository.findByUserId(1);
-        assertThat(result.toArray()[0]).isEqualTo(testBalance);
+        List<Balance> result = balanceRepository.findByUser(user);
+        assertThat(result.get(0)).isEqualTo(testBalance);
     }
 
     @Test
     @Transactional
     void multipleAccountBalanceIsProperlySavedInDatabase() {
-        Balance dummyBalance1 = new Balance(1, 10000);
-        Balance dummyBalance2 = new Balance(2, 20000);
-        Balance dummyBalance3 = new Balance(3, 30000);
+        User user2 = new User("nick2", "email2", "password2");
+        User user3 = new User("nick3", "email3", "password3");
+
+        userRepository.save(user);
+        userRepository.save(user2);
+        userRepository.save(user3);
+
+        Balance dummyBalance1 = new Balance(user, 10000);
+        Balance dummyBalance2 = new Balance(user2, 20000);
+        Balance dummyBalance3 = new Balance(user3, 30000);
 
         balanceRepository.save(dummyBalance1);
         balanceRepository.save(dummyBalance2);
         balanceRepository.save(dummyBalance3);
 
-        Collection<Balance> result1 = balanceRepository.findByUserId(1);
-        assertThat(result1.toArray()[0]).isEqualTo(dummyBalance1);
-        Collection<Balance> result2 = balanceRepository.findByUserId(2);
-        assertThat(result2.toArray()[0]).isEqualTo(dummyBalance2);
-        Collection<Balance> result3 = balanceRepository.findByUserId(3);
-        assertThat(result3.toArray()[0]).isEqualTo(dummyBalance3);
+        List<Balance> result1 = balanceRepository.findByUser(user);
+        assertThat(result1.get(0)).isEqualTo(dummyBalance1);
+        List<Balance> result2 = balanceRepository.findByUser(user2);
+        assertThat(result2.get(0)).isEqualTo(dummyBalance2);
+        List<Balance> result3 = balanceRepository.findByUser(user3);
+        assertThat(result3.get(0)).isEqualTo(dummyBalance3);
     }
 
     @Test
     @Transactional
     void singleAccountBalanceOverwritenInDatabase() {
-        Balance dummyBalance = new Balance(1, 10000);
-        Balance dummyBalance2 = new Balance(1, 10002);
+        userRepository.save(user);
+
+        Balance dummyBalance = new Balance(user, 10000);
+        Balance dummyBalance2 = new Balance(user, 10002);
+
         balanceRepository.save(dummyBalance);
         balanceRepository.save(dummyBalance2);
-        Collection<Balance> result = balanceRepository.findByUserId(1);
-        assertThat(result.toArray()[0]).isEqualTo(dummyBalance2);
-        assertThat(result.toArray()[0]).isNotEqualTo(dummyBalance);
+
+        List<Balance> result = balanceRepository.findByUser(user);
+
+        assertThat(result.get(0)).isEqualTo(dummyBalance);
+        assertThat(result.get(0)).isNotEqualTo(dummyBalance2);
+    }
+
+    @Test
+    @Transactional
+    void singleAccountBalanceChange() {
+        userRepository.save(user);
+
+        Balance dummyBalance = new Balance(user, 10000);
+
+        balanceRepository.save(dummyBalance);
+        List<Balance> result = balanceRepository.findByUser(user);
+        assertThat(result.get(0)).isEqualTo(dummyBalance);
+
+        balanceRepository.updateBalance(user, 20000);
+        result = balanceRepository.findByUser(user);
+        assertThat(result.get(0)).isEqualTo(new Balance(user, 20000));
     }
 
     @Test
     @Transactional
     void emptyQueryThenAddAndCheck(){
-        Balance dummyBalance = new Balance(1, 10000);
-        assertThat(balanceRepository.findByUserId(1).isEmpty()).isEqualTo(true);
+        userRepository.save(user);
+
+        Balance dummyBalance = new Balance(user, 10000);
+        assertThat(balanceRepository.findByUser(user).isEmpty()).isEqualTo(true);
+
         balanceRepository.save(dummyBalance);
-        Collection<Balance> result = balanceRepository.findByUserId(1);
-        assertThat(result.toArray()[0]).isEqualTo(dummyBalance);
+        List<Balance> result = balanceRepository.findByUser(user);
+        assertThat(result.get(0)).isEqualTo(dummyBalance);
     }
 }

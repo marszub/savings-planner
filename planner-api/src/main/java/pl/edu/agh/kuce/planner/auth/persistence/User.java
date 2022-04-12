@@ -1,5 +1,6 @@
 package pl.edu.agh.kuce.planner.auth.persistence;
 
+import pl.edu.agh.kuce.planner.balance.persistence.Balance;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.target.persistence.Target;
 
@@ -29,6 +30,9 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Target> targetList;
+
+    @OneToOne(mappedBy = "user")
+    private Balance balance;
 
     public User() {}
 
