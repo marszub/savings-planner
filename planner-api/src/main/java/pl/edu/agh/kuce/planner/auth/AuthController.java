@@ -17,17 +17,17 @@ public class AuthController {
 
     private final AuthService authService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(final AuthService authService) {
         this.authService = authService;
     }
 
     @PostMapping("/users")
-    public AuthResponseDto register(@Valid @RequestBody RegistrationRequestDto request) {
+    public AuthResponseDto register(@Valid @RequestBody final RegistrationRequestDto request) {
         return authService.register(request);
     }
 
     @PostMapping("/access-token")
-    public AuthResponseDto login(@Valid @RequestBody LoginRequestDto request) {
+    public AuthResponseDto login(@Valid @RequestBody final LoginRequestDto request) {
         return authService.login(request);
     }
 }
