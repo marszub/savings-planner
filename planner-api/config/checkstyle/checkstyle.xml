@@ -45,10 +45,6 @@
                   default="checkstyle-suppressions.xml" />
         <property name="optional" value="true"/>
     </module>
-    <module name="SuppressionFilter">
-        <property name="file" value="${config_loc}\suppressions.xml"/>
-        <property name="optional" value="false"/>
-    </module>
 
     <!-- Checks whether files end with a new line.                        -->
     <!-- See https://checkstyle.org/config_misc.html#NewlineAtEndOfFile -->
@@ -84,6 +80,10 @@
     <!--   <property name="headerFile" value="${checkstyle.header.file}"/> -->
     <!--   <property name="fileExtensions" value="java"/> -->
     <!-- </module> -->
+    <module name="SuppressionSingleFilter">
+        <property name="checks" value="HideUtilityClassConstructor"/>
+        <property name="files" value="PlannerApiApplication.java"/>
+    </module>
 
     <module name="TreeWalker">
         <!-- Checks for Naming Conventions.                  -->
@@ -154,6 +154,7 @@
         <!-- Checks for class design                         -->
         <!-- See https://checkstyle.org/config_design.html -->
         <module name="HideUtilityClassConstructor"/>
+
         <module name="InterfaceIsType"/>
         <module name="VisibilityModifier"/>
 
