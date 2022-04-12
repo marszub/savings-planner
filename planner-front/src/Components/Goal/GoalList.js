@@ -3,55 +3,56 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import AccordionDetails from "@mui/material/AccordionDetails";
-import {Divider, List, ListItem, ListItemText} from "@mui/material";
+import { Divider, List, ListItem, ListItemText } from "@mui/material";
 import Box from "@mui/material/Box";
 
 const theme = createTheme();
 
-export default function GoalList() {
-  const goals = [
-    {
-      id: 1,
-      title: 'Goal Name 1',
-      amount: 1000
-    },
-    {
-      id: 2,
-      title: 'Goal Name 2',
-      amount: 2000
-    },
-    {
-      id: 3,
-      title: 'Goal Name 3',
-      amount: 3000
-    },
-    {
-      id: 4,
-      title: 'Goal Name 4',
-      amount: 4000
-    },
-    {
-      id: 5,
-      title: 'Goal Name 5',
-      amount: 5000
-    }
-  ]
+const goals = [
+  {
+    id: 1,
+    title: 'Goal Name 1',
+    amount: 1000
+  },
+  {
+    id: 2,
+    title: 'Goal Name 2',
+    amount: 2000
+  },
+  {
+    id: 3,
+    title: 'Goal Name 3',
+    amount: 3000
+  },
+  {
+    id: 4,
+    title: 'Goal Name 4',
+    amount: 4000
+  },
+  {
+    id: 5,
+    title: 'Goal Name 5',
+    amount: 5000
+  }
+]
 
+export default function GoalList() {
   const goalsItems = goals.map(goal =>
-    <Goal goal={goal}></Goal>
+    <Goal goal={goal} />
   );
 
   return (
       <ThemeProvider theme={theme}>
-        <Container component="main">
+        <Container component="main" maxWidth="xs" sx={{ marginTop: 8, border: 1, borderColor: 'text.secondary', borderRadius: 3 }} >
           <CssBaseline />
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Box sx={{ paddingTop: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }} >
             <Typography component="h1" variant="h5">
               Goal list
             </Typography>
           </Box>
-          {goalsItems}
+          <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }} >
+              { goalsItems }
+          </List>
         </Container>
       </ThemeProvider>
   );
@@ -59,13 +60,16 @@ export default function GoalList() {
 
 function Goal(props) {
   return (
-      <List sx={{ bgcolor: 'secondary.main' }}>
-        <ListItem key={props.goal.id}>
-          <ListItemText
-              primary={props.goal.title}
-              secondary={props.goal.amount + ' PLN'}
-          />
-        </ListItem>
-      </List>
+      <>
+          <ListItem key={ props.goal.id }>
+              <ListItemText
+                  primary={ props.goal.title }
+                  secondary={ props.goal.amount + ' PLN' }
+              />
+          </ListItem>
+          { props.goal.id !== goals[goals.length-1].id &&
+            <Divider light />
+          }
+      </>
   )
 }
