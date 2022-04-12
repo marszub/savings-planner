@@ -11,7 +11,6 @@ import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 
 import java.sql.Timestamp;
-import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,8 +34,7 @@ public class OneTimeEventTest {
 
     @Test
     @Transactional
-    void single_one_time_event_is_properly_saved_in_database()
-    {
+    void single_one_time_event_is_properly_saved_in_database() {
         User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         OneTimeEvent testEvent = new OneTimeEvent(user, "test", 110,
@@ -48,8 +46,7 @@ public class OneTimeEventTest {
 
     @Test
     @Transactional
-    void multiple_one_time_events_are_saved_properly_in_database()
-    {
+    void multiple_one_time_events_are_saved_properly_in_database() {
         User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         OneTimeEvent testEvent1 = new OneTimeEvent(user, "test1", 10,

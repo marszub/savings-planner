@@ -37,11 +37,17 @@
         <property name="fileNamePattern" value="module\-info\.java$"/>
     </module>
 
+    <module name="SuppressWarningsFilter"/>
+
     <!-- https://checkstyle.org/config_filters.html#SuppressionFilter -->
     <module name="SuppressionFilter">
         <property name="file" value="${org.checkstyle.sun.suppressionfilter.config}"
                   default="checkstyle-suppressions.xml" />
         <property name="optional" value="true"/>
+    </module>
+    <module name="SuppressionFilter">
+        <property name="file" value="${config_loc}\suppressions.xml"/>
+        <property name="optional" value="false"/>
     </module>
 
     <!-- Checks whether files end with a new line.                        -->
@@ -86,7 +92,9 @@
         <module name="LocalFinalVariableName"/>
         <module name="LocalVariableName"/>
         <module name="MemberName"/>
-        <module name="MethodName"/>
+        <module name="MethodName">
+            <property name="format" value="^[a-z][_a-zA-Z0-9]*$"/>
+        </module>
         <module name="PackageName"/>
         <module name="ParameterName"/>
         <module name="StaticVariableName"/>
@@ -138,7 +146,6 @@
         <module name="EqualsHashCode"/>
         <module name="IllegalInstantiation"/>
         <module name="InnerAssignment"/>
-        <module name="MagicNumber"/>
         <module name="MissingSwitchDefault"/>
         <module name="MultipleVariableDeclarations"/>
         <module name="SimplifyBooleanExpression"/>

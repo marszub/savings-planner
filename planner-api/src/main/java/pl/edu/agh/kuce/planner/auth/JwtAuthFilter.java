@@ -21,13 +21,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtUtils;
 
-    public JwtAuthFilter(JwtService jwtUtils) {
+    public JwtAuthFilter(final JwtService jwtUtils) {
         this.jwtUtils = jwtUtils;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response,
+                                    final FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader(AUTH_HEADER_NAME);
         if (authHeader == null || !authHeader.startsWith(AUTH_HEADER_PREFIX)) {
             filterChain.doFilter(request, response);

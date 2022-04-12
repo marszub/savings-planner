@@ -23,19 +23,19 @@ public class JwtService {
     private final Clock clock;
     private final long accessTokenDurationMillis;
 
-    public JwtService(Clock clock, Algorithm algorithm,
-                      @Value("${jwt.access-token-duration-millis}") long accessTokenDurationMillis) {
+    public JwtService(final Clock clock, final Algorithm algorithm,
+                      @Value("${jwt.access-token-duration-millis}") final long accessTokenDurationMillis) {
         jwtVerifier = ((BaseVerification) JWT.require(algorithm)).build(clock);
         this.algorithm = algorithm;
         this.clock = clock;
         this.accessTokenDurationMillis = accessTokenDurationMillis;
     }
 
-    public String createAccessToken(User user) {
+    public String createAccessToken(final User user) {
         return createToken(user, accessTokenDurationMillis);
     }
 
-    public Optional<User> verifyToken(String token) {
+    public Optional<User> verifyToken(final String token) {
         try {
             var decodedToken = jwtVerifier.verify(token);
 
@@ -53,7 +53,7 @@ public class JwtService {
         }
     }
 
-    private String createToken(User user, long duration) {
+    private String createToken(final User user, final long duration) {
         return JWT.create()
                 .withSubject(user.getNick())
                 .withClaim(USER_ID_CLAIM, user.getId())
@@ -61,7 +61,7 @@ public class JwtService {
                 .sign(algorithm);
     }
 
-    private Date getDateFromNow(long durationMillis) {
+    private Date getDateFromNow(final long durationMillis) {
         return new Date(clock.getToday().getTime() + durationMillis);
     }
 }

@@ -2,12 +2,18 @@ package pl.edu.agh.kuce.planner.event.persistence;
 
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
-@Table(name="oneTimeEvents")
+@Table(name = "oneTimeEvents")
 public class OneTimeEvent {
     @Id
     @GeneratedValue
@@ -26,9 +32,9 @@ public class OneTimeEvent {
     @Column(nullable = false)
     private Timestamp timestamp;
 
-    public OneTimeEvent() {}
+    public OneTimeEvent() { }
 
-    public OneTimeEvent(User user, String title, Integer amount, Timestamp timestamp) {
+    public OneTimeEvent(final User user, final String title, final Integer amount, final Timestamp timestamp) {
         this.user = user;
         this.title = title;
         this.amount = amount;
@@ -39,7 +45,7 @@ public class OneTimeEvent {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(final Integer id) {
         this.id = id;
     }
 
@@ -47,7 +53,7 @@ public class OneTimeEvent {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(final User user) {
         this.user = user;
     }
 
@@ -55,7 +61,7 @@ public class OneTimeEvent {
         return title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(final String title) {
         this.title = title;
     }
 
@@ -63,7 +69,7 @@ public class OneTimeEvent {
         return amount;
     }
 
-    public void setAmount(Integer amount) {
+    public void setAmount(final Integer amount) {
         this.amount = amount;
     }
 
@@ -71,14 +77,18 @@ public class OneTimeEvent {
         return timestamp;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
+    public void setTimestamp(final Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         OneTimeEvent event = (OneTimeEvent) o;
         return Objects.equals(id, event.id);
     }

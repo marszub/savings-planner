@@ -10,7 +10,6 @@ import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
 import pl.edu.agh.kuce.planner.target.persistence.Target;
 import pl.edu.agh.kuce.planner.target.persistence.TargetRepository;
 
-import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,8 +33,7 @@ public class TargetTest {
 
     @Test
     @Transactional
-    void single_one_time_event_is_properly_saved_in_database()
-    {
+    void single_one_time_event_is_properly_saved_in_database() {
         User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         Target testTarget = new Target(user, "test", 11);
@@ -46,8 +44,7 @@ public class TargetTest {
 
     @Test
     @Transactional
-    void multiple_one_time_events_are_saved_properly_in_database()
-    {
+    void multiple_one_time_events_are_saved_properly_in_database() {
         User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         Target testTarget1 = new Target(user, "test", 11);

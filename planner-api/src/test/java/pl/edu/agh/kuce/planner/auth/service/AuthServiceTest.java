@@ -56,20 +56,20 @@ class AuthServiceTest {
     @Test
     void givenRequestDto_register_savesUser() {
         authService.register(
-                new RegistrationRequestDto(fakeUser.getNick(),fakeUser.getEmail(), "password1")
+                new RegistrationRequestDto(fakeUser.getNick(), fakeUser.getEmail(), "password1")
         );
 
         verify(userRepository).save(Mockito.argThat(u ->
-                u.getNick().equals(fakeUser.getNick()) &&
-                u.getEmail().equals(fakeUser.getEmail()) &&
-                u.getPasswordHash().equals(fakeUser.getPasswordHash())
+                u.getNick().equals(fakeUser.getNick())
+                && u.getEmail().equals(fakeUser.getEmail())
+                && u.getPasswordHash().equals(fakeUser.getPasswordHash())
         ));
     }
 
     @Test
     void givenRequestDto_register_returnsJwt() {
         var response = authService.register(
-                new RegistrationRequestDto(fakeUser.getNick(),fakeUser.getEmail(), "password1")
+                new RegistrationRequestDto(fakeUser.getNick(), fakeUser.getEmail(), "password1")
         );
 
         assertThat(response.accessToken()).isEqualTo("token1");

@@ -20,7 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -141,9 +143,9 @@ class AuthTest {
 
     @Test
     void givenFakeSecuredApiEndpoint_requestWithJwt_returns404() throws Exception {
-        String validToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9." +
-                "eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoxLCJleHAiOjIxNDc0ODM2NDd9." +
-                "d5lbk3hpiyvPS1gVsdGwrDzXz_r794CHDUU6sP1lkiU";
+        String validToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+                + "eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoxLCJleHAiOjIxNDc0ODM2NDd9."
+                + "d5lbk3hpiyvPS1gVsdGwrDzXz_r794CHDUU6sP1lkiU";
         String headerValue = "Bearer " + validToken;
 
         mockMvc.perform(get("/api/fake-endpoint/fake-path").header("Authorization", headerValue))
@@ -156,7 +158,7 @@ class AuthTest {
                 .andExpect(status().isNotFound());
     }
 
-    private String toJson(Object object) throws JsonProcessingException {
+    private String toJson(final Object object) throws JsonProcessingException {
         return objectMapper.writeValueAsString(object);
     }
 

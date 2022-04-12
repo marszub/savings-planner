@@ -16,13 +16,16 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtUtils;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtUtils) {
+    public AuthService(
+            final UserRepository userRepository,
+            final PasswordEncoder passwordEncoder,
+            final JwtService jwtUtils) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
     }
 
-    public AuthResponseDto register(RegistrationRequestDto request) {
+    public AuthResponseDto register(final RegistrationRequestDto request) {
         var user = userRepository.save(
                 new User(request.nick(), request.email(), passwordEncoder.encode(request.password()))
         );
@@ -30,7 +33,7 @@ public class AuthService {
         return new AuthResponseDto(jwtUtils.createAccessToken(user));
     }
 
-    public AuthResponseDto login(LoginRequestDto request) {
+    public AuthResponseDto login(final LoginRequestDto request) {
         var user = userRepository.findOneByNickOrEmail(request.login());
         if (user.isEmpty()) {
             throw new BadCredentialsException("Wrong login");
