@@ -28,7 +28,7 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x ./planner-api/gradlew
     - name: Check production code format
-      run: ./gradlew checkstyleMain
+      run: ./planner-api/gradlew checkstyleMain
     - name: Build with Gradle
       uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
       with:
