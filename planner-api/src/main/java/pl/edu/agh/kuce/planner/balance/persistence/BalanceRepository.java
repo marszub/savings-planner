@@ -13,7 +13,7 @@ import java.util.List;
 public interface BalanceRepository extends JpaRepository<Balance, Integer> {
     List<Balance> findByUser(User user);
 
-    @Modifying
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE Balance b SET b.balance = :balance WHERE b.user = :user")
     void updateBalance(@Param("user") User user, @Param("balance") Integer balance);
 }
