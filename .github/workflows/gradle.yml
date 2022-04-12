@@ -32,5 +32,3 @@ jobs:
       with:
         arguments: build
         build-root-directory: planner-api
-    - name: Check production code format
-      run: ./planner-api/gradlew checkstyleMain
