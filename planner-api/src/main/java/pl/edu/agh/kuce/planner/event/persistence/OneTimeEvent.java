@@ -1,6 +1,7 @@
 package pl.edu.agh.kuce.planner.event.persistence;
 
 import pl.edu.agh.kuce.planner.auth.persistence.User;
+import pl.edu.agh.kuce.planner.event.dto.OneTimeEventData;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,6 +40,15 @@ public class OneTimeEvent {
         this.title = title;
         this.amount = amount;
         this.timestamp = timestamp;
+    }
+
+    public OneTimeEvent(final OneTimeEventData oneTimeEventData, final User user) {
+        this(
+                user,
+                oneTimeEventData.title(),
+                oneTimeEventData.amount(),
+                Timestamp.valueOf(oneTimeEventData.timestamp())
+        );
     }
 
     public Integer getId() {
