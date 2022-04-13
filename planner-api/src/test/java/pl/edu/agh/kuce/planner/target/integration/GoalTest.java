@@ -1,4 +1,4 @@
-package pl.edu.agh.kuce.planner.event.integration;
+package pl.edu.agh.kuce.planner.target.integration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -7,22 +7,21 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
-import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
-import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
+import pl.edu.agh.kuce.planner.goal.persistence.Goal;
+import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class OneTimeEventTest {
+public class GoalTest {
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private OneTimeEventRepository oneTimeEventRepository;
+    private GoalRepository targetRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -37,11 +36,10 @@ public class OneTimeEventTest {
     void single_one_time_event_is_properly_saved_in_database() {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        final OneTimeEvent testEvent = new OneTimeEvent(user, "test", 110,
-                new Timestamp(System.currentTimeMillis()));
-        oneTimeEventRepository.save(testEvent);
-        final List<OneTimeEvent> result = oneTimeEventRepository.findByUser(user);
-        assertThat(result.get(0)).isEqualTo(testEvent);
+        final Goal testGoal = new Goal(user, "test", 11);
+        targetRepository.save(testGoal);
+        final List<Goal> result = targetRepository.findByUser(user);
+        assertThat(result.get(0)).isEqualTo(testGoal);
     }
 
     @Test
@@ -49,14 +47,12 @@ public class OneTimeEventTest {
     void multiple_one_time_events_are_saved_properly_in_database() {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        final OneTimeEvent testEvent1 = new OneTimeEvent(user, "test1", 10,
-                new Timestamp(System.currentTimeMillis()));
-        final OneTimeEvent testEvent2 = new OneTimeEvent(user, "test2", 120,
-                new Timestamp(System.currentTimeMillis()));
-        oneTimeEventRepository.save(testEvent1);
-        oneTimeEventRepository.save(testEvent2);
-        final List<OneTimeEvent> result = oneTimeEventRepository.findByUser(user);
-        assertThat(result.get(0)).isEqualTo(testEvent1);
-        assertThat(result.get(1)).isEqualTo(testEvent2);
+        final Goal testGoal1 = new Goal(user, "test", 11);
+        final Goal testGoal2 = new Goal(user, "test", 112);
+        targetRepository.save(testGoal1);
+        targetRepository.save(testGoal2);
+        final List<Goal> result = targetRepository.findByUser(user);
+        assertThat(result.get(0)).isEqualTo(testGoal1);
+        assertThat(result.get(1)).isEqualTo(testGoal2);
     }
 }

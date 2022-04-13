@@ -12,7 +12,7 @@ import java.util.Date;
 public class JwtConfig {
 
     @Bean
-    public Algorithm algorithm(@Value("${jwt.secret}") String secret) {
+    public Algorithm algorithm(@Value("${jwt.secret}") final String secret) {
         return Algorithm.HMAC256(secret);
     }
 
