@@ -5,6 +5,6 @@ import pl.edu.agh.kuce.planner.auth.persistence.User;
 
 import java.util.List;
 
-public interface GoalRepository extends  JpaRepository<Goal, Integer>{
+public interface GoalRepository extends  JpaRepository<Goal, Integer> {
     List<Goal> findByUser(User user);
 }
