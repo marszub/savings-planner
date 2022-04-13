@@ -1,4 +1,5 @@
 package pl.edu.agh.kuce.planner.auth.persistence;
+
 import pl.edu.agh.kuce.planner.balance.persistence.Balance;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.goal.persistence.Goal;
