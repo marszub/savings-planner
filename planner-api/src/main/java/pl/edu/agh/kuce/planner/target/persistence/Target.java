@@ -77,7 +77,7 @@ public class Target {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Target target = (Target) o;
+        final Target target = (Target) o;
         return Objects.equals(id, target.id);
     }
 

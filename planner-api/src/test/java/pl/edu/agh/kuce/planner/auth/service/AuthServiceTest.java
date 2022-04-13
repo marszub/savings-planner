@@ -68,7 +68,7 @@ class AuthServiceTest {
 
     @Test
     void givenRequestDto_register_returnsJwt() {
-        var response = authService.register(
+        final var response = authService.register(
                 new RegistrationRequestDto(fakeUser.getNick(), fakeUser.getEmail(), "password1")
         );
 
@@ -77,7 +77,7 @@ class AuthServiceTest {
 
     @Test
     void givenExistingNickAndValidPassword_login_returnsJwt() {
-        var response = authService.login(
+        final var response = authService.login(
                 new LoginRequestDto(fakeUser.getNick(), "password1")
         );
 
@@ -86,7 +86,7 @@ class AuthServiceTest {
 
     @Test
     void givenExistingEmailAndValidPassword_login_returnsJwt() {
-        var response = authService.login(
+        final var response = authService.login(
                 new LoginRequestDto(fakeUser.getEmail(), "password1")
         );
 

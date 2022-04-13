@@ -40,7 +40,11 @@
 
     <module name="SuppressionSingleFilter">
         <property name="checks" value="HideUtilityClassConstructor"/>
-        <property name="files" value="PlannerApiApplication.java"/>
+        <property name="files" value="PlannerApiMain.java"/>
+    </module>
+    <module name="SuppressionSingleFilter">
+        <property name="checks" value="MultipleStringLiterals"/>
+        <property name="files" value="[/\\]src[/\\]test[/\\]java[/\\]pl[/\\]edu[/\\]agh[/\\]kuce[/\\]planner[/\\]"/>
     </module>
 
     <module name="TreeWalker">
@@ -92,16 +96,63 @@
         <module name="InnerAssignment"/>
         <module name="MissingSwitchDefault"/>
         <module name="MultipleVariableDeclarations"/>
+        <module name="NestedForDepth"/>
+        <module name="NestedIfDepth"/>
+        <module name="NestedTryDepth"/>
+        <module name="OneStatementPerLine"/>
+        <module name="OverloadMethodsDeclarationOrder"/>
+        <module name="PackageDeclaration"/>
+        <module name="ModifiedControlVariable"/>
+        <module name="MultipleStringLiterals"/>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
+        <module name="StringLiteralEquality"/>
+        <module name="IllegalThrows"/>
+        <module name="IllegalToken"/>
+        <module name="IllegalType"/>
+        <module name="RequireThis"/>
+        <module name="ReturnCount">
+            <property name="max" value="3"/>
+        </module>
+        <module name="UnnecessarySemicolonAfterOuterTypeDeclaration"/>
+        <module name="VariableDeclarationUsageDistance"/>
+        <module name="BooleanExpressionComplexity"/>
+        <module name="ClassDataAbstractionCoupling"/>
+        <module name="CyclomaticComplexity"/>
+        <module name="JavaNCSS"/>
+        <module name="NPathComplexity"/>
 
         <module name="HideUtilityClassConstructor"/>
 
         <module name="InterfaceIsType"/>
         <module name="VisibilityModifier"/>
+        <module name="ArrayTrailingComma"/>
+        <module name="AvoidDoubleBraceInitialization"/>
+        <module name="AvoidInlineConditionals"/>
+        <module name="AvoidNoArgumentSuperConstructorCall"/>
+        <module name="CovariantEquals"/>
+        <module name="DeclarationOrder"/>
+        <module name="DefaultComesLast"/>
+        <module name="EqualsAvoidNull"/>
+        <module name="FallThrough"/>
+        <module name="FinalLocalVariable"/>
+        <module name="IllegalCatch"/>
 
         <module name="ArrayTypeStyle"/>
+        <module name="AvoidEscapedUnicodeCharacters"/>
+        <module name="CommentsIndentation"/>
         <module name="FinalParameters"/>
+        <module name="Indentation"/>
+        <module name="NoCodeInFile"/>
+        <module name="OuterTypeFilename"/>
+        <module name="InnerTypeLast"/>
+        <module name="InterfaceIsType"/>
+        <module name="MutableException"/>
+        <module name="OneTopLevelClass"/>
+        <module name="ThrowsCount"/>
+        <module name="UncommentedMain">
+            <property name="excludedClasses" value="PlannerApiMain"/>
+        </module>
         <module name="TodoComment"/>
         <module name="UpperEll"/>
 

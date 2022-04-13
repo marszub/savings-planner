@@ -34,24 +34,24 @@ public class TargetTest {
     @Test
     @Transactional
     void single_one_time_event_is_properly_saved_in_database() {
-        User user = new User("TEST", "TEST", "TEST");
+        final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        Target testTarget = new Target(user, "test", 11);
+        final Target testTarget = new Target(user, "test", 11);
         targetRepository.save(testTarget);
-        List<Target> result = targetRepository.findByUser(user);
+        final List<Target> result = targetRepository.findByUser(user);
         assertThat(result.get(0)).isEqualTo(testTarget);
     }
 
     @Test
     @Transactional
     void multiple_one_time_events_are_saved_properly_in_database() {
-        User user = new User("TEST", "TEST", "TEST");
+        final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        Target testTarget1 = new Target(user, "test", 11);
-        Target testTarget2 = new Target(user, "test", 112);
+        final Target testTarget1 = new Target(user, "test", 11);
+        final Target testTarget2 = new Target(user, "test", 112);
         targetRepository.save(testTarget1);
         targetRepository.save(testTarget2);
-        List<Target> result = targetRepository.findByUser(user);
+        final List<Target> result = targetRepository.findByUser(user);
         assertThat(result.get(0)).isEqualTo(testTarget1);
         assertThat(result.get(1)).isEqualTo(testTarget2);
     }

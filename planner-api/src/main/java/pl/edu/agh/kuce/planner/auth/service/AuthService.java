@@ -26,7 +26,7 @@ public class AuthService {
     }
 
     public AuthResponseDto register(final RegistrationRequestDto request) {
-        var user = userRepository.save(
+        final var user = userRepository.save(
                 new User(request.nick(), request.email(), passwordEncoder.encode(request.password()))
         );
 
@@ -34,7 +34,7 @@ public class AuthService {
     }
 
     public AuthResponseDto login(final LoginRequestDto request) {
-        var user = userRepository.findOneByNickOrEmail(request.login());
+        final var user = userRepository.findOneByNickOrEmail(request.login());
         if (user.isEmpty()) {
             throw new BadCredentialsException("Wrong login");
         }

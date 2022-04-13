@@ -89,7 +89,7 @@ public class OneTimeEvent {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        OneTimeEvent event = (OneTimeEvent) o;
+        final OneTimeEvent event = (OneTimeEvent) o;
         return Objects.equals(id, event.id);
     }
 

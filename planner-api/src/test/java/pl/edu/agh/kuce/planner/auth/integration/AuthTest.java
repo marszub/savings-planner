@@ -49,7 +49,7 @@ class AuthTest {
     @Test
     @Transactional
     void givenValidCredentials_register_returns200() throws Exception {
-        var request = new RegistrationRequestDto("user", "email@example.com", "password");
+        final var request = new RegistrationRequestDto("user", "email@example.com", "password");
 
         mockMvc.perform(post("/api/auth/users").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isOk())
@@ -60,7 +60,7 @@ class AuthTest {
     @Test
     @Transactional
     void givenValidCredentials_register_savesUser() throws Exception {
-        var request = new RegistrationRequestDto("user", "email@example.com", "password");
+        final var request = new RegistrationRequestDto("user", "email@example.com", "password");
 
         mockMvc.perform(post("/api/auth/users").contentType(MediaType.APPLICATION_JSON).content(toJson(request)));
 
@@ -70,7 +70,7 @@ class AuthTest {
     @Test
     @Transactional
     void givenInvalidRequestBody_register_returns400() throws Exception {
-        var request = new RegistrationRequestDto("us", "email@example.com", "password");
+        final var request = new RegistrationRequestDto("us", "email@example.com", "password");
 
         mockMvc.perform(post("/api/auth/users").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isBadRequest());
@@ -81,7 +81,7 @@ class AuthTest {
     void givenValidNickPassword_login_returns200() throws Exception {
         userRepository.save(fakeUser());
 
-        var request = new LoginRequestDto("user", "password");
+        final var request = new LoginRequestDto("user", "password");
 
         mockMvc.perform(post("/api/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isOk())
@@ -94,7 +94,7 @@ class AuthTest {
     void givenValidEmailPassword_login_returns200() throws Exception {
         userRepository.save(fakeUser());
 
-        var request = new LoginRequestDto("email@example.com", "password");
+        final var request = new LoginRequestDto("email@example.com", "password");
 
         mockMvc.perform(post("/api/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isOk())
@@ -107,7 +107,7 @@ class AuthTest {
     void givenInvalidRequestBody_login_returns400() throws Exception {
         userRepository.save(fakeUser());
 
-        var request = new LoginRequestDto("user", "p");
+        final var request = new LoginRequestDto("user", "p");
 
         mockMvc.perform(post("/api/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isBadRequest());
@@ -118,7 +118,7 @@ class AuthTest {
     void givenNonExistingLogin_login_returns401() throws Exception {
         userRepository.save(fakeUser());
 
-        var request = new LoginRequestDto("nonExistingNick", "password");
+        final var request = new LoginRequestDto("nonExistingNick", "password");
 
         mockMvc.perform(post("/api/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isUnauthorized());
@@ -129,7 +129,7 @@ class AuthTest {
     void givenWrongPassword_login_returns401() throws Exception {
         userRepository.save(fakeUser());
 
-        var request = new LoginRequestDto("user", "wrongPassword");
+        final var request = new LoginRequestDto("user", "wrongPassword");
 
         mockMvc.perform(post("/api/auth/access-token").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
                 .andExpect(status().isUnauthorized());
@@ -143,10 +143,10 @@ class AuthTest {
 
     @Test
     void givenFakeSecuredApiEndpoint_requestWithJwt_returns404() throws Exception {
-        String validToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+        final String validToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
                 + "eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoxLCJleHAiOjIxNDc0ODM2NDd9."
                 + "d5lbk3hpiyvPS1gVsdGwrDzXz_r794CHDUU6sP1lkiU";
-        String headerValue = "Bearer " + validToken;
+        final String headerValue = "Bearer " + validToken;
 
         mockMvc.perform(get("/api/fake-endpoint/fake-path").header("Authorization", headerValue))
                 .andExpect(status().isNotFound());

@@ -37,9 +37,9 @@ public class JwtService {
 
     public Optional<User> verifyToken(final String token) {
         try {
-            var decodedToken = jwtVerifier.verify(token);
+            final var decodedToken = jwtVerifier.verify(token);
 
-            var user = new User();
+            final var user = new User();
             user.setId(decodedToken.getClaim(USER_ID_CLAIM).asInt());
             user.setNick(decodedToken.getSubject());
 
