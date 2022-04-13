@@ -19,4 +19,4 @@ public record RegistrationRequestDto(
     @NotNull
     @Length(min = 7, max = 100)
     String password
-) {}
+) { }
