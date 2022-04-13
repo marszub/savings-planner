@@ -3,12 +3,34 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Divider, List, ListItem, ListItemText } from "@mui/material";
+import {
+  Alert,
+  Dialog, DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  IconButton, InputAdornment,
+  List,
+  ListItem,
+  ListItemText, Snackbar, Tooltip
+} from "@mui/material";
+import SportsScoreOutlinedIcon from "@mui/icons-material/SportsScoreOutlined";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Avatar from "@mui/material/Avatar";
+import {useEffect, useState} from "react";
+import Button from "@mui/material/Button";
+import DeleteIcon from "@mui/icons-material/Delete";
+import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
+import {GoalCreateForm} from "../../models/goal-create-form";
+import {goalValidators} from "../../utils/goal-validators";
 
 const theme = createTheme();
 
-const goals = [
+const GOAL_CREATED_ALERT = "GOAL_CREATED";
+const GOAL_DELETED_ALERT = "GOAL_DELETED";
+
+const fakeGoals = [
   {
     id: 1,
     title: 'Goal Name 1',
@@ -34,25 +56,91 @@ const goals = [
     title: 'Goal Name 5',
     amount: 5000
   }
-]
+];
 
 export default function GoalList() {
+  const [goals, setGoals] = useState(fakeGoals);
+  const [goalCreationOpen, setGoalCreationOpen] = useState(false);
+  const [alertStatus, setAlertStatus] = useState("");
+  const [refreshAlert, setRefreshAlert] = useState(false);
+
+  const handleGoalCreationOpen = () => {
+    setGoalCreationOpen(true);
+  };
+
+  const handleGoalCreationClose = () => {
+    setGoalCreationOpen(false);
+  };
+
+  const findNewId = () => {
+    return Math.max(...goals.map(goal => goal.id)) + 1;
+  };
+
+  const createGoal = (model) => {
+    setGoals(prev => [
+        ...prev,
+        {
+          id: findNewId(),
+          title: model.title,
+          amount: model.amount
+        }
+    ]);
+
+    setGoalCreationOpen(false);
+    setAlertStatus(GOAL_CREATED_ALERT);
+    setRefreshAlert(prev => !prev);
+  };
+
+  const deleteGoal = (goalId) => {
+    setGoals(prev => [...prev.filter(goal => goal.id !== goalId)]);
+    setAlertStatus(GOAL_DELETED_ALERT);
+    setRefreshAlert(prev => !prev);
+  };
+
   const goalsItems = goals.map(goal =>
-    <Goal goal={goal} />
+      <Goal key={ goal.id } goal={goal} isLast={goal.id === goals[goals.length - 1].id} handleDelete={deleteGoal} />
   );
 
   return (
       <ThemeProvider theme={theme}>
-        <Container component="main" maxWidth="xs" sx={{ marginTop: 8, border: 1, borderColor: 'text.secondary', borderRadius: 3 }} >
+        <Container
+            component="main"
+            maxWidth="xs"
+            sx={{
+              marginTop: 8,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+           }}
+        >
           <CssBaseline />
-          <Box sx={{ paddingTop: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }} >
-            <Typography component="h1" variant="h5">
-              Goal list
-            </Typography>
-          </Box>
+          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+            <SportsScoreOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Goal list
+          </Typography>
+
           <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }} >
-              { goalsItems }
+            { goalsItems }
           </List>
+
+          <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              onClick={handleGoalCreationOpen}
+          >
+            Add new goal
+          </Button>
+
+          <GoalCreationDialog
+              open={goalCreationOpen}
+              onClose={handleGoalCreationClose}
+              create={createGoal}
+          />
+
+          <GoalActionSnackbar alert={alertStatus} refresh={refreshAlert}/>
         </Container>
       </ThemeProvider>
   );
@@ -61,15 +149,172 @@ export default function GoalList() {
 function Goal(props) {
   return (
       <>
-          <ListItem key={ props.goal.id }>
-              <ListItemText
-                  primary={ props.goal.title }
-                  secondary={ props.goal.amount + ' PLN' }
-              />
+          <ListItem >
+            <Tooltip title="Expand">
+              <IconButton
+                  edge="start"
+                  aria-label="expand"
+              >
+                <ExpandMoreIcon />
+              </IconButton>
+            </Tooltip>
+            <ListItemText
+                primary={ props.goal.title }
+                secondary={ props.goal.amount + ' PLN' }
+            />
+            <Tooltip title="Delete">
+              <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => props.handleDelete(props.goal.id)}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
           </ListItem>
-          { props.goal.id !== goals[goals.length-1].id &&
-            <Divider light />
+
+          { !props.isLast &&
+          <Divider />
           }
       </>
-  )
+  );
+}
+
+function GoalCreationDialog(props) {
+  const [titleErrorMessage, setTitleErrorMessage] = useState("");
+  const [amountErrorMessage, setAmountErrorMessage] = useState("");
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    const data = new FormData(event.currentTarget);
+    const formModel = new GoalCreateForm(
+        data.get('title'),
+        data.get('amount')
+    );
+
+    const titleError = goalValidators.validateTitle(formModel.title);
+    const amountError = goalValidators.validateAmount(formModel.amount);
+
+    setTitleErrorMessage(titleError);
+    setAmountErrorMessage(amountError);
+
+    if (titleError || amountError) {
+      return;
+    }
+
+    props.create(formModel);
+  }
+
+  return (
+      <Dialog
+          maxWidth="xs"
+          open={props.open}
+          onClose={props.onClose}
+      >
+        <Box
+            sx={{
+              margin: 2
+            }}
+        >
+        <DialogTitle>Create new goal</DialogTitle>
+        <Box
+            component="form"
+            onSubmit={handleSubmit}
+        >
+          <DialogContent>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="title"
+              label="Title"
+              name="title"
+              autoFocus
+              error={!!titleErrorMessage}
+              helperText={titleErrorMessage}
+              />
+            <TextField
+                type="number"
+                margin="normal"
+                required
+                fullWidth
+                id="amount"
+                label="Amount"
+                name="amount"
+                autoFocus
+                error={!!amountErrorMessage}
+                helperText={amountErrorMessage}
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">PLN</InputAdornment>,
+                }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+                type="button"
+                onClick={props.onClose}
+            >
+              Cancel
+            </Button>
+            <Button
+                type="submit"
+                variant="contained"
+            >
+              Create
+            </Button>
+          </DialogActions>
+        </Box>
+        </Box>
+      </Dialog>
+  );
+}
+
+function GoalActionSnackbar(props) {
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertSeverity, setAlertSeverity] = useState("info");
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const updateAlert = () => {
+    switch (props.alert) {
+      case "":
+        setAlertOpen(false);
+        break;
+      case GOAL_CREATED_ALERT:
+        setAlertSeverity("success");
+        setAlertMessage("New goal successfully created!");
+        setAlertOpen(true);
+        break;
+      case GOAL_DELETED_ALERT:
+        setAlertSeverity("info");
+        setAlertMessage("Goal successfully deleted!");
+        setAlertOpen(true);
+        break;
+      default:
+        console.log("Unknown alert status " + props.alert);
+        break;
+    }
+  };
+
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+  }
+
+  useEffect(() => updateAlert(), [props.refresh]);
+
+  return (
+      <Snackbar
+          open={alertOpen}
+          autoHideDuration={5000}
+          onClose={handleAlertClose}
+      >
+        <Alert
+            severity={alertSeverity}
+            variant="filled"
+            onClose={handleAlertClose}
+        >
+          {alertMessage}
+        </Alert>
+      </Snackbar>
+  );
 }
