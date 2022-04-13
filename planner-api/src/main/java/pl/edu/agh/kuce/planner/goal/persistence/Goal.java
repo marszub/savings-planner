@@ -1,19 +1,13 @@
-package pl.edu.agh.kuce.planner.target.persistence;
+package pl.edu.agh.kuce.planner.goal.persistence;
 
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "targets")
-public class Target {
+@Table(name="goals")
+public class Goal {
 
     @Id
     @GeneratedValue
@@ -29,9 +23,9 @@ public class Target {
     @Column(nullable = false)
     private Integer amount;
 
-    public Target() { }
+    public Goal() {}
 
-    public Target(final User user, final String title, final Integer amount) {
+    public Goal(User user, String title, Integer amount) {
         this.user = user;
         this.title = title;
         this.amount = amount;
@@ -41,7 +35,7 @@ public class Target {
         return id;
     }
 
-    public void setId(final Integer id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -49,7 +43,7 @@ public class Target {
         return user;
     }
 
-    public void setUser(final User user) {
+    public void setUser(User user) {
         this.user = user;
     }
 
@@ -57,7 +51,7 @@ public class Target {
         return title;
     }
 
-    public void setTitle(final String title) {
+    public void setTitle(String title) {
         this.title = title;
     }
 
@@ -65,19 +59,15 @@ public class Target {
         return amount;
     }
 
-    public void setAmount(final Integer amount) {
+    public void setAmount(Integer amount) {
         this.amount = amount;
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final Target target = (Target) o;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Goal target = (Goal) o;
         return Objects.equals(id, target.id);
     }
 
