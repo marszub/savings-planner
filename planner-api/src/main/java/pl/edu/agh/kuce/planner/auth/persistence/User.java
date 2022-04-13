@@ -1,5 +1,6 @@
 package pl.edu.agh.kuce.planner.auth.persistence;
 
+import pl.edu.agh.kuce.planner.balance.persistence.Balance;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.goal.persistence.Goal;
 
@@ -8,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +36,9 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Goal> targetList;
+
+    @OneToOne(mappedBy = "user")
+    private Balance balance;
 
     public User() { }
 
