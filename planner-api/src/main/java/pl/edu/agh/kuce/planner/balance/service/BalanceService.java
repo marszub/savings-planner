@@ -2,10 +2,9 @@ package pl.edu.agh.kuce.planner.balance.service;
 
 import org.springframework.stereotype.Service;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
+import pl.edu.agh.kuce.planner.balance.dto.BalanceDto;
 import pl.edu.agh.kuce.planner.balance.persistence.Balance;
 import pl.edu.agh.kuce.planner.balance.persistence.BalanceRepository;
-
-import java.util.List;
 
 @Service
 public class BalanceService {
@@ -23,7 +22,7 @@ public class BalanceService {
         balanceRepository.updateBalance(user, newBalance);
     }
 
-    public List<Balance> list(final User user) {
-        return balanceRepository.findByUser(user);
+    public BalanceDto list(final User user) {
+        return new BalanceDto(balanceRepository.findByUser(user).get(0));
     }
 }

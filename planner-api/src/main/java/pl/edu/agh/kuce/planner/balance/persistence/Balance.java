@@ -32,19 +32,19 @@ public class Balance {
         this.balance = balance;
     }
 
-    void setUser(final User user) {
+    public void setUser(final User user) {
         this.user = user;
     }
 
-    void setBalance(final Integer balance) {
+    public void setBalance(final Integer balance) {
         this.balance = balance;
     }
 
-    User getUser() {
+    public User getUser() {
         return this.user;
     }
 
-    Integer getBalance() {
+    public Integer getBalance() {
         return this.balance;
     }
 
