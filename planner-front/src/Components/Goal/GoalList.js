@@ -17,45 +17,44 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Snackbar from '@mui/material/Snackbar';
 import Tooltip from '@mui/material/Tooltip';
-import SportsScoreOutlinedIcon from "@mui/icons-material/SportsScoreOutlined";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import DeleteIcon from "@mui/icons-material/Delete";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import {GoalCreateForm} from "../../models/goal-create-form";
-import {goalValidators} from "../../utils/goal-validators";
+import SportsScoreOutlinedIcon from '@mui/icons-material/SportsScoreOutlined';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import DeleteIcon from '@mui/icons-material/Delete';
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
+import {GoalCreateForm} from '../../models/goal-create-form';
+import {goalValidators} from '../../utils/goal-validators';
 
 const theme = createTheme();
 
-const GOAL_CREATED_ALERT = "GOAL_CREATED";
-const GOAL_DELETED_ALERT = "GOAL_DELETED";
+const GOAL_CREATED_ALERT = 'GOAL_CREATED';
+const GOAL_DELETED_ALERT = 'GOAL_DELETED';
 
 const fakeGoals = [
   {
     id: 1,
-    title: 'Goal Name 1',
+    title: 'Goal Title 1',
     amount: 1000
   },
   {
     id: 2,
-    title: 'Goal Name 2',
+    title: 'Goal Title 2',
     amount: 2000
   },
   {
     id: 3,
-    title: 'Goal Name 3',
+    title: 'Goal Title 3',
     amount: 3000
   },
   {
     id: 4,
-    title: 'Goal Name 4',
+    title: 'Goal Title 4',
     amount: 4000
   },
   {
     id: 5,
-    title: 'Goal Name 5',
+    title: 'Goal Title 5',
     amount: 5000
   }
 ];
@@ -100,7 +99,12 @@ export default function GoalList() {
   };
 
   const goalsItems = goals.map(goal =>
-      <Goal key={ goal.id } goal={goal} isLast={goal.id === goals[goals.length - 1].id} handleDelete={deleteGoal} />
+      <Goal
+          key={ goal.id }
+          goal={goal}
+          isLast={goal.id === goals[goals.length - 1].id}
+          handleDelete={deleteGoal}
+      />
   );
 
   return (
@@ -152,14 +156,6 @@ function Goal(props) {
   return (
       <>
           <ListItem >
-            <Tooltip title="Expand">
-              <IconButton
-                  edge="start"
-                  aria-label="expand"
-              >
-                <ExpandMoreIcon />
-              </IconButton>
-            </Tooltip>
             <ListItemText
                 primary={ props.goal.title }
                 secondary={ props.goal.amount + ' PLN' }
@@ -274,26 +270,26 @@ function GoalCreationDialog(props) {
 
 function GoalActionSnackbar(props) {
   const [alertOpen, setAlertOpen] = useState(false);
-  const [alertSeverity, setAlertSeverity] = useState("info");
-  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState('info');
+  const [alertMessage, setAlertMessage] = useState('');
 
   const updateAlert = () => {
     switch (props.alert) {
-      case "":
+      case '':
         setAlertOpen(false);
         break;
       case GOAL_CREATED_ALERT:
-        setAlertSeverity("success");
-        setAlertMessage("New goal successfully created!");
+        setAlertSeverity('success');
+        setAlertMessage('New goal successfully created!');
         setAlertOpen(true);
         break;
       case GOAL_DELETED_ALERT:
-        setAlertSeverity("info");
-        setAlertMessage("Goal successfully deleted!");
+        setAlertSeverity('info');
+        setAlertMessage('Goal successfully deleted!');
         setAlertOpen(true);
         break;
       default:
-        console.log("Unknown alert status " + props.alert);
+        console.log('Unknown alert status ' + props.alert);
         break;
     }
   };

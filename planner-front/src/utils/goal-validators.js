@@ -1,3 +1,5 @@
+const MAX_INT32 = (2 ** 31) - 1
+
 export const goalValidators = {
     validateTitle(title) {
         if (title.length < 3 || title.length > 100) {
@@ -7,8 +9,8 @@ export const goalValidators = {
     },
 
     validateAmount(amount) {
-        if (amount < 5 || amount > 1_000_000_000_000) {
-            return "Amount must be between 5 and 1,000,000,000,000!";
+        if (amount < 5 || amount > MAX_INT32) {
+            return `Amount must be between 5 and ${MAX_INT32}!`;
         }
         return "";
     }
