@@ -1,5 +1,6 @@
 import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack"
+import { style } from "@mui/system";
 import { useState } from "react";
 import { EventData } from "../services/mockData";
 
@@ -13,6 +14,14 @@ export default function Events(){
         EventData
     )
     return(
+        <div>
+        <Container class="event-container label-row">
+        <Stack direction={"row"} style={{fontWeight: "600"}}>
+            <div class="item">WYDARZENIE</div>
+            <div class="item">DATA</div>
+            <div class="item">SALDO</div>
+        </Stack>
+        </Container>
         <div id="scrollable-container">
          <Stack>
             {eventData.map((data) => {
@@ -27,6 +36,6 @@ export default function Events(){
             )})}
         </Stack>
         </div>
-       
+       </div>
     )
 }

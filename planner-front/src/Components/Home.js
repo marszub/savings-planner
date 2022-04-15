@@ -13,7 +13,7 @@ export default function Home() {
         <Grid container spacing={2}>
             <Grid item xs={9}>
                 <div class="container">
-                    <div class="title">
+                    <div class="label-row title">
                         <a>Cash Flow</a>
                     </div>
                     <Cashflow/>

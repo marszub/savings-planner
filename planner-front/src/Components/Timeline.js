@@ -26,11 +26,14 @@ export default class Timeline extends React.Component {
 
     return (
       <div>
+         <div className="goal-text">
+          <a><b>Realizacja celu:</b> {curStatus}</a>
+        </div>
         <div
           style={{
             height: "100px",
             margin: "0 auto",
-            marginTop: "20px",
+            marginTop: "35px",
             fontSize: "15px"
           }}
         >
@@ -48,9 +51,7 @@ export default class Timeline extends React.Component {
             values={Goals.map((x) => x.date)}
           />
         </div>
-        <div className="goal-text">
-          <a>{curStatus}</a>
-        </div>
+       
       </div>
     );
   }

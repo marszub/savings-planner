@@ -16,26 +16,9 @@
      text-align: center;
      background-color: rgba(26, 122, 173);
      color: white;
-     /* height: 30px; */
      font-size: larger;
      padding: 10px;
      border-radius: 8px;
-}
-
-.title{
-     font-size: 25px;
-     /* background-color: aqua; */
-     border-radius: 8px;
-     text-align: center;
-     font-weight: 500;
-     padding: 5px;
-}
-
-.item{
-     width: 33vw;
-     /* border: solid 1px black; */
-     padding:10px 50px;
-     text-align: center;
 }
 
 .event-container{
@@ -46,7 +29,30 @@
 
 }
 
+.label-row{
+     background-color: rgba(26, 122, 173);
+     color: white;
+     padding: 2px;
+}
+
+.title{
+     font-size: 25px;
+     border-radius: 8px;
+     text-align: center;
+     font-weight: 600;
+     padding: 5px;
+}
+
+.item{
+     width: 33vw;
+     /* border: solid 1px black; */
+     padding:10px 50px;
+     text-align: center;
+}
+
+
 #scrollable-container{
      height: 200px;
      overflow-y: scroll;
 }
+

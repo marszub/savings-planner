@@ -14,9 +14,13 @@ function sortEvents(events){
 
 function createCashflow(data){
     var cashData =[]
-    for(let i of data){
-        saldo += i.userGain
-        cashData.push(saldo)
+    for(let i=0; i<data.length;i++){
+        if(cashData.length ==0)
+          cashData.push(saldo)
+        else{
+          let current_saldo = cashData[i-1] + data[i].userGain
+          cashData.push(current_saldo)
+        }
     }
     return cashData;
 }
