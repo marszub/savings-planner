@@ -30,3 +30,23 @@
      font-weight: 500;
      padding: 5px;
 }
+
+.item{
+     width: 33vw;
+     /* border: solid 1px black; */
+     padding:10px 50px;
+     text-align: center;
+}
+
+.event-container{
+     /* border: solid 1px rgb(218, 218, 218); */
+     border-radius: 8px;
+     margin: 4px;
+     background-color: rgb(247, 247, 247);
+
+}
+
+#scrollable-container{
+     height: 200px;
+     overflow-y: scroll;
+}
