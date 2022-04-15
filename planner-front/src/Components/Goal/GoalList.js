@@ -25,6 +25,7 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import {GoalCreateForm} from '../../models/goal-create-form';
 import {goalValidators} from '../../utils/goal-validators';
+import {moneyMapper} from "../../utils/money-mapper";
 
 const theme = createTheme();
 
@@ -35,27 +36,27 @@ const fakeGoals = [
   {
     id: 1,
     title: 'Goal Title 1',
-    amount: 1000
+    amount: 100000
   },
   {
     id: 2,
     title: 'Goal Title 2',
-    amount: 2000
+    amount: 200000
   },
   {
     id: 3,
     title: 'Goal Title 3',
-    amount: 3000
+    amount: 300000
   },
   {
     id: 4,
     title: 'Goal Title 4',
-    amount: 4000
+    amount: 400000
   },
   {
     id: 5,
     title: 'Goal Title 5',
-    amount: 5000
+    amount: 500000
   }
 ];
 
@@ -83,7 +84,7 @@ export default function GoalList() {
         {
           id: findNewId(),
           title: model.title,
-          amount: model.amount
+          amount: moneyMapper.mapStringToPenniesNumber(model.amount)
         }
     ]);
 
@@ -100,7 +101,7 @@ export default function GoalList() {
 
   const goalsItems = goals.map(goal =>
       <Goal
-          key={ goal.id }
+          key={goal.id}
           goal={goal}
           isLast={goal.id === goals[goals.length - 1].id}
           handleDelete={deleteGoal}
@@ -158,7 +159,7 @@ function Goal(props) {
           <ListItem >
             <ListItemText
                 primary={ props.goal.title }
-                secondary={ props.goal.amount + ' PLN' }
+                secondary={ moneyMapper.mapPenniesNumberToString(props.goal.amount) + ' PLN' }
             />
             <Tooltip title="Delete">
               <IconButton
@@ -233,7 +234,6 @@ function GoalCreationDialog(props) {
               helperText={titleErrorMessage}
               />
             <TextField
-                type="number"
                 margin="normal"
                 required
                 fullWidth
