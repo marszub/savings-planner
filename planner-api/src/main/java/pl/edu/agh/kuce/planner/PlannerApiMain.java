@@ -4,10 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PlannerApiApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(PlannerApiApplication.class, args);
+public class PlannerApiMain {
+    public static void main(final String[] args) {
+        SpringApplication.run(PlannerApiMain.class, args);
     }
-
 }

@@ -6,11 +6,10 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 public record LoginRequestDto(
-
     @NotBlank
     String login,
 
     @NotNull
     @Length(min = 7, max = 100)
     String password
-) {}
+) { }
