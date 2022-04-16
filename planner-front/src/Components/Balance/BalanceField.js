@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import { useState } from "react";
 import { BalanceForm } from "../../models/balance-form";
-import { goalValidators } from "../../utils/goal-validators";
+import { moneyValidators } from "../../utils/money-validators";
 import { moneyFormatter } from "../../utils/money-formatter";
 
 export default function BalanceField() {
@@ -19,7 +19,7 @@ export default function BalanceField() {
             data.get('amount')
         );
 
-        const amountError = goalValidators.validateAmount(formModel.amount);
+        const amountError = moneyValidators.validateAmount(formModel.amount);
         setAmountErrorMessage(amountError);
         if (amountError) {
             return;
