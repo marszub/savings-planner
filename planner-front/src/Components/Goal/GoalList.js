@@ -66,29 +66,18 @@ export default function GoalList() {
   const [alertStatus, setAlertStatus] = useState("");
   const [refreshAlert, setRefreshAlert] = useState(false);
 
-  const handleGoalCreationOpen = () => {
-    setGoalCreationOpen(true);
-  };
-
-  const handleGoalCreationClose = () => {
-    setGoalCreationOpen(false);
-  };
-
-  const findNewId = () => {
-    return Math.max(...goals.map(goal => goal.id)) + 1;
-  };
+  const findNewId = () => Math.max(...goals.map(goal => goal.id)) + 1;
 
   const createGoal = (model) => {
     setGoals(prev => [
-        ...prev,
-        {
-          id: findNewId(),
-          title: model.title,
-          amount: moneyFormatter.mapStringToPenniesNumber(model.amount)
-        }
+      ...prev,
+      {
+        id: findNewId(),
+        title: model.title,
+        amount: moneyFormatter.mapStringToPenniesNumber(model.amount)
+      }
     ]);
 
-    setGoalCreationOpen(false);
     setAlertStatus(GOAL_CREATED_ALERT);
     setRefreshAlert(prev => !prev);
   };
@@ -118,32 +107,32 @@ export default function GoalList() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-           }}
+            }}
         >
-          <CssBaseline />
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <SportsScoreOutlinedIcon />
+          <CssBaseline/>
+          <Avatar sx={{m: 1, bgcolor: 'secondary.main'}}>
+            <SportsScoreOutlinedIcon/>
           </Avatar>
           <Typography component="h1" variant="h5">
             Goal list
           </Typography>
 
-          <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }} >
-            { goalsItems }
+          <List sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}>
+            {goalsItems}
           </List>
 
           <Button
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              onClick={handleGoalCreationOpen}
+              sx={{mt: 3, mb: 2}}
+              onClick={() => setGoalCreationOpen(true)}
           >
             Add new goal
           </Button>
 
           <GoalCreationDialog
               open={goalCreationOpen}
-              onClose={handleGoalCreationClose}
+              onClose={() => setGoalCreationOpen(false)}
               create={createGoal}
           />
 
@@ -154,27 +143,35 @@ export default function GoalList() {
 }
 
 function Goal(props) {
+  const [goalRemovalOpen, setGoalRemovalOpen] = useState(false);
+
   return (
       <>
-          <ListItem >
-            <ListItemText
-                primary={ props.goal.title }
-                secondary={ moneyFormatter.mapPenniesNumberToString(props.goal.amount) + ' PLN' }
-            />
-            <Tooltip title="Delete">
-              <IconButton
-                  edge="end"
-                  aria-label="delete"
-                  onClick={() => props.handleDelete(props.goal.id)}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
-          </ListItem>
+        <ListItem>
+          <ListItemText
+              primary={props.goal.title}
+              secondary={moneyFormatter.mapPenniesNumberToString(props.goal.amount) + ' PLN'}
+          />
+          <Tooltip title="Delete">
+            <IconButton
+                edge="end"
+                aria-label="delete"
+                onClick={() => setGoalRemovalOpen(true)}
+            >
+              <DeleteIcon/>
+            </IconButton>
+          </Tooltip>
+          <GoalRemovalConfirmationDialog
+              open={goalRemovalOpen}
+              onClose={() => setGoalRemovalOpen(false)}
+              delete={() => props.handleDelete(props.goal.id)}
+              goal={props.goal}
+          ></GoalRemovalConfirmationDialog>
+        </ListItem>
 
-          { !props.isLast &&
-          <Divider />
-          }
+        {!props.isLast &&
+            <Divider/>
+        }
       </>
   );
 }
@@ -182,6 +179,12 @@ function Goal(props) {
 function GoalCreationDialog(props) {
   const [titleErrorMessage, setTitleErrorMessage] = useState("");
   const [amountErrorMessage, setAmountErrorMessage] = useState("");
+
+  const handleClose = () => {
+    props.onClose();
+    setTitleErrorMessage('');
+    setAmountErrorMessage('');
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -203,6 +206,76 @@ function GoalCreationDialog(props) {
     }
 
     props.create(formModel);
+    handleClose();
+  };
+
+  return (
+      <Dialog
+          maxWidth="xs"
+          open={props.open}
+          onClose={handleClose}
+      >
+        <Box
+            sx={{
+              margin: 1
+            }}
+        >
+          <DialogTitle>Create new goal</DialogTitle>
+          <Box
+              component="form"
+              onSubmit={handleSubmit}
+          >
+            <DialogContent>
+              <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="title"
+                  label="Title"
+                  name="title"
+                  autoFocus
+                  error={!!titleErrorMessage}
+                  helperText={titleErrorMessage}
+              />
+              <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="amount"
+                  label="Amount"
+                  name="amount"
+                  autoFocus
+                  error={!!amountErrorMessage}
+                  helperText={amountErrorMessage}
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">PLN</InputAdornment>,
+                  }}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button
+                  type="button"
+                  onClick={handleClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                  type="submit"
+                  variant="contained"
+              >
+                Create
+              </Button>
+            </DialogActions>
+          </Box>
+        </Box>
+      </Dialog>
+  );
+}
+
+function GoalRemovalConfirmationDialog(props) {
+  const handleDelete = () => {
+    props.delete();
+    props.onClose();
   }
 
   return (
@@ -213,40 +286,12 @@ function GoalCreationDialog(props) {
       >
         <Box
             sx={{
-              margin: 2
+              margin: 1
             }}
         >
-        <DialogTitle>Create new goal</DialogTitle>
-        <Box
-            component="form"
-            onSubmit={handleSubmit}
-        >
+          <DialogTitle>Confirmation</DialogTitle>
           <DialogContent>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="title"
-              label="Title"
-              name="title"
-              autoFocus
-              error={!!titleErrorMessage}
-              helperText={titleErrorMessage}
-              />
-            <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="amount"
-                label="Amount"
-                name="amount"
-                autoFocus
-                error={!!amountErrorMessage}
-                helperText={amountErrorMessage}
-                InputProps={{
-                  endAdornment: <InputAdornment position="end">PLN</InputAdornment>,
-                }}
-            />
+            This action cannot be undone. Are you sure you want to delete the goal <strong>{props.goal.title}</strong>?
           </DialogContent>
           <DialogActions>
             <Button
@@ -256,16 +301,17 @@ function GoalCreationDialog(props) {
               Cancel
             </Button>
             <Button
-                type="submit"
+                type="button"
                 variant="contained"
+                color="warning"
+                onClick={handleDelete}
             >
-              Create
+              Delete
             </Button>
           </DialogActions>
         </Box>
-        </Box>
       </Dialog>
-  );
+  )
 }
 
 function GoalActionSnackbar(props) {
