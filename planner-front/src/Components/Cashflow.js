@@ -1,12 +1,14 @@
-import React, { Component } from 'react';
+import React from 'react';
 import {Line} from 'react-chartjs-2'
 import { useState } from "react";
-import { EventData, Goals } from "../services/mockData";
+// import { EventData } from "../services/mockData";
+import { eventService } from '../services/event-service';
 import { Chart as ChartJS } from "chart.js/auto"
 
 var saldo = 5000
 var eventDataSorted =[]
-
+var EventData = eventService.getEventsList()
+console.log(EventData)
 
 function sortEvents(events){
     return events.sort(compare);
@@ -15,7 +17,7 @@ function sortEvents(events){
 function createCashflow(data){
     var cashData =[]
     for(let i=0; i<data.length;i++){
-        if(cashData.length ==0)
+        if(cashData.length === 0)
           cashData.push(saldo)
         else{
           let current_saldo = cashData[i-1] + data[i].userGain
@@ -30,10 +32,10 @@ function compare(eventA,eventB){
     let b = new Date(eventB.year);
     if (a.getFullYear() < b.getFullYear())
         return -1
-    else if(a.getFullYear() == b.getFullYear())
+    else if(a.getFullYear() === b.getFullYear())
         if(a.getMonth() < b.getMonth())
             return -1;
-        else if (a.getMonth() == b.getMonth())
+        else if (a.getMonth() === b.getMonth())
             if(a.getDate() < b.getDate())
                 return -1
     else
@@ -43,32 +45,6 @@ function compare(eventA,eventB){
 function getMonth(month){
     let months = [" Jan ", " Feb ", " Mar ", " Apr ", " May ", " Jun ", " Jul ", " Aug ", " Sep ", " Oct ", " Nov ", " Dec "];
     return months[month];
-}
-
-
-const optionData ={
-    responsive: true,
-    plugins: {
-        legend: {
-          display: false
-        },
-        title: {
-            display: false,
-            text: "Cashflow",
-        },
-        tooltip: {
-          callbacks: {
-              title: function(tooltipItem) {
-                let title = eventDataSorted[tooltipItem[0].dataIndex].name
-                return title;
-              },
-              label: function(tooltipItem) {
-                let label = eventDataSorted[tooltipItem.dataIndex].userGain + " zł"
-                return label;
-              }
-          }
-      }
-    }
 }
 
 function Cashflow(){
@@ -91,8 +67,33 @@ function Cashflow(){
       },
     ],})
 
+  const [optionData, setOptionData] = useState({
+    responsive: true,
+    plugins: {
+        legend: {
+          display: false
+        },
+        title: {
+            display: false,
+            text: "Cashflow",
+        },
+        tooltip: {
+          callbacks: {
+              title: function(tooltipItem) {
+                let title = eventDataSorted[tooltipItem[0].dataIndex].name
+                return title;
+              },
+              label: function(tooltipItem) {
+                let label = eventDataSorted[tooltipItem.dataIndex].userGain + " zł"
+                return label;
+              }
+          }
+      }
+    }
+  })
+
   return (
-    <div className={'chart-wrapper'}>
+    <div id={'chart-wrapper'}>
       <Line data = {eventData} options={optionData}></Line>
     </div> 
   )

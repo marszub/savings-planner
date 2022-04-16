@@ -1,6 +1,5 @@
 import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack"
-import { style } from "@mui/system";
 import { useState } from "react";
 import { EventData } from "../services/mockData";
 

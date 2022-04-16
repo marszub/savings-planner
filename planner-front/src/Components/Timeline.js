@@ -1,6 +1,6 @@
 import React from "react";
 import HorizontalTimeline from "react-horizontal-timeline";
-import { UserData, Goals } from "../services/mockData";
+import { Goals } from "../services/mockData";
 
 function compare(a, b) {
     if (a.date < b.date)

@@ -1,3 +1,7 @@
+/* #chart-wrapper{
+     overflow-x: scroll;
+} */
+
 #main-container {
      font-family: Arial, Helvetica, sans-serif;
 }
