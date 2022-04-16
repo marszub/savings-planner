@@ -7,6 +7,7 @@ import SignUp from "./Components/Auth/SignUp";
 import Error from "./Components/Error";
 import PageNotFound from "./Components/PageNotFound";
 import GoalList from "./Components/Goal/GoalList";
+import BalanceField from "./Components/Balance/BalanceField";
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
                 <Route path='/sign-in' element={ <SignIn /> } />
                 <Route path='/sign-up' element={ <SignUp /> } />
                 <Route path='/goals' element={ <GoalList /> } />
+                <Route path='/balance' element={ <BalanceField /> } />
                 <Route path='/error' element={ <Error /> } />
                 <Route path='*' element={ <PageNotFound /> } />
             </Routes>
