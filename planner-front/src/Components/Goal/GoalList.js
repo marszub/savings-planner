@@ -166,7 +166,7 @@ function Goal(props) {
               onClose={() => setGoalRemovalOpen(false)}
               delete={() => props.handleDelete(props.goal.id)}
               goal={props.goal}
-          ></GoalRemovalConfirmationDialog>
+          />
         </ListItem>
 
         {!props.isLast &&
