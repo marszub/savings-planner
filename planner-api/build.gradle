@@ -4,6 +4,7 @@ plugins {
     id 'org.asciidoctor.convert' version '1.5.8'
     id 'java'
     id 'org.hidetake.swagger.generator' version '2.19.2'
+    id 'checkstyle'
 }
 
 group = 'pl.edu.agh.kuce'

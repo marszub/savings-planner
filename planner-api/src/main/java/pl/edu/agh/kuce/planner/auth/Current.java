@@ -10,4 +10,4 @@ import java.lang.annotation.Target;
 @Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 @CurrentSecurityContext(expression = "authentication.principal")
-public @interface Current {}
+public @interface Current { }

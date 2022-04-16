@@ -20,7 +20,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({AuthenticationException.class})
-    public ResponseEntity<TextResponseDto> handleAuthenticationError(Exception e) {
+    public ResponseEntity<TextResponseDto> handleAuthenticationError(final Exception e) {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(new TextResponseDto("User unauthorized"));

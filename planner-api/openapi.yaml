@@ -50,6 +50,37 @@ paths:
         "401":
           description: "Wrong login or password"
 
+  "/api/event/create":
+    post:
+      summary: "Creates new one-time event"
+      requestBody:
+        description: "Event data"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/EventCreateRequest"
+      responses:
+        "200":
+          description: "Event has been created"
+        "400":
+          description: "Invalid request body"
+        "401":
+          description: "User unauthorized"
+
+  "/api/event/list":
+    post:
+      summary: "Gets list of user's one-time events"
+      responses:
+        "200":
+          description: "Got list of events"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/EventListResponse"
+        "401":
+          description: "User unauthorized"
+
 components:
   schemas:
     RegistrationRequest:
@@ -115,3 +146,43 @@ components:
               type: "integer"
               format: "int32"
               description: "Owner's ID"
+
+    EventCreateRequest:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+          format: "event name"
+          minLength: 1
+          maxLength: 200
+          example: "Repayment"
+        amount:
+          type: "integer"
+          format: "positive or negative money gain"
+          example: -205
+        timestamp:
+          type: "string"
+          format: "yyyy-mm-dd hh:mm:ss.n"
+          example: "2022-01-21 00:00:00.0"
+    EventListResponse:
+      type: "object"
+      properties:
+        list:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              title:
+                type: "string"
+                format: "event name"
+                minLength: 1
+                maxLength: 200
+                example: "Repayment"
+              amount:
+                type: "integer"
+                format: "positive or negative money gain"
+                example: 201
+              timestamp:
+                type: "string"
+                format: "yyyy-mm-dd hh:mm:ss.n"
+                example: "2022-01-21 00:00:00.0"

@@ -1,14 +1,21 @@
 package pl.edu.agh.kuce.planner.auth.persistence;
 
+import pl.edu.agh.kuce.planner.balance.persistence.Balance;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
-import pl.edu.agh.kuce.planner.target.persistence.Target;
+import pl.edu.agh.kuce.planner.goal.persistence.Goal;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class User {
 
     @Id
@@ -28,17 +35,20 @@ public class User {
     private List<OneTimeEvent> oneTimeEventList;
 
     @OneToMany(mappedBy = "user")
-    private List<Target> targetList;
+    private List<Goal> targetList;
 
-    public User() {}
+    @OneToOne(mappedBy = "user")
+    private Balance balance;
 
-    public User(String nick, String email, String passwordHash) {
+    public User() { }
+
+    public User(final String nick, final String email, final String passwordHash) {
         this.nick = nick;
         this.email = email;
         this.passwordHash = passwordHash;
     }
 
-    public void setId(Integer id) {
+    public void setId(final Integer id) {
         this.id = id;
     }
 
@@ -50,7 +60,7 @@ public class User {
         return nick;
     }
 
-    public void setNick(String nick) {
+    public void setNick(final String nick) {
         this.nick = nick;
     }
 
@@ -58,7 +68,7 @@ public class User {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(final String email) {
         this.email = email;
     }
 
@@ -66,15 +76,19 @@ public class User {
         return passwordHash;
     }
 
-    public void setPasswordHash(String passwordHash) {
+    public void setPasswordHash(final String passwordHash) {
         this.passwordHash = passwordHash;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final User user = (User) o;
         return Objects.equals(id, user.id);
     }
 
