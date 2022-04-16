@@ -1,4 +1,4 @@
-import {moneyMapper} from "./money-mapper";
+import {moneyFormatter} from "./money-formatter";
 
 const MAX_INT32 = (2 ** 31) - 1
 
@@ -17,7 +17,7 @@ export const goalValidators = {
             return validationMessage;
         }
 
-        const penniesNumber = moneyMapper.mapStringToPenniesNumber(amountString);
+        const penniesNumber = moneyFormatter.mapStringToPenniesNumber(amountString);
 
         validationMessage = this._validateAmountInPennies(penniesNumber);
         if (validationMessage) {
