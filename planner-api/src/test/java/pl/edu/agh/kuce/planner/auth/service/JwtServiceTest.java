@@ -24,11 +24,11 @@ class JwtServiceTest {
 
     @Test
     void givenValidJwt_verifyToken_userIsPresent() {
-        String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
-                "eyJzdWIiOiJ1c2VyMSIsImV4cCI6MjE0NzQ4MzY0NywidXNlcklkIjoxfQ." +
-                "0VtPh11XONzdozSYi5Xp1AA8vMSzhfbEuLXen_dR_II";
+        final String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+                + "eyJzdWIiOiJ1c2VyMSIsImV4cCI6MjE0NzQ4MzY0NywidXNlcklkIjoxfQ."
+                + "0VtPh11XONzdozSYi5Xp1AA8vMSzhfbEuLXen_dR_II";
 
-        var user = jwtService.verifyToken(jwt);
+        final var user = jwtService.verifyToken(jwt);
 
         assertThat(user).isPresent();
         assertThat(user.get().getId()).isEqualTo(1);
@@ -37,36 +37,36 @@ class JwtServiceTest {
 
     @Test
     void givenInvalidJwt_verifyToken_userIsEmpty() {
-        String jwt = "sadasfgasfasfafasf." +
-                "fasfasfsaafsfsafasfas." +
-                "asfldsaklmadsklmdsklaafs";
+        final String jwt = "sadasfgasfasfafasf."
+                + "fasfasfsaafsfsafasfas."
+                + "asfldsaklmadsklmdsklaafs";
 
-        var user = jwtService.verifyToken(jwt);
+        final var user = jwtService.verifyToken(jwt);
 
         assertThat(user).isEmpty();
     }
 
     @Test
     void givenExpiredJwt_verifyToken_userIsEmpty() {
-        String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
-                "eyJzdWIiOiJ1c2VyMSIsInVzZXJJZCI6MSwiZXhwIjoxNjQ4NzYwNzQwfQ." +
-                "IhOVEyDGHSqrt7mcpdvsW-7KC-QNgcbkhR4figQ2IZU";
+        final String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+                + "eyJzdWIiOiJ1c2VyMSIsInVzZXJJZCI6MSwiZXhwIjoxNjQ4NzYwNzQwfQ."
+                + "IhOVEyDGHSqrt7mcpdvsW-7KC-QNgcbkhR4figQ2IZU";
 
-        var user = jwtService.verifyToken(jwt);
+        final var user = jwtService.verifyToken(jwt);
 
         assertThat(user).isEmpty();
     }
 
     @Test
     void givenNick_createAccessToken_returnsToken() {
-        String expectedJwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9." +
-                "eyJzdWIiOiJ1c2VyMSIsImV4cCI6MTY0ODc2MDgwMSwidXNlcklkIjoxfQ." +
-                "frgIQ_4mnd5SiGYYZdmkWosVxqIN5gRJEGh6diDuNnY";
+        final String expectedJwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+                + "eyJzdWIiOiJ1c2VyMSIsImV4cCI6MTY0ODc2MDgwMSwidXNlcklkIjoxfQ."
+                + "frgIQ_4mnd5SiGYYZdmkWosVxqIN5gRJEGh6diDuNnY";
 
-        var user = new User("user1", "", "");
+        final var user = new User("user1", "", "");
         user.setId(1);
 
-        String token = jwtService.createAccessToken(user);
+        final String token = jwtService.createAccessToken(user);
 
         assertThat(token).isEqualTo(expectedJwt);
     }

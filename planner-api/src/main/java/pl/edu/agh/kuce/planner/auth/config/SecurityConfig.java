@@ -17,17 +17,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtAuthFilter jwtFilter;
 
-    public SecurityConfig(JwtAuthFilter jwtFilter) {
+    public SecurityConfig(final JwtAuthFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
+    protected void configure(final AuthenticationManagerBuilder auth) {
         // override default inMemoryAuthentication() configuration
     }
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    protected void configure(final HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
