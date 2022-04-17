@@ -18,9 +18,6 @@ import ListItemText from '@mui/material/ListItemText';
 import Snackbar from '@mui/material/Snackbar';
 import Tooltip from '@mui/material/Tooltip';
 import EventAvailableOutlinedIcon from '@mui/icons-material/EventAvailableOutlined';
-import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
-import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
-import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -32,8 +29,10 @@ import { moneyFormatter } from "../../utils/money-formatter";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import {Collapse, ListItemButton, ListItemIcon} from "@mui/material";
-import {ExpandLess, ExpandMore} from "@mui/icons-material";
+import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
+import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
+import { Collapse, ListItemButton, ListItemIcon } from "@mui/material";
+import { ExpandLess, ExpandMore } from "@mui/icons-material";
 
 const theme = createTheme();
 
