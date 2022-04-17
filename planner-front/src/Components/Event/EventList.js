@@ -231,11 +231,12 @@ function EventCreationDialog(props) {
 
         const titleError = goalValidators.validateTitle(formModel.title);
         const amountError = goalValidators.validateAmount(formModel.amount);
+        const dateError = Object.values(event.currentTarget.date)[1]['aria-invalid'];
 
         setTitleErrorMessage(titleError);
         setAmountErrorMessage(amountError);
 
-        if (titleError || amountError) {
+        if (titleError || amountError || dateError) {
             return;
         }
 
