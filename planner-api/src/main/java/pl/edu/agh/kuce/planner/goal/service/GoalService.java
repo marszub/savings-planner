@@ -1,6 +1,5 @@
 package pl.edu.agh.kuce.planner.goal.service;
 
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.goal.GoalNotFoundException;

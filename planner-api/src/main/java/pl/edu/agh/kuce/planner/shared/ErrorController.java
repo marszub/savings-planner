@@ -1,6 +1,5 @@
 package pl.edu.agh.kuce.planner.shared;
 
-import org.hibernate.ObjectNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

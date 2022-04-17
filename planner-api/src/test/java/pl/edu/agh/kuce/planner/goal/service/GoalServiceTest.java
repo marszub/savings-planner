@@ -72,8 +72,7 @@ class GoalServiceTest {
     }
 
     @Test
-    void delete_NonExistingGoalThrows()
-    {
+    void delete_NonExistingGoalThrows() {
         Assertions.assertThrows(GoalNotFoundException.class,
                 () -> goalService.destroy(10, user1));
     }
