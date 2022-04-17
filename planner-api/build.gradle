@@ -26,6 +26,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
     implementation 'com.auth0:java-jwt:3.19.0'
+    implementation 'org.testng:testng:7.1.0'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

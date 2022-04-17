@@ -1,6 +1,5 @@
 package pl.edu.agh.kuce.planner.balance.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,6 +13,8 @@ import pl.edu.agh.kuce.planner.balance.persistence.BalanceRepository;
 import javax.transaction.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -47,7 +48,7 @@ public class BalanceServiceTest {
         userRepository.save(user2);
 
         balanceService = new BalanceService(balanceRepository);
-        Assertions.assertDoesNotThrow(
+        assertThatNoException().isThrownBy(
                 () -> {
                     balanceService.create(user, balance);
                     balanceService.create(user2, balance2);
@@ -103,10 +104,10 @@ public class BalanceServiceTest {
         userRepository.save(user);
         balanceService = new BalanceService(balanceRepository);
 
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> balanceService.list(user));
+        assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> balanceService.list(user));
 
         balanceService.update(user, balance);
 
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> balanceService.list(user));
+        assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> balanceService.list(user));
     }
 }
