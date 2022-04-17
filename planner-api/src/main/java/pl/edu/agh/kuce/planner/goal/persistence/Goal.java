@@ -1,6 +1,7 @@
 package pl.edu.agh.kuce.planner.goal.persistence;
 
 import pl.edu.agh.kuce.planner.auth.persistence.User;
+import pl.edu.agh.kuce.planner.goal.dto.GoalInputData;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -35,6 +36,14 @@ public class Goal {
         this.user = user;
         this.title = title;
         this.amount = amount;
+    }
+
+    public Goal(final User user, final GoalInputData data) {
+        this(
+                user,
+                data.title(),
+                data.amount()
+        );
     }
 
     public Integer getId() {
