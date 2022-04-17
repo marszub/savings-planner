@@ -7,11 +7,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 
-import java.util.List;
-
 @Repository
 public interface BalanceRepository extends JpaRepository<Balance, Integer> {
-    List<Balance> findByUser(User user);
+    Balance findByUser(User user);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE Balance b SET b.balance = :balance WHERE b.user = :user")

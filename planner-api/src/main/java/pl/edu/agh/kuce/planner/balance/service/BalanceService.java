@@ -23,6 +23,6 @@ public class BalanceService {
     }
 
     public BalanceDto list(final User user) {
-        return new BalanceDto(balanceRepository.findByUser(user).get(0));
+        return new BalanceDto(balanceRepository.findByUser(user));
     }
 }

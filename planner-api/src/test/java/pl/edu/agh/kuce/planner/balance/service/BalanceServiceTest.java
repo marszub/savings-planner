@@ -104,10 +104,10 @@ public class BalanceServiceTest {
         userRepository.save(user);
         balanceService = new BalanceService(balanceRepository);
 
-        assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> balanceService.list(user));
+        assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> balanceService.list(user));
 
         balanceService.update(user, balance);
 
-        assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> balanceService.list(user));
+        assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> balanceService.list(user));
     }
 }
