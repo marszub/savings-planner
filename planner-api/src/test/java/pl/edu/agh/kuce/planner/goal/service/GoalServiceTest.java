@@ -5,7 +5,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
+import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
 import pl.edu.agh.kuce.planner.goal.GoalNotFoundException;
 import pl.edu.agh.kuce.planner.goal.dto.GoalData;
 import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
@@ -18,12 +23,19 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
+@AutoConfigureMockMvc
 class GoalServiceTest {
-
     private GoalService goalService;
 
     @Mock
     private GoalRepository goalRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private GoalRepository notMockedGoalRepository;
 
     private final String nick1 = "nick1";
     private final String email1 = "nick1@abc.com";
@@ -75,6 +87,19 @@ class GoalServiceTest {
     void delete_NonExistingGoalThrows() {
         Assertions.assertThrows(GoalNotFoundException.class,
                 () -> goalService.destroy(10, user1));
+    }
+
+    @Test
+    @Transactional
+    void delete_GoalIsDeletedSuccessfully() throws GoalNotFoundException {
+        goalService = new GoalService(notMockedGoalRepository);
+        final User user = new User("TEST", "TEST", "TEST");
+        userRepository.save(user);
+        final Goal testGoal = new Goal(user, "test", 11);
+        notMockedGoalRepository.save(testGoal);
+        assertThat(goalService.list(user).list().size()).isEqualTo(1);
+        goalService.destroy(goalService.list(user).list().get(0).id(), user);
+        assertThat(goalService.list(user).list().size()).isEqualTo(0);
     }
 
 }

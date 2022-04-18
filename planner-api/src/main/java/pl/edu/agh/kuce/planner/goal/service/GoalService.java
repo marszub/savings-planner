@@ -9,7 +9,6 @@ import pl.edu.agh.kuce.planner.goal.dto.GoalInputData;
 import pl.edu.agh.kuce.planner.goal.persistence.Goal;
 import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
 
-import java.nio.file.AccessDeniedException;
 import java.util.Optional;
 
 @Service
@@ -32,14 +31,11 @@ public class GoalService {
                         .map(GoalData::new).toList());
     }
 
-    public void destroy(final Integer id, final User user) throws AccessDeniedException, GoalNotFoundException {
-        final Optional<Goal> goal = goalRepository.getGoalById(id);
+    public void destroy(final Integer id, final User user) throws GoalNotFoundException {
+        final Optional<Goal> goal = goalRepository.getGoalById(id, user);
         if (goal.isPresent()) {
-            if (goal.get().getUser().equals(user)) {
-                goalRepository.deleteGoal(id);
-                return;
-            }
-            throw new AccessDeniedException("Access denied");
+            goalRepository.deleteGoal(id, user);
+            return;
         }
         throw new GoalNotFoundException("Goal with that id does not exist");
     }

@@ -14,7 +14,6 @@ import pl.edu.agh.kuce.planner.goal.dto.GoalInputData;
 import pl.edu.agh.kuce.planner.goal.service.GoalService;
 
 import javax.validation.Valid;
-import java.nio.file.AccessDeniedException;
 
 @RestController
 @RequestMapping("/api")
@@ -37,7 +36,7 @@ public class GoalController {
 
     @DeleteMapping("goal/{id}")
     public void destroy(@PathVariable("id") final Integer goalId,
-                        @Current final User user) throws AccessDeniedException, GoalNotFoundException {
+                        @Current final User user) throws GoalNotFoundException {
         goalService.destroy(goalId, user);
     }
 }

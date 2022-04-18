@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import pl.edu.agh.kuce.planner.goal.GoalNotFoundException;
 
-import java.nio.file.AccessDeniedException;
 
 @ControllerAdvice
 public class ErrorController extends ResponseEntityExceptionHandler {
@@ -34,13 +33,6 @@ public class ErrorController extends ResponseEntityExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(new TextResponseDto("Violating data integrity"));
-    }
-
-    @ExceptionHandler({AccessDeniedException.class})
-    public ResponseEntity<TextResponseDto> accessDenied() {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(new TextResponseDto("Access to resource denied"));
     }
 
     @ExceptionHandler({GoalNotFoundException.class})

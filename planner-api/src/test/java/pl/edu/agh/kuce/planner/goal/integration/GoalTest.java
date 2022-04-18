@@ -63,8 +63,8 @@ public class GoalTest {
         userRepository.save(user);
         final Goal testGoal = new Goal(user, "test", 11);
         goalRepository.save(testGoal);
-        assertThat(goalRepository.getGoalById(testGoal.getId()).isPresent()).isEqualTo(true);
-        goalRepository.deleteGoal(testGoal.getId());
-        assertThat(goalRepository.getGoalById(testGoal.getId()).isPresent()).isEqualTo(false);
+        assertThat(goalRepository.getGoalById(testGoal.getId(), user).isPresent()).isEqualTo(true);
+        goalRepository.deleteGoal(testGoal.getId(), user);
+        assertThat(goalRepository.getGoalById(testGoal.getId(), user).isPresent()).isEqualTo(false);
     }
 }

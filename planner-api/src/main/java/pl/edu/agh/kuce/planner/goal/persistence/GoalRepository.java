@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GoalRepository extends JpaRepository<Goal, Integer> {
-    @Query("SELECT g FROM Goal g where g.id = ?1")
-    Optional<Goal> getGoalById(Integer id);
+    @Query("SELECT g FROM Goal g where g.id = ?1 AND g.user = ?2")
+    Optional<Goal> getGoalById(Integer id, User user);
 
     @Query("SELECT g FROM Goal g where g.user = ?1")
     List<Goal> findByUser(User user);
 
     @Modifying
-    @Query("DELETE FROM Goal g where g.id = ?1")
-    void deleteGoal(Integer id);
+    @Query("DELETE FROM Goal g where g.id = ?1 AND g.user = ?2")
+    void deleteGoal(Integer id, User user);
 }
