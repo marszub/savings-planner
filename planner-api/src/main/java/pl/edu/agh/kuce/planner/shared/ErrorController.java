@@ -8,6 +8,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import pl.edu.agh.kuce.planner.goal.GoalNotFoundException;
+
 
 @ControllerAdvice
 public class ErrorController extends ResponseEntityExceptionHandler {
@@ -31,5 +33,12 @@ public class ErrorController extends ResponseEntityExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(new TextResponseDto("Violating data integrity"));
+    }
+
+    @ExceptionHandler({GoalNotFoundException.class})
+    public ResponseEntity<TextResponseDto> goalNotFound() {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new TextResponseDto("Goal with that ID does not exist"));
     }
 }
