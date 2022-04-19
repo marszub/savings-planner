@@ -1,4 +1,9 @@
-export const EventData = [
+export const EventData =[
+  {"title":"zakup rowera","amount":-200000,"timestamp":"2023-05-02 16:34:26.666"},
+  {"title":"wypłata","amount":400000,"timestamp":"2022-04-24 16:34:26.666"},
+  {"title":"święta","amount":-50000,"timestamp":"2022-04-17 16:34:26.666"}
+]
+export const EventData2 = [
     {
       id: 1,
       year: "Mon Mar 24 2018 10:33:30 GMT+0100 (CET)",

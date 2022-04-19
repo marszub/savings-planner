@@ -12,30 +12,29 @@ export default function Home() {
         <div id="main-container">
         <Grid container spacing={2}>
             <Grid item xs={9}>
-                <div class="container">
-                    <div class="label-row title">
+                <div className="container">
+                    <div className="label-row title">
                         <a>Cash Flow</a>
                     </div>
                     <Cashflow/>
                 </div>
             </Grid>
             <Grid item xs={3}>
-                <div class="container">
+                <div className="container">
                     <h2>Saldo: {initialState}</h2>
                 </div>
-                <div class="container goals">
+                <div className="container goals">
                     <Goals></Goals>
                 </div>
             </Grid>
             <Grid item xs={9}>
-                <div class="container">
+                <div className="container">
                     <Timeline/>
                 </div>
             </Grid>
-            
             <Grid item xs={12}>
-                <div class="container">
-                    <Events/>
+                <div className="container">
+                    {/* <Events/> */}
                 </div>  
             </Grid>
         </Grid>
