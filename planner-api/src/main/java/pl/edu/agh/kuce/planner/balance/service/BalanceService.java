@@ -18,8 +18,8 @@ public class BalanceService {
         balanceRepository.save(new Balance(user, balance));
     }
 
-    public void update(final User user, final Integer newBalance) {
-        balanceRepository.updateBalance(user, newBalance);
+    public void update(final User user, final BalanceDto newBalanceDto) {
+        balanceRepository.updateBalance(user, newBalanceDto.balance());
     }
 
     public BalanceDto list(final User user) {

@@ -1,6 +1,8 @@
 package pl.edu.agh.kuce.planner.balance;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,17 +22,17 @@ public class BalanceController {
         this.balanceService = balanceService;
     }
 
-    @PostMapping("/create")
+    @PostMapping("")
     public void create(@Current final User user, @Valid @RequestBody final Integer balance) {
         balanceService.create(user, balance);
     }
 
-    @PostMapping("/update")
-    public void update(@Current final User user, @Valid @RequestBody final Integer balance) {
-        balanceService.update(user, balance);
+    @PutMapping("")
+    public void update(@Current final User user, @Valid @RequestBody final BalanceDto balanceDto) {
+        balanceService.update(user, balanceDto);
     }
 
-    @PostMapping("/list")
+    @GetMapping("")
     public BalanceDto list(@Current final User user) {
         return balanceService.list(user);
     }

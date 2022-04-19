@@ -88,8 +88,11 @@ public class BalanceServiceTest {
         assertThat(response.balance()).isEqualTo(balance);
         assertThat(response2.balance()).isEqualTo(balance2);
 
-        balanceService.update(user, balance + 123);
-        balanceService.update(user2, balance2 + 234);
+        final BalanceDto request = new BalanceDto(balance + 123);
+        final BalanceDto request2 = new BalanceDto(balance2 + 234);
+
+        balanceService.update(user, request);
+        balanceService.update(user2, request2);
 
         response = balanceService.list(user);
         response2 = balanceService.list(user2);
@@ -106,7 +109,9 @@ public class BalanceServiceTest {
 
         assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> balanceService.list(user));
 
-        balanceService.update(user, balance);
+        final BalanceDto request = new BalanceDto(balance);
+
+        balanceService.update(user, request);
 
         assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> balanceService.list(user));
     }
