@@ -25,6 +25,7 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import {GoalCreateForm} from '../../models/goal-create-form';
 import {goalValidators} from '../../utils/goal-validators';
+import {moneyValidators} from "../../utils/money-validators";
 import {moneyFormatter} from "../../utils/money-formatter";
 
 const theme = createTheme();
@@ -196,7 +197,7 @@ function GoalCreationDialog(props) {
     );
 
     const titleError = goalValidators.validateTitle(formModel.title);
-    const amountError = goalValidators.validateAmount(formModel.amount);
+    const amountError = moneyValidators.validateAmount(formModel.amount);
 
     setTitleErrorMessage(titleError);
     setAmountErrorMessage(amountError);
