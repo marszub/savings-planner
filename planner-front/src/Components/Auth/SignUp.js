@@ -23,16 +23,9 @@ export default function SignUp() {
     const navigate = useNavigate();
 
     const [nickErrorMessage, setNickErrorMessage] = useState("");
-    const [isNickError, setIsNickError] = useState(false);
-
     const [emailErrorMessage, setEmailErrorMessage] = useState("");
-    const [isEmailError, setIsEmailError] = useState(false);
-
     const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-    const [isPasswordError, setIsPasswordError] = useState(false);
-
     const [repeatPasswordErrorMessage, setRepeatPasswordErrorMessage] = useState("");
-    const [isRepeatPasswordError, setIsRepeatPasswordError] = useState(false);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -45,34 +38,20 @@ export default function SignUp() {
             data.get('repeatPassword')
         );
 
-        let nickError = userValidators.validateNick(formModel.nick);
+        const nickError = userValidators.validateNick(formModel.nick);
+        const emailError = userValidators.validateEmail(formModel.email);
+        const passwordError = userValidators.validatePassword(formModel.password);
+        const repeatPasswordError = userValidators.validatePassword(formModel.repeatPassword);
+        const passwordMatchError = userValidators.validatePasswordsMatch(formModel.repeatPassword, formModel.password);
+
         setNickErrorMessage(nickError);
-        setIsNickError(!!nickError);
-        if (nickError) console.log(nickError);
-
-        let emailError = userValidators.validateEmail(formModel.email);
         setEmailErrorMessage(emailError);
-        setIsEmailError(!!emailError);
-        if (emailError) console.log(emailError);
-
-        let passwordError = userValidators.validatePassword(formModel.password);
         setPasswordErrorMessage(passwordError);
-        setIsPasswordError(!!passwordError);
-        if (passwordError) console.log(passwordError);
-
-        let repeatPasswordError = userValidators.validatePassword(formModel.repeatPassword);
         setRepeatPasswordErrorMessage(repeatPasswordError);
-        setIsRepeatPasswordError(!!repeatPasswordError);
-        if (repeatPasswordError) console.log(repeatPasswordError);
 
-        let passwordMatchError = "";
         if (!(passwordError || repeatPasswordError)) {
-            passwordMatchError = userValidators.validatePasswordsMatch(formModel.repeatPassword, formModel.password);
             setPasswordErrorMessage(passwordMatchError);
-            setIsPasswordError(!!passwordMatchError);
             setRepeatPasswordErrorMessage(passwordMatchError);
-            setIsRepeatPasswordError(!!passwordMatchError);
-            if (passwordMatchError) console.log(passwordMatchError);
         }
 
         if (nickError || emailError || passwordError || repeatPasswordError || passwordMatchError) {
@@ -94,9 +73,7 @@ export default function SignUp() {
                         let error = "Email or nick already taken";
                         console.log(error);
                         setNickErrorMessage(error);
-                        setIsNickError(true);
                         setEmailErrorMessage(error);
-                        setIsEmailError(true);
                         break;
                     default:
                         console.log("Unexpected error")
@@ -137,7 +114,8 @@ export default function SignUp() {
                                     label="Nickname"
                                     name="nick"
                                     autoComplete="nickname"
-                                    error={isNickError}
+                                    autoFocus
+                                    error={!!nickErrorMessage}
                                     helperText={nickErrorMessage}
                                 />
                             </Grid>
@@ -149,7 +127,7 @@ export default function SignUp() {
                                     label="Email Address"
                                     name="email"
                                     autoComplete="email"
-                                    error={isEmailError}
+                                    error={!!emailErrorMessage}
                                     helperText={emailErrorMessage}
                                 />
                             </Grid>
@@ -162,7 +140,7 @@ export default function SignUp() {
                                     type="password"
                                     id="password"
                                     autoComplete="new-password"
-                                    error={isPasswordError}
+                                    error={!!passwordErrorMessage}
                                     helperText={passwordErrorMessage}
                                 />
                             </Grid>
@@ -175,7 +153,7 @@ export default function SignUp() {
                                     type="password"
                                     id="repeatPassword"
                                     autoComplete="new-password"
-                                    error={isRepeatPasswordError}
+                                    error={!!repeatPasswordErrorMessage}
                                     helperText={repeatPasswordErrorMessage}
                                 />
                             </Grid>

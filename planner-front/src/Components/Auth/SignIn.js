@@ -23,10 +23,7 @@ export default function SignIn() {
     const navigate = useNavigate();
 
     const [loginErrorMessage, setLoginErrorMessage] = useState("");
-    const [isLoginError, setIsLoginError] = useState(false);
-
     const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-    const [isPasswordError, setIsPasswordError] = useState(false);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -37,15 +34,11 @@ export default function SignIn() {
             data.get('password')
         );
 
-        let loginError = userValidators.validateLogin(formModel.login);
-        setLoginErrorMessage(loginError);
-        setIsLoginError(!!loginError);
-        if (loginError) console.log(loginError);
+        const loginError = userValidators.validateLogin(formModel.login);
+        const passwordError = userValidators.validatePassword(formModel.password);
 
-        let passwordError = userValidators.validatePassword(formModel.password);
+        setLoginErrorMessage(loginError);
         setPasswordErrorMessage(passwordError);
-        setIsPasswordError(!!passwordError);
-        if (passwordError) console.log(passwordError);
 
         if (loginError || passwordError) {
             return;
@@ -66,9 +59,7 @@ export default function SignIn() {
                         let error = "Wrong login or password";
                         console.log(error);
                         setLoginErrorMessage(error);
-                        setIsLoginError(true);
                         setPasswordErrorMessage(error);
-                        setIsPasswordError(true);
                         break;
                     default:
                         console.log("Unexpected error");
@@ -109,7 +100,7 @@ export default function SignIn() {
                             name="login"
                             autoComplete="nickname"
                             autoFocus
-                            error={isLoginError}
+                            error={!!loginErrorMessage}
                             helperText={loginErrorMessage}
                         />
                         <TextField
@@ -121,7 +112,7 @@ export default function SignIn() {
                             type="password"
                             id="password"
                             autoComplete="current-password"
-                            error={isPasswordError}
+                            error={!!passwordErrorMessage}
                             helperText={passwordErrorMessage}
                         />
                         <Button
