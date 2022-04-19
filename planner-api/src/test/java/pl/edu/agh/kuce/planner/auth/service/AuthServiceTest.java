@@ -11,6 +11,7 @@ import pl.edu.agh.kuce.planner.auth.dto.LoginRequestDto;
 import pl.edu.agh.kuce.planner.auth.dto.RegistrationRequestDto;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
+import pl.edu.agh.kuce.planner.balance.service.BalanceService;
 
 import java.util.Optional;
 
@@ -33,6 +34,9 @@ class AuthServiceTest {
     @Mock
     private JwtService jwtService;
 
+    @Mock
+    private BalanceService balanceService;
+
     private User fakeUser;
 
     @BeforeEach
@@ -50,7 +54,7 @@ class AuthServiceTest {
 
         when(jwtService.createAccessToken(fakeUser)).thenReturn("token1");
 
-        authService = new AuthService(userRepository, passwordEncoder, jwtService);
+        authService = new AuthService(userRepository, passwordEncoder, jwtService, balanceService);
     }
 
     @Test
