@@ -7,6 +7,7 @@ import SignUp from "./Components/Auth/SignUp";
 import ErrorPage from "./Components/Error/ErrorPage";
 import NotFoundPage from "./Components/Error/NotFoundPage";
 import GoalList from "./Components/Goal/GoalList";
+import EventList from "./Components/Event/EventList";
 
 function App() {
     return (
@@ -16,8 +17,10 @@ function App() {
                 <Route path='/sign-in' element={ <SignIn /> } />
                 <Route path='/sign-up' element={ <SignUp /> } />
                 <Route path='/goals' element={ <GoalList /> } />
+                <Route path='/events' element={ <EventList /> } />
                 <Route path='/error' element={ <ErrorPage /> } />
-                <Route path='*' element={ <NotFoundPage /> } />
+                <Route path='*' element={ <PageNotFound /> } />
+                  
             </Routes>
             <Footer sx={{ mt: 5 }} />
         </Router>
