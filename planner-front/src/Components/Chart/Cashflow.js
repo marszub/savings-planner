@@ -3,6 +3,8 @@ import { Line } from "react-chartjs-2";
 import { useState, useEffect } from "react";
 import { EventStorge } from "../../services/events-storage";
 import { DateService } from "../../services/date-service";
+import { Chart as ChartJS } from 'chart.js/auto'
+import { Chart }            from 'react-chartjs-2'
 
 var saldo = 5000;
 

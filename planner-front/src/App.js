@@ -21,7 +21,7 @@ function App() {
                 <Route path='/goals' element={ <GoalList /> } />
                 <Route path='/events' element={ <EventList /> } />
                 <Route path='/error' element={ <ErrorPage /> } />
-                <Route path='*' element={ <PageNotFound /> } />
+                <Route path='*' element={ <NotFoundPage /> } />
             </Routes>
             <Footer sx={{ mt: 5 }} />
         </Router>
