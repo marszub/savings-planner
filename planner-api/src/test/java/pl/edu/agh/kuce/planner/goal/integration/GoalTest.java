@@ -1,4 +1,4 @@
-package pl.edu.agh.kuce.planner.target.integration;
+package pl.edu.agh.kuce.planner.goal.integration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,7 +21,7 @@ public class GoalTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private GoalRepository targetRepository;
+    private GoalRepository goalRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -33,26 +33,38 @@ public class GoalTest {
 
     @Test
     @Transactional
-    void single_one_time_event_is_properly_saved_in_database() {
+    void singleGoalIsProperlySavedInDatabase() {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         final Goal testGoal = new Goal(user, "test", 11);
-        targetRepository.save(testGoal);
-        final List<Goal> result = targetRepository.findByUser(user);
+        goalRepository.save(testGoal);
+        final List<Goal> result = goalRepository.findByUser(user);
         assertThat(result.get(0)).isEqualTo(testGoal);
     }
 
     @Test
     @Transactional
-    void multiple_one_time_events_are_saved_properly_in_database() {
+    void multipleGoalsAreSavedProperlyInDatabase() {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         final Goal testGoal1 = new Goal(user, "test", 11);
         final Goal testGoal2 = new Goal(user, "test", 112);
-        targetRepository.save(testGoal1);
-        targetRepository.save(testGoal2);
-        final List<Goal> result = targetRepository.findByUser(user);
+        goalRepository.save(testGoal1);
+        goalRepository.save(testGoal2);
+        final List<Goal> result = goalRepository.findByUser(user);
         assertThat(result.get(0)).isEqualTo(testGoal1);
         assertThat(result.get(1)).isEqualTo(testGoal2);
+    }
+
+    @Test
+    @Transactional
+    void goalIsProperlyDeletedFromDatabase() {
+        final User user = new User("TEST", "TEST", "TEST");
+        userRepository.save(user);
+        final Goal testGoal = new Goal(user, "test", 11);
+        goalRepository.save(testGoal);
+        assertThat(goalRepository.getGoalById(testGoal.getId(), user).isPresent()).isEqualTo(true);
+        goalRepository.deleteGoal(testGoal.getId(), user);
+        assertThat(goalRepository.getGoalById(testGoal.getId(), user).isPresent()).isEqualTo(false);
     }
 }

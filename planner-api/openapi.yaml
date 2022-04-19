@@ -81,6 +81,48 @@ paths:
         "401":
           description: "User unauthorized"
 
+  "/api/goal":
+    post:
+      summary: "Create goal"
+      requestBody:
+        description: "Goal data"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/GoalCreateRequest"
+      responses:
+        "200":
+          description: "Goal successfully created"
+        "401":
+          description: "User unauthorized"
+
+  "/api/goals":
+    get:
+      summary: "Gets list of user's goals"
+      responses:
+        "200":
+          description: "Got list of user's goals"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/GoalListResponse"
+        "401":
+          description: "User unauthorized"
+
+  "/api/goal/{id}":
+    delete:
+      summary: "Deletes goal"
+      responses:
+        "200":
+          description: "Goal successfully deleted"
+        "401":
+          description: "User unauthorized"
+        "403":
+          description: "Access to resource denied"
+        "404":
+          description: "Goal with that ID does not exist"
+
 components:
   schemas:
     RegistrationRequest:
@@ -164,6 +206,7 @@ components:
           type: "string"
           format: "yyyy-mm-dd hh:mm:ss.n"
           example: "2022-01-21 00:00:00.0"
+
     EventListResponse:
       type: "object"
       properties:
@@ -186,3 +229,45 @@ components:
                 type: "string"
                 format: "yyyy-mm-dd hh:mm:ss.n"
                 example: "2022-01-21 00:00:00.0"
+
+    GoalListResponse:
+      type: "object"
+      properties:
+        list:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              id:
+                type: "integer"
+                format: "id of an object"
+                example: 1
+              title:
+                type: "string"
+                format: "goal name"
+                minLength: 1
+                maxLength: 200
+                example: "Car"
+              amount:
+                type: "integer"
+                format: "cost of fulfilling the goal"
+                example: 201
+
+    GoalCreateRequest:
+      type: "object"
+      properties:
+        list:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              title:
+                type: "string"
+                format: "goal name"
+                minLength: 1
+                maxLength: 200
+                example: "Car"
+              amount:
+                type: "integer"
+                format: "cost of fulfilling the goal"
+                example: 201
