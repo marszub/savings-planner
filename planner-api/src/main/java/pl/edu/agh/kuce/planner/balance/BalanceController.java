@@ -21,7 +21,8 @@ public class BalanceController {
         this.balanceService = balanceService;
     }
 
-    // This mapping is not used because balance is created automatically while creating user profile but this could be usefull while adding subbalances
+    // This mapping is not used because balance is created automatically while creating user profile
+    // but this could be usefull while adding subbalances
     //     @PostMapping("")
     //     public void create(@Current final User user, @Valid @RequestBody final Integer balance) {
     //         balanceService.create(user, balance);
