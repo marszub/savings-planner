@@ -13,7 +13,7 @@ import pl.edu.agh.kuce.planner.balance.service.BalanceService;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("api/balance")
+@RequestMapping("/api/balance")
 public class BalanceController {
     private final BalanceService balanceService;
 
