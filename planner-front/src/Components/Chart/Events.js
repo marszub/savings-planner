@@ -1,8 +1,8 @@
 import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack"
 import { useState, useEffect } from "react";
-import { EventStorge} from "../services/events-storage"
-import { DateService} from "../services/date-service"
+import { EventStorge} from "../../services/events-storage"
+import { DateService} from "../../services/date-service"
 
 export default function Events(){
     const [eventData, setEventData] = useState([]);

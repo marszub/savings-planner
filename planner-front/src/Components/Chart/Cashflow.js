@@ -1,9 +1,8 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
 import { useState, useEffect } from "react";
-import { Chart as ChartJS } from "chart.js/auto";
-import { EventStorge } from "../services/events-storage";
-import { DateService } from "../services/date-service";
+import { EventStorge } from "../../services/events-storage";
+import { DateService } from "../../services/date-service";
 
 var saldo = 5000;
 
@@ -40,9 +39,9 @@ export default function Cashflow() {
         setChartData({
           labels: eventData.map(
             (data) =>
-              data.timestamp.getDate() +
-              DateService.getMonth(data.timestamp.getMonth()) +
-              data.timestamp.getFullYear()
+              data.timestamp.getDate()
+                + " " + DateService.getMonth(data.timestamp.getMonth()) + " "
+                + data.timestamp.getFullYear()
           ),
           datasets: [
             {

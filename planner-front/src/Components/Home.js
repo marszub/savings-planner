@@ -1,7 +1,7 @@
-import Cashflow from "./Cashflow";
-import Timeline from "./Timeline";
+import Cashflow from "./Chart/Cashflow";
+import Timeline from "./Chart/Timeline";
 import Grid from "@mui/material/Grid";
-import Events from "./Events"
+import Events from "./Chart/Events"
 import "../styles/Home.css"
 import { useState, useEffect } from "react";
 import { eventService } from "../services/event-service";

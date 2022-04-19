@@ -1,12 +1,37 @@
 import React from "react";
 import HorizontalTimeline from "react-horizontal-timeline";
-import { Goals } from "../services/mockData";
 
-function compare(a, b) {
-    if (a.date < b.date)
-       return -1
-    else
-       return 1
+const fakeGoals = [
+    {
+        name: "Zakup laptopa",
+        price: 5000,
+        date: "2022-05-21",
+    },
+    {
+        name: "Remont mieszkania",
+        price: 50000,
+        date: "2024-01-21",
+    },
+    {
+        name: "Zakup samochodu",
+        price: 30000,
+        date: "2023-01-26",
+    },
+    {
+        name: "Wyjazd na Malediwy",
+        price: 10000,
+        date: "2022-12-03",
+    },
+    {
+        name: "Kurs nurkowania",
+        price: 3000,
+        date: "2022-04-20",
+    },
+];
+
+function compareDates(event1, event2) {
+    if (event1.date < event2.date) return -1;
+    else return 1;
  }
  
 
@@ -20,9 +45,9 @@ export default class Timeline extends React.Component {
   }
 
   render() {
-    Goals.sort(compare)
+    fakeGoals.sort(compareDates)
     const { curIdx } = this.state;
-    const curStatus = Goals[curIdx].name;
+    const curStatus = fakeGoals[curIdx].name;
 
     return (
       <div>
@@ -48,7 +73,7 @@ export default class Timeline extends React.Component {
               const curIdx = this.state.curIdx;
               this.setState({ curIdx: index, prevIdx: curIdx });
             }}
-            values={Goals.map((x) => x.date)}
+            values={fakeGoals.map((x) => x.date)}
           />
         </div>
        
