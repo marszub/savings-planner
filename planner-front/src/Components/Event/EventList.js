@@ -31,13 +31,27 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
-import { Collapse, ListItemButton, ListItemIcon } from "@mui/material";
+import { Collapse, ListItemButton, ListItemIcon, MenuItem } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 
 const theme = createTheme();
 
 const EVENT_CREATED_ALERT = 'EVENT_CREATED';
 const EVENT_DELETED_ALERT = 'EVENT_DELETED';
+
+const INCOME_EVENT_TYPE = 1;
+const OUTGO_EVENT_TYPE = 0;
+
+const eventTypes = [
+    {
+        value: INCOME_EVENT_TYPE,
+        label: 'Income',
+    },
+    {
+        value: OUTGO_EVENT_TYPE,
+        label: 'Outgo',
+    },
+];
 
 const fakeEvents = [
     {
@@ -55,13 +69,13 @@ const fakeEvents = [
     {
         id: 3,
         title: 'Event Title 3',
-        amount: 300000,
+        amount: -300000,
         date: '03/13/2019'
     },
     {
         id: 4,
         title: 'Event Title 4',
-        amount: 400000,
+        amount: -400000,
         date: '12/18/2021'
     },
     {
@@ -86,7 +100,7 @@ export default function EventList() {
             {
                 id: findNewId(),
                 title: model.title,
-                amount: moneyFormatter.mapStringToPenniesNumber(model.amount),
+                amount: model.eventType == INCOME_EVENT_TYPE ? moneyFormatter.mapStringToPenniesNumber(model.amount) : (-1) * moneyFormatter.mapStringToPenniesNumber(model.amount),
                 date: model.date
             }
         ]);
@@ -212,11 +226,17 @@ function Event(props) {
 function EventCreationDialog(props) {
     const [titleErrorMessage, setTitleErrorMessage] = useState("");
     const [amountErrorMessage, setAmountErrorMessage] = useState("");
+    const [eventType, setEventType] = useState(INCOME_EVENT_TYPE);
+
+    const handleChange = (event) => {
+        setEventType(event.target.value);
+    };
 
     const handleClose = () => {
         props.onClose();
         setTitleErrorMessage('');
         setAmountErrorMessage('');
+        setEventType(INCOME_EVENT_TYPE);
     };
 
     const handleSubmit = (event) => {
@@ -225,6 +245,7 @@ function EventCreationDialog(props) {
         const data = new FormData(event.currentTarget);
         const formModel = new EventCreateForm(
             data.get('title'),
+            data.get('event-type'),
             data.get('amount'),
             data.get('date')
         );
@@ -272,6 +293,22 @@ function EventCreationDialog(props) {
                             error={!!titleErrorMessage}
                             helperText={titleErrorMessage}
                         />
+                        <TextField
+                            margin="normal"
+                            fullWidth
+                            id="event-type"
+                            name="event-type"
+                            select
+                            label="Select type"
+                            value={eventType}
+                            onChange={handleChange}
+                        >
+                            {eventTypes.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                        </TextField>
                         <TextField
                             margin="normal"
                             required
