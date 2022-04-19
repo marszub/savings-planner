@@ -245,7 +245,6 @@ function GoalCreationDialog(props) {
                   id="amount"
                   label="Amount"
                   name="amount"
-                  autoFocus
                   error={!!amountErrorMessage}
                   helperText={amountErrorMessage}
                   InputProps={{

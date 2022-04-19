@@ -4,10 +4,11 @@ import Home from "./Components/Home";
 import Footer from "./Components/Footer";
 import SignIn from "./Components/Auth/SignIn";
 import SignUp from "./Components/Auth/SignUp";
-import Error from "./Components/Error";
-import PageNotFound from "./Components/PageNotFound";
-import GoalList from "./Components/Goal/GoalList";
 import BalanceField from "./Components/Balance/BalanceField";
+import GoalList from "./Components/Goal/GoalList";
+import EventList from "./Components/Event/EventList";
+import ErrorPage from "./Components/Error/ErrorPage";
+import NotFoundPage from "./Components/Error/NotFoundPage";
 
 function App() {
     return (
@@ -16,9 +17,10 @@ function App() {
                 <Route path='/' element={ <Home /> } />
                 <Route path='/sign-in' element={ <SignIn /> } />
                 <Route path='/sign-up' element={ <SignUp /> } />
-                <Route path='/goals' element={ <GoalList /> } />
                 <Route path='/balance' element={ <BalanceField /> } />
-                <Route path='/error' element={ <Error /> } />
+                <Route path='/goals' element={ <GoalList /> } />
+                <Route path='/events' element={ <EventList /> } />
+                <Route path='/error' element={ <ErrorPage /> } />
                 <Route path='*' element={ <PageNotFound /> } />
             </Routes>
             <Footer sx={{ mt: 5 }} />
