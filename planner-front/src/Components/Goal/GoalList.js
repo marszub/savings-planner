@@ -28,6 +28,7 @@ import {goalValidators} from '../../utils/goal-validators';
 import {moneyValidators} from "../../utils/money-validators";
 import {moneyFormatter} from "../../utils/money-formatter";
 import {goalService} from "../../services/goal-service";
+import "../../styles/Goals.css"
 import {HTTP_FORBIDDEN, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
 
 const theme = createTheme();
@@ -132,10 +133,12 @@ export default function GoalList() {
             Goal list
           </Typography>
 
+          <div id="goal-wrapper">
           <List sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}>
             {goalsItems}
           </List>
-
+          </div>
+          
           <Button
               fullWidth
               variant="contained"

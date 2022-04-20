@@ -6,6 +6,8 @@ import "../styles/Home.css"
 import { useState, useEffect } from "react";
 import { eventService } from "../services/event-service";
 import GoalList from "./Goal/GoalList";
+import BalanceField from "./Balance/BalanceField";
+import EventList from "./Event/EventList";
 
 var initialState = 5000
 
@@ -38,15 +40,20 @@ export default function Home() {
                     </Grid>
                     <Grid item xs={3}>
                         <div className="container">
-                            <h2>Saldo: {initialState}</h2>
+                            <BalanceField></BalanceField>
                         </div>
                         <div className="container goals">
                             <GoalList></GoalList>
                         </div>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={9}>
                         <div className="container">
                             <Events/>
+                        </div>  
+                    </Grid>
+                    <Grid item xs={3}>
+                        <div className="container">
+                            <EventList/>
                         </div>  
                     </Grid>
                 </Grid>
