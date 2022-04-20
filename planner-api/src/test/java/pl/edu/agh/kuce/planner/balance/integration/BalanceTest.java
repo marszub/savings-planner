@@ -12,8 +12,6 @@ import pl.edu.agh.kuce.planner.balance.persistence.BalanceRepository;
 
 import javax.transaction.Transactional;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -41,8 +39,8 @@ public class BalanceTest {
         userRepository.save(user);
         final Balance testBalance = new Balance(user, 10000);
         balanceRepository.save(testBalance);
-        final List<Balance> result = balanceRepository.findByUser(user);
-        assertThat(result.get(0)).isEqualTo(testBalance);
+        final Balance result = balanceRepository.findByUser(user);
+        assertThat(result).isEqualTo(testBalance);
     }
 
     @Test
@@ -63,12 +61,12 @@ public class BalanceTest {
         balanceRepository.save(dummyBalance2);
         balanceRepository.save(dummyBalance3);
 
-        final List<Balance> result1 = balanceRepository.findByUser(user);
-        assertThat(result1.get(0)).isEqualTo(dummyBalance1);
-        final List<Balance> result2 = balanceRepository.findByUser(user2);
-        assertThat(result2.get(0)).isEqualTo(dummyBalance2);
-        final List<Balance> result3 = balanceRepository.findByUser(user3);
-        assertThat(result3.get(0)).isEqualTo(dummyBalance3);
+        final Balance result1 = balanceRepository.findByUser(user);
+        assertThat(result1).isEqualTo(dummyBalance1);
+        final Balance result2 = balanceRepository.findByUser(user2);
+        assertThat(result2).isEqualTo(dummyBalance2);
+        final Balance result3 = balanceRepository.findByUser(user3);
+        assertThat(result3).isEqualTo(dummyBalance3);
     }
 
     @Test
@@ -80,12 +78,16 @@ public class BalanceTest {
         final Balance dummyBalance2 = new Balance(user, 10002);
 
         balanceRepository.save(dummyBalance);
-        balanceRepository.save(dummyBalance2);
 
-        final List<Balance> result = balanceRepository.findByUser(user);
+        Balance result = balanceRepository.findByUser(user);
 
-        assertThat(result.get(0)).isEqualTo(dummyBalance);
-        assertThat(result.get(0)).isNotEqualTo(dummyBalance2);
+        result.setBalance(dummyBalance2.getBalance());
+
+        balanceRepository.save(result);
+
+        result = balanceRepository.findByUser(user);
+
+        assertThat(result).isEqualTo(dummyBalance2);
     }
 
     @Test
@@ -96,12 +98,12 @@ public class BalanceTest {
         final Balance dummyBalance = new Balance(user, 10000);
 
         balanceRepository.save(dummyBalance);
-        List<Balance> result = balanceRepository.findByUser(user);
-        assertThat(result.get(0)).isEqualTo(dummyBalance);
+        Balance result = balanceRepository.findByUser(user);
+        assertThat(result).isEqualTo(dummyBalance);
 
         balanceRepository.updateBalance(user, 20000);
         result = balanceRepository.findByUser(user);
-        assertThat(result.get(0)).isEqualTo(new Balance(user, 20000));
+        assertThat(result).isEqualTo(new Balance(user, 20000));
     }
 
     @Test
@@ -110,10 +112,10 @@ public class BalanceTest {
         userRepository.save(user);
 
         final Balance dummyBalance = new Balance(user, 10000);
-        assertThat(balanceRepository.findByUser(user).isEmpty()).isEqualTo(true);
+        assertThat(balanceRepository.findByUser(user)).isEqualTo(null);
 
         balanceRepository.save(dummyBalance);
-        final List<Balance> result = balanceRepository.findByUser(user);
-        assertThat(result.get(0)).isEqualTo(new Balance(user, 10000));
+        final Balance result = balanceRepository.findByUser(user);
+        assertThat(result).isEqualTo(new Balance(user, 10000));
     }
 }
