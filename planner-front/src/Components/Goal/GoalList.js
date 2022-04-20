@@ -27,66 +27,80 @@ import {GoalCreateForm} from '../../models/goal-create-form';
 import {goalValidators} from '../../utils/goal-validators';
 import {moneyValidators} from "../../utils/money-validators";
 import {moneyFormatter} from "../../utils/money-formatter";
+import {goalService} from "../../services/goal-service";
+import {HTTP_FORBIDDEN, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
 
 const theme = createTheme();
 
 const GOAL_CREATED_ALERT = 'GOAL_CREATED';
 const GOAL_DELETED_ALERT = 'GOAL_DELETED';
-
-const fakeGoals = [
-  {
-    id: 1,
-    title: 'Goal Title 1',
-    amount: 100000
-  },
-  {
-    id: 2,
-    title: 'Goal Title 2',
-    amount: 200000
-  },
-  {
-    id: 3,
-    title: 'Goal Title 3',
-    amount: 300000
-  },
-  {
-    id: 4,
-    title: 'Goal Title 4',
-    amount: 400000
-  },
-  {
-    id: 5,
-    title: 'Goal Title 5',
-    amount: 500000
-  }
-];
+const GOAL_403_ALERT = 'GOAL_403';
+const GOAL_404_ALERT = 'GOAL_404';
 
 export default function GoalList() {
-  const [goals, setGoals] = useState(fakeGoals);
+  const [goals, setGoals] = useState([]);
   const [goalCreationOpen, setGoalCreationOpen] = useState(false);
   const [alertStatus, setAlertStatus] = useState("");
   const [refreshAlert, setRefreshAlert] = useState(false);
 
-  const findNewId = () => Math.max(...goals.map(goal => goal.id)) + 1;
+  const updateGoalList = () => {
+      goalService.getList()
+          .then(res => {
+              if (res.status !== HTTP_OK) {
+                  return;
+              }
 
-  const createGoal = (model) => {
-    setGoals(prev => [
-      ...prev,
-      {
-        id: findNewId(),
-        title: model.title,
-        amount: moneyFormatter.mapStringToPenniesNumber(model.amount)
-      }
-    ]);
+              setGoals(res.body.list);
+          })
+          .catch(err => console.log(err));
+  }
 
-    setAlertStatus(GOAL_CREATED_ALERT);
-    setRefreshAlert(prev => !prev);
+  useEffect(() => {
+    goalService.getList()
+        .then(res => {
+          if (res.status !== HTTP_OK) {
+            return;
+          }
+
+          setGoals(res.body.list);
+        })
+        .catch(err => console.log(err));
+    }, []);
+
+  const createGoal = model => {
+    goalService.create(model)
+        .then(res => {
+          if (res.status !== HTTP_NO_CONTENT) {
+            return;
+          }
+
+            updateGoalList();
+            setAlertStatus(GOAL_CREATED_ALERT);
+            setRefreshAlert(prev => !prev);
+        })
+        .catch(err => console.log(err));
   };
 
-  const deleteGoal = (goalId) => {
-    setGoals(prev => [...prev.filter(goal => goal.id !== goalId)]);
-    setAlertStatus(GOAL_DELETED_ALERT);
-    setRefreshAlert(prev => !prev);
+  const deleteGoal = id => {
+    goalService.delete(id)
+        .then(res => {
+          switch (res.status) {
+            case HTTP_NO_CONTENT:
+              updateGoalList();
+                setAlertStatus(GOAL_DELETED_ALERT);
+                setRefreshAlert(prev => !prev);
+              break;
+            case HTTP_FORBIDDEN:
+              setAlertStatus(GOAL_403_ALERT);
+              setRefreshAlert(prev => !prev);
+              break;
+            case HTTP_NOT_FOUND:
+              setAlertStatus(GOAL_404_ALERT);
+              setRefreshAlert(prev => !prev);
+              break;
+          }
+        })
+        .catch(err => console.log(err));
   };
 
   const goalsItems = goals.map(goal =>
@@ -334,6 +348,16 @@ function GoalActionSnackbar(props) {
         setAlertMessage('Goal successfully deleted!');
         setAlertOpen(true);
         break;
+      case GOAL_403_ALERT:
+        setAlertSeverity("error");
+        setAlertMessage("You don't have permission to modify this goal!");
+        setAlertOpen(true);
+        break;
+      case GOAL_404_ALERT:
+        setAlertSeverity("error");
+        setAlertMessage("This goal does not exist!");
+        setAlertOpen(true);
+        break;
       default:
         console.log('Unknown alert status ' + props.alert);
         break;
@@ -344,7 +368,9 @@ function GoalActionSnackbar(props) {
     setAlertOpen(false);
   }
 
-  useEffect(() => updateAlert(), [props.refresh]);
+  useEffect(() => {
+      updateAlert();
+  }, [props.refresh]);
 
   return (
       <Snackbar
