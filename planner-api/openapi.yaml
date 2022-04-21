@@ -61,7 +61,7 @@ paths:
             schema:
               "$ref": "#/components/schemas/BalanceUpdateRequest"
       responses:
-        "200":
+        "204":
           description: "Balance has been updated"
         "401":
           description: "User unauthorized"
