@@ -1,7 +1,9 @@
 package pl.edu.agh.kuce.planner.goal.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.goal.GoalNotFoundException;
 import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
@@ -20,8 +22,8 @@ public class GoalService {
         this.goalRepository = goalRepository;
     }
 
-    public void create(final GoalInputData data, final User user) {
-        goalRepository.save(new Goal(user, data));
+    public GoalData create(final GoalInputData data, final User user) {
+        return new GoalData(goalRepository.save(new Goal(user, data)));
     }
 
     public ListResponse list(final User user) {

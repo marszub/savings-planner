@@ -50,7 +50,7 @@ paths:
         "401":
           description: "Wrong login or password"
 
-  "/api/event/create":
+  "/api/events":
     post:
       summary: "Creates new one-time event"
       requestBody:
@@ -67,9 +67,7 @@ paths:
           description: "Invalid request body"
         "401":
           description: "User unauthorized"
-
-  "/api/event/list":
-    post:
+    get:
       summary: "Gets list of user's one-time events"
       responses:
         "200":
@@ -81,7 +79,7 @@ paths:
         "401":
           description: "User unauthorized"
 
-  "/api/goal":
+  "/api/goals":
     post:
       summary: "Create goal"
       requestBody:
@@ -94,10 +92,12 @@ paths:
       responses:
         "200":
           description: "Goal successfully created"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/GoalData"
         "401":
           description: "User unauthorized"
-
-  "/api/goals":
     get:
       summary: "Gets list of user's goals"
       responses:
@@ -110,16 +110,15 @@ paths:
         "401":
           description: "User unauthorized"
 
-  "/api/goal/{id}":
+
+  "/api/goals/{id}":
     delete:
       summary: "Deletes goal"
       responses:
-        "200":
+        "204":
           description: "Goal successfully deleted"
         "401":
           description: "User unauthorized"
-        "403":
-          description: "Access to resource denied"
         "404":
           description: "Goal with that ID does not exist"
 
@@ -271,3 +270,21 @@ components:
                 type: "integer"
                 format: "cost of fulfilling the goal"
                 example: 201
+
+    GoalData:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "id of an object"
+          example: 1
+        title:
+          type: "string"
+          format: "goal name"
+          minLength: 1
+          maxLength: 200
+          example: "Car"
+        amount:
+          type: "integer"
+          format: "cost of fulfilling the goal"
+          example: 201
