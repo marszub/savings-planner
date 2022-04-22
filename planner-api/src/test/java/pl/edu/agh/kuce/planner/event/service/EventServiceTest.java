@@ -5,9 +5,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.event.dto.ListResponse;
 import pl.edu.agh.kuce.planner.event.dto.OneTimeEventData;
+import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 
@@ -15,8 +18,11 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
+@AutoConfigureMockMvc
 class EventServiceTest {
 
     private EventService eventService;
@@ -42,10 +48,13 @@ class EventServiceTest {
         user2.setId(2);
         MockitoAnnotations.openMocks(this);
 
+        final OneTimeEvent event = new OneTimeEvent(user1, title1, amount1, timestamp1);
+        event.setId(1);
         when(oneTimeEventRepository.findByUser(user1))
                 .thenReturn(List.of(new OneTimeEvent(user1, title1, amount1, timestamp1)));
         when(oneTimeEventRepository.findByUser(user2))
                 .thenReturn(List.of());
+        when(oneTimeEventRepository.save(any())).thenReturn(event);
 
         eventService = new EventService(oneTimeEventRepository);
     }
@@ -53,7 +62,7 @@ class EventServiceTest {
     @Test
     void create_doesNotThrow() {
         Assertions.assertDoesNotThrow(
-                () -> eventService.create(new OneTimeEventData(title1, amount1, timestampStr1), user1));
+                () -> eventService.create(new OneTimeEventDataInput(title1, amount1, timestampStr1), user1));
     }
 
     @Test
