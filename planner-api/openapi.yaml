@@ -50,6 +50,34 @@ paths:
         "401":
           description: "Wrong login or password"
 
+  "/api/balance":
+    put:
+      summary: "Update user balance"
+      requestBody:
+        description: "New balance"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/BalanceUpdateRequest"
+      responses:
+        "204":
+          description: "Balance has been updated"
+        "401":
+          description: "User unauthorized"
+
+    get:
+      summary: "Get actual user balance"
+      responses:
+        "200":
+          description: "Got user balance"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/BalanceListResponse"
+        "401":
+          description: "User unauthorized"
+
   "/api/events":
     post:
       summary: "Creates new one-time event"
@@ -191,6 +219,22 @@ components:
               type: "integer"
               format: "int32"
               description: "Owner's ID"
+
+    BalanceUpdateRequest:
+      type: "object"
+      properties:
+        balance:
+          type: "integer"
+          format: "positive or zero account balance"
+          example: 10000
+
+    BalanceListResponse:
+      type: "object"
+      properties:
+        balance:
+          type: "integer"
+          format: "positive or zero account balance"
+          example: 0
 
     EventCreateRequest:
       type: "object"
