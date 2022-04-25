@@ -9,10 +9,10 @@ export const goalService = {
 
     create(formModel) {
         const body = new CreateGoalRequest(formModel.title, moneyFormatter.mapStringToPenniesNumber(formModel.amount));
-        return httpService.post("/goal", body);
+        return httpService.post("/goals", body);
     },
 
     delete(id) {
-        return httpService.delete(`/goal/${id}`);
+        return httpService.delete(`/goals/${id}`);
     }
 }
