@@ -276,9 +276,8 @@ components:
                 format: "positive or negative money gain"
                 example: 201
               timestamp:
-                type: "string"
-                format: "yyyy-mm-dd hh:mm:ss.n"
-                example: "2022-01-21 00:00:00.0"
+                type: "integer"
+                example: "100000"
 
     EventData:
       type: "object"
@@ -298,9 +297,8 @@ components:
           format: "positive or negative money gain"
           example: 201
         timestamp:
-          type: "string"
-          format: "yyyy-mm-dd hh:mm:ss.n"
-          example: "2022-01-21 00:00:00.0"
+          type: "integer"
+          example: "100000"
 
     GoalListResponse:
       type: "object"
