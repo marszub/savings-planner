@@ -54,7 +54,7 @@ export const eventService = {
     },
     setEvents(res){
         if (res.status === HTTP_OK) {
-            EventStorge.accessEvents = res.body.list;
+            EventStorge.accessEvents = res.body.events;
             EventStorge.accessEvents = changeTimestamp(EventStorge.accessEvents)
         }
         return res;
