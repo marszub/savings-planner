@@ -15,9 +15,9 @@ public record OneTimeEventData(
         Integer amount,
 
         @NotNull
-        String timestamp) {
+        Long timestamp) {
     public OneTimeEventData(final OneTimeEvent oneTimeEvent) {
         this(oneTimeEvent.getId(), oneTimeEvent.getTitle(),
-                oneTimeEvent.getAmount(), oneTimeEvent.getTimestamp().toString());
+                oneTimeEvent.getAmount(), oneTimeEvent.getTimestamp());
     }
 }

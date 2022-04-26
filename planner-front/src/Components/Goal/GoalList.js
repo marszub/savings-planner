@@ -69,7 +69,7 @@ export default function GoalList() {
   const createGoal = model => {
     goalService.create(model)
         .then(res => {
-          if (res.status !== HTTP_OK) {
+          if (res.status !== HTTP_CREATED) {
             return;
           }
 

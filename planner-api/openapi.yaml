@@ -17,7 +17,7 @@ paths:
             schema:
               "$ref": "#/components/schemas/RegistrationRequest"
       responses:
-        "200":
+        "201":
           description: "User has been created"
           content:
             "application/json":
@@ -89,7 +89,7 @@ paths:
             schema:
               "$ref": "#/components/schemas/EventCreateRequest"
       responses:
-        "200":
+        "201":
           description: "Event has been created"
           content:
             "application/json":
@@ -122,7 +122,7 @@ paths:
             schema:
               "$ref": "#/components/schemas/GoalCreateRequest"
       responses:
-        "200":
+        "201":
           description: "Goal successfully created"
           content:
             "application/json":
@@ -250,9 +250,8 @@ components:
           format: "positive or negative money gain"
           example: -205
         timestamp:
-          type: "string"
-          format: "yyyy-mm-dd hh:mm:ss.n"
-          example: "2022-01-21 00:00:00.0"
+          type: "integer"
+          example: "100000"
 
     EventListResponse:
       type: "object"

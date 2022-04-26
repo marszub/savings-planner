@@ -33,6 +33,7 @@ public class GoalController {
     }
 
     @GetMapping("/goals")
+    @ResponseStatus(HttpStatus.CREATED)
     public ListResponse list(@Current final User user) {
         return goalService.list(user);
     }

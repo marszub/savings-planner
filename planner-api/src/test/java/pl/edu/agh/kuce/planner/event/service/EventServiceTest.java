@@ -14,7 +14,7 @@ import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,8 +38,8 @@ class EventServiceTest {
     private final String password2 = "pass2-HASH";
     private final String title1 = "Title1";
     private final Integer amount1 = 201;
-    private final String timestampStr1 = "2022-01-21 01:01:01.0";
-    private final Timestamp timestamp1 = Timestamp.valueOf(timestampStr1);
+    private final Long timestampSpr1 = 1650989137L;
+    private final Instant timestamp1 = Instant.ofEpochSecond(timestampSpr1);
     private final User user1 = new User(nick1, email1, password1);
     private final User user2 = new User(nick2, email2, password2);
     @BeforeEach
@@ -62,7 +62,7 @@ class EventServiceTest {
     @Test
     void create_doesNotThrow() {
         Assertions.assertDoesNotThrow(
-                () -> eventService.create(new OneTimeEventDataInput(title1, amount1, timestampStr1), user1));
+                () -> eventService.create(new OneTimeEventDataInput(title1, amount1, timestampSpr1), user1));
     }
 
     @Test
@@ -72,7 +72,7 @@ class EventServiceTest {
         final OneTimeEventData foundEvent = response.list().get(0);
         assertThat(foundEvent.title()).isEqualTo(title1);
         assertThat(foundEvent.amount()).isEqualTo(amount1);
-        assertThat(foundEvent.timestamp()).isEqualTo(timestampStr1);
+        assertThat(foundEvent.timestamp()).isEqualTo(timestampSpr1);
     }
 
     @Test

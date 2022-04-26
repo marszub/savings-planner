@@ -1,9 +1,11 @@
 package pl.edu.agh.kuce.planner.event;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import pl.edu.agh.kuce.planner.auth.Current;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
@@ -25,6 +27,7 @@ public class EventController {
     }
 
     @PostMapping("")
+    @ResponseStatus(HttpStatus.CREATED)
     public OneTimeEventData create(@Valid @RequestBody final OneTimeEventDataInput data, @Current final User user) {
         return eventService.create(data, user);
     }
