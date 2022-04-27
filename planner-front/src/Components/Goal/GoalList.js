@@ -49,7 +49,7 @@ export default function GoalList() {
                   return;
               }
 
-              setGoals(res.body.list);
+              setGoals(res.body.goals);
           })
           .catch(err => console.log(err));
   }
@@ -61,7 +61,7 @@ export default function GoalList() {
             return;
           }
 
-          setGoals(res.body.list);
+          setGoals(res.body.goals);
         })
         .catch(err => console.log(err));
     }, []);

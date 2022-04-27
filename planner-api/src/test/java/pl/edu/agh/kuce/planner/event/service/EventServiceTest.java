@@ -68,8 +68,8 @@ class EventServiceTest {
     @Test
     void list_returnsCorrespondingData() {
         final ListResponse response = eventService.list(user1);
-        assertThat(response.list().size()).isEqualTo(1);
-        final OneTimeEventData foundEvent = response.list().get(0);
+        assertThat(response.events().size()).isEqualTo(1);
+        final OneTimeEventData foundEvent = response.events().get(0);
         assertThat(foundEvent.title()).isEqualTo(title1);
         assertThat(foundEvent.amount()).isEqualTo(amount1);
         assertThat(foundEvent.timestamp()).isEqualTo(timestampSpr1);
@@ -78,6 +78,6 @@ class EventServiceTest {
     @Test
     void list_notReturnsDataForDifferentUser() {
         final ListResponse response = eventService.list(user2);
-        assertThat(response.list().size()).isEqualTo(0);
+        assertThat(response.events().size()).isEqualTo(0);
     }
 }

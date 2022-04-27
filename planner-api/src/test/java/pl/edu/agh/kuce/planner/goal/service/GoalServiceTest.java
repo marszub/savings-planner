@@ -75,8 +75,8 @@ class GoalServiceTest {
     @Test
     void list_returnsCorrespondingData() {
         final ListResponse response = goalService.list(user1);
-        assertThat(response.list().size()).isEqualTo(1);
-        final GoalData foundGoal = response.list().get(0);
+        assertThat(response.goals().size()).isEqualTo(1);
+        final GoalData foundGoal = response.goals().get(0);
         assertThat(foundGoal.title()).isEqualTo(title1);
         assertThat(foundGoal.amount()).isEqualTo(amount1);
     }
@@ -84,7 +84,7 @@ class GoalServiceTest {
     @Test
     void list_notReturnsDataForDifferentUser() {
         final ListResponse response = goalService.list(user2);
-        assertThat(response.list().size()).isEqualTo(0);
+        assertThat(response.goals().size()).isEqualTo(0);
     }
 
     @Test
@@ -101,9 +101,9 @@ class GoalServiceTest {
         userRepository.save(user);
         final Goal testGoal = new Goal(user, "test", 11);
         notMockedGoalRepository.save(testGoal);
-        assertThat(goalService.list(user).list().size()).isEqualTo(1);
-        goalService.destroy(goalService.list(user).list().get(0).id(), user);
-        assertThat(goalService.list(user).list().size()).isEqualTo(0);
+        assertThat(goalService.list(user).goals().size()).isEqualTo(1);
+        goalService.destroy(goalService.list(user).goals().get(0).id(), user);
+        assertThat(goalService.list(user).goals().size()).isEqualTo(0);
     }
 
 }
