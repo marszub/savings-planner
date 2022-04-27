@@ -28,12 +28,12 @@ public class GoalController {
     }
 
     @PostMapping("/goals")
+    @ResponseStatus(HttpStatus.CREATED)
     public GoalData create(@Valid @RequestBody final GoalInputData data, @Current final User user) {
         return goalService.create(data, user);
     }
 
     @GetMapping("/goals")
-    @ResponseStatus(HttpStatus.CREATED)
     public ListResponse list(@Current final User user) {
         return goalService.list(user);
     }
