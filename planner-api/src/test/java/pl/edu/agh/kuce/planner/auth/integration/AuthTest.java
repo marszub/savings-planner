@@ -48,11 +48,11 @@ class AuthTest {
 
     @Test
     @Transactional
-    void givenValidCredentials_register_returns200() throws Exception {
+    void givenValidCredentials_register_returns201() throws Exception {
         final var request = new RegistrationRequestDto("user", "email@example.com", "password");
 
         mockMvc.perform(post("/api/auth/users").contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.accessToken", matchesPattern("^.+\\..+\\..+$")));
     }
