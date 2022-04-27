@@ -10,7 +10,7 @@ import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +38,7 @@ public class OneTimeEventTest {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         final OneTimeEvent testEvent = new OneTimeEvent(user, "test", 110,
-                new Timestamp(System.currentTimeMillis()));
+                Instant.now());
         oneTimeEventRepository.save(testEvent);
         final List<OneTimeEvent> result = oneTimeEventRepository.findByUser(user);
         assertThat(result.get(0)).isEqualTo(testEvent);
@@ -50,9 +50,9 @@ public class OneTimeEventTest {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         final OneTimeEvent testEvent1 = new OneTimeEvent(user, "test1", 10,
-                new Timestamp(System.currentTimeMillis()));
+                Instant.now());
         final OneTimeEvent testEvent2 = new OneTimeEvent(user, "test2", 120,
-                new Timestamp(System.currentTimeMillis()));
+                Instant.now());
         oneTimeEventRepository.save(testEvent1);
         oneTimeEventRepository.save(testEvent2);
         final List<OneTimeEvent> result = oneTimeEventRepository.findByUser(user);

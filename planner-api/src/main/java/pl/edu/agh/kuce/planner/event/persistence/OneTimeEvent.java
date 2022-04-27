@@ -1,7 +1,7 @@
 package pl.edu.agh.kuce.planner.event.persistence;
 
 import pl.edu.agh.kuce.planner.auth.persistence.User;
-import pl.edu.agh.kuce.planner.event.dto.OneTimeEventData;
+import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Objects;
 
 @Entity
@@ -31,23 +31,23 @@ public class OneTimeEvent {
     private Integer amount;
 
     @Column(nullable = false)
-    private Timestamp timestamp;
+    private Instant timestamp;
 
     public OneTimeEvent() { }
 
-    public OneTimeEvent(final User user, final String title, final Integer amount, final Timestamp timestamp) {
+    public OneTimeEvent(final User user, final String title, final Integer amount, final Instant timestamp) {
         this.user = user;
         this.title = title;
         this.amount = amount;
         this.timestamp = timestamp;
     }
 
-    public OneTimeEvent(final OneTimeEventData oneTimeEventData, final User user) {
+    public OneTimeEvent(final OneTimeEventDataInput oneTimeEventData, final User user) {
         this(
                 user,
                 oneTimeEventData.title(),
                 oneTimeEventData.amount(),
-                Timestamp.valueOf(oneTimeEventData.timestamp())
+                Instant.ofEpochSecond(oneTimeEventData.timestamp())
         );
     }
 
@@ -83,12 +83,12 @@ public class OneTimeEvent {
         this.amount = amount;
     }
 
-    public Timestamp getTimestamp() {
-        return timestamp;
+    public Long getTimestamp() {
+        return timestamp.getEpochSecond();
     }
 
-    public void setTimestamp(final Timestamp timestamp) {
-        this.timestamp = timestamp;
+    public void setTimestamp(final Long timestamp) {
+        this.timestamp = Instant.ofEpochSecond(timestamp);
     }
 
     @Override

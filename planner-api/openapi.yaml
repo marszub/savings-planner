@@ -17,7 +17,7 @@ paths:
             schema:
               "$ref": "#/components/schemas/RegistrationRequest"
       responses:
-        "200":
+        "201":
           description: "User has been created"
           content:
             "application/json":
@@ -78,7 +78,7 @@ paths:
         "401":
           description: "User unauthorized"
 
-  "/api/event/create":
+  "/api/events":
     post:
       summary: "Creates new one-time event"
       requestBody:
@@ -89,15 +89,17 @@ paths:
             schema:
               "$ref": "#/components/schemas/EventCreateRequest"
       responses:
-        "200":
+        "201":
           description: "Event has been created"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/EventData"
         "400":
           description: "Invalid request body"
         "401":
           description: "User unauthorized"
-
-  "/api/event/list":
-    post:
+    get:
       summary: "Gets list of user's one-time events"
       responses:
         "200":
@@ -109,7 +111,7 @@ paths:
         "401":
           description: "User unauthorized"
 
-  "/api/goal":
+  "/api/goals":
     post:
       summary: "Create goal"
       requestBody:
@@ -120,12 +122,14 @@ paths:
             schema:
               "$ref": "#/components/schemas/GoalCreateRequest"
       responses:
-        "200":
+        "201":
           description: "Goal successfully created"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/GoalData"
         "401":
           description: "User unauthorized"
-
-  "/api/goals":
     get:
       summary: "Gets list of user's goals"
       responses:
@@ -138,16 +142,15 @@ paths:
         "401":
           description: "User unauthorized"
 
-  "/api/goal/{id}":
+
+  "/api/goals/{id}":
     delete:
       summary: "Deletes goal"
       responses:
-        "200":
+        "204":
           description: "Goal successfully deleted"
         "401":
           description: "User unauthorized"
-        "403":
-          description: "Access to resource denied"
         "404":
           description: "Goal with that ID does not exist"
 
@@ -247,9 +250,8 @@ components:
           format: "positive or negative money gain"
           example: -205
         timestamp:
-          type: "string"
-          format: "yyyy-mm-dd hh:mm:ss.n"
-          example: "2022-01-21 00:00:00.0"
+          type: "integer"
+          example: "100000"
 
     EventListResponse:
       type: "object"
@@ -259,6 +261,10 @@ components:
           items:
             type: "object"
             properties:
+              id:
+                type: "integer"
+                format: "id of an object"
+                example: 1
               title:
                 type: "string"
                 format: "event name"
@@ -270,9 +276,29 @@ components:
                 format: "positive or negative money gain"
                 example: 201
               timestamp:
-                type: "string"
-                format: "yyyy-mm-dd hh:mm:ss.n"
-                example: "2022-01-21 00:00:00.0"
+                type: "integer"
+                example: "100000"
+
+    EventData:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "id of an object"
+          example: 1
+        title:
+          type: "string"
+          format: "event name"
+          minLength: 1
+          maxLength: 200
+          example: "Repayment"
+        amount:
+          type: "integer"
+          format: "positive or negative money gain"
+          example: 201
+        timestamp:
+          type: "integer"
+          example: "100000"
 
     GoalListResponse:
       type: "object"
@@ -315,3 +341,21 @@ components:
                 type: "integer"
                 format: "cost of fulfilling the goal"
                 example: 201
+
+    GoalData:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "id of an object"
+          example: 1
+        title:
+          type: "string"
+          format: "goal name"
+          minLength: 1
+          maxLength: 200
+          example: "Car"
+        amount:
+          type: "integer"
+          format: "cost of fulfilling the goal"
+          example: 201

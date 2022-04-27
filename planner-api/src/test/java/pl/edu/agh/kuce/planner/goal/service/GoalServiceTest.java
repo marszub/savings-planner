@@ -13,14 +13,15 @@ import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
 import pl.edu.agh.kuce.planner.goal.GoalNotFoundException;
 import pl.edu.agh.kuce.planner.goal.dto.GoalData;
-import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
 import pl.edu.agh.kuce.planner.goal.dto.GoalInputData;
+import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
 import pl.edu.agh.kuce.planner.goal.persistence.Goal;
 import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -54,10 +55,13 @@ class GoalServiceTest {
         user2.setId(2);
         MockitoAnnotations.openMocks(this);
 
+        final Goal goal = new Goal(user1, title1, amount1);
+        goal.setId(1);
         when(goalRepository.findByUser(user1))
                 .thenReturn(List.of(new Goal(user1, title1, amount1)));
         when(goalRepository.findByUser(user2))
                 .thenReturn(List.of());
+        when(goalRepository.save(any())).thenReturn(goal);
 
         goalService = new GoalService(goalRepository);
     }

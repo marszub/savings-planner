@@ -48,7 +48,7 @@ function parseDate(time) {
 
 export const eventService = {
     getEventsList() { 
-        return httpService.post("/event/list", null)
+        return httpService.get("/events")
         .then(res => this.setEvents(res))
         .catch(error => console.log(error))
     },

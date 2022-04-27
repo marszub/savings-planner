@@ -5,18 +5,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.event.dto.ListResponse;
 import pl.edu.agh.kuce.planner.event.dto.OneTimeEventData;
+import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
+@AutoConfigureMockMvc
 class EventServiceTest {
 
     private EventService eventService;
@@ -32,8 +38,8 @@ class EventServiceTest {
     private final String password2 = "pass2-HASH";
     private final String title1 = "Title1";
     private final Integer amount1 = 201;
-    private final String timestampStr1 = "2022-01-21 01:01:01.0";
-    private final Timestamp timestamp1 = Timestamp.valueOf(timestampStr1);
+    private final Long timestampSpr1 = 1650989137L;
+    private final Instant timestamp1 = Instant.ofEpochSecond(timestampSpr1);
     private final User user1 = new User(nick1, email1, password1);
     private final User user2 = new User(nick2, email2, password2);
     @BeforeEach
@@ -42,10 +48,13 @@ class EventServiceTest {
         user2.setId(2);
         MockitoAnnotations.openMocks(this);
 
+        final OneTimeEvent event = new OneTimeEvent(user1, title1, amount1, timestamp1);
+        event.setId(1);
         when(oneTimeEventRepository.findByUser(user1))
                 .thenReturn(List.of(new OneTimeEvent(user1, title1, amount1, timestamp1)));
         when(oneTimeEventRepository.findByUser(user2))
                 .thenReturn(List.of());
+        when(oneTimeEventRepository.save(any())).thenReturn(event);
 
         eventService = new EventService(oneTimeEventRepository);
     }
@@ -53,7 +62,7 @@ class EventServiceTest {
     @Test
     void create_doesNotThrow() {
         Assertions.assertDoesNotThrow(
-                () -> eventService.create(new OneTimeEventData(title1, amount1, timestampStr1), user1));
+                () -> eventService.create(new OneTimeEventDataInput(title1, amount1, timestampSpr1), user1));
     }
 
     @Test
@@ -63,7 +72,7 @@ class EventServiceTest {
         final OneTimeEventData foundEvent = response.events().get(0);
         assertThat(foundEvent.title()).isEqualTo(title1);
         assertThat(foundEvent.amount()).isEqualTo(amount1);
-        assertThat(foundEvent.timestamp()).isEqualTo(timestampStr1);
+        assertThat(foundEvent.timestamp()).isEqualTo(timestampSpr1);
     }
 
     @Test

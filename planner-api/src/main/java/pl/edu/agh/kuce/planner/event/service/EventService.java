@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.event.dto.ListResponse;
 import pl.edu.agh.kuce.planner.event.dto.OneTimeEventData;
+import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 
@@ -15,8 +16,9 @@ public class EventService {
         this.oneTimeEventRepository = oneTimeEventRepository;
     }
 
-    public void create(final OneTimeEventData request, final User user) {
-        oneTimeEventRepository.save(new OneTimeEvent(request, user));
+    public OneTimeEventData create(final OneTimeEventDataInput request, final User user) {
+        final OneTimeEvent event = oneTimeEventRepository.save(new OneTimeEvent(request, user));
+        return new OneTimeEventData(event);
     }
 
     public ListResponse list(final User user) {

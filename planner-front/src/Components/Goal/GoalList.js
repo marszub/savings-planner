@@ -28,13 +28,12 @@ import {goalValidators} from '../../utils/goal-validators';
 import {moneyValidators} from "../../utils/money-validators";
 import {moneyFormatter} from "../../utils/money-formatter";
 import {goalService} from "../../services/goal-service";
-import {HTTP_FORBIDDEN, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
+import {HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
 
 const theme = createTheme();
 
 const GOAL_CREATED_ALERT = 'GOAL_CREATED';
 const GOAL_DELETED_ALERT = 'GOAL_DELETED';
-const GOAL_403_ALERT = 'GOAL_403';
 const GOAL_404_ALERT = 'GOAL_404';
 
 export default function GoalList() {
@@ -70,7 +69,7 @@ export default function GoalList() {
   const createGoal = model => {
     goalService.create(model)
         .then(res => {
-          if (res.status !== HTTP_NO_CONTENT) {
+          if (res.status !== HTTP_CREATED) {
             return;
           }
 
@@ -89,10 +88,6 @@ export default function GoalList() {
               updateGoalList();
                 setAlertStatus(GOAL_DELETED_ALERT);
                 setRefreshAlert(prev => !prev);
-              break;
-            case HTTP_FORBIDDEN:
-              setAlertStatus(GOAL_403_ALERT);
-              setRefreshAlert(prev => !prev);
               break;
             case HTTP_NOT_FOUND:
               setAlertStatus(GOAL_404_ALERT);
@@ -346,11 +341,6 @@ function GoalActionSnackbar(props) {
       case GOAL_DELETED_ALERT:
         setAlertSeverity('info');
         setAlertMessage('Goal successfully deleted!');
-        setAlertOpen(true);
-        break;
-      case GOAL_403_ALERT:
-        setAlertSeverity("error");
-        setAlertMessage("You don't have permission to modify this goal!");
         setAlertOpen(true);
         break;
       case GOAL_404_ALERT:

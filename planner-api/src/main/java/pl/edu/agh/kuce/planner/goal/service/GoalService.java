@@ -20,8 +20,9 @@ public class GoalService {
         this.goalRepository = goalRepository;
     }
 
-    public void create(final GoalInputData data, final User user) {
-        goalRepository.save(new Goal(user, data));
+    public GoalData create(final GoalInputData data, final User user) {
+        final Goal goal = goalRepository.save(new Goal(user, data));
+        return new GoalData(goal);
     }
 
     public ListResponse list(final User user) {
