@@ -1,6 +1,6 @@
 package pl.edu.agh.kuce.planner.goal.service;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -20,7 +20,7 @@ import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -68,8 +68,8 @@ class GoalServiceTest {
 
     @Test
     void create_doesNotThrow() {
-        Assertions.assertDoesNotThrow(
-                () -> goalService.create(new GoalInputData(title1, amount1, 1), user1));
+        assertThatNoException()
+                .isThrownBy(() -> goalService.create(new GoalInputData(title1, amount1, 1), user1));
     }
 
     @Test
@@ -79,6 +79,7 @@ class GoalServiceTest {
         final GoalData foundGoal = response.goals().get(0);
         assertThat(foundGoal.title()).isEqualTo(title1);
         assertThat(foundGoal.amount()).isEqualTo(amount1);
+        assertThat(foundGoal.priority()).isEqualTo(1);
     }
 
     @Test
@@ -89,8 +90,8 @@ class GoalServiceTest {
 
     @Test
     void delete_NonExistingGoalThrows() {
-        Assertions.assertThrows(GoalNotFoundException.class,
-                () -> goalService.destroy(10, user1));
+        assertThatExceptionOfType(GoalNotFoundException.class)
+                .isThrownBy(() -> goalService.destroy(10, user1));
     }
 
     @Test
