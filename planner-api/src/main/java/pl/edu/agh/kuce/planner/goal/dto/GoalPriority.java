@@ -10,4 +10,4 @@ public record GoalPriority(
         @NotNull
         @PositiveOrZero
         Integer newPriority
-) {}
+) { }

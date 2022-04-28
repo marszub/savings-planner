@@ -47,7 +47,7 @@ public class GoalService {
                 .anyMatch(goal -> !savedGoals.containsKey(goal.id()));
 
         if (goalNotPresent) {
-            throw new GoalNotFoundException("Goal with that id does not exist");
+            throw new GoalNotFoundException("Some of the goals to update do not exist");
         }
 
         final var newPriorities = dto.newPriorities().stream()

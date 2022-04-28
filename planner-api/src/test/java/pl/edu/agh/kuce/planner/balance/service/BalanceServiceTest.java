@@ -13,8 +13,8 @@ import pl.edu.agh.kuce.planner.balance.persistence.BalanceRepository;
 import javax.transaction.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 @SpringBootTest
 @AutoConfigureMockMvc
