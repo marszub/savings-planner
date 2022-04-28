@@ -4,7 +4,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.goal.GoalNotFoundException;
-import pl.edu.agh.kuce.planner.goal.dto.*;
+import pl.edu.agh.kuce.planner.goal.dto.GoalData;
+import pl.edu.agh.kuce.planner.goal.dto.GoalInputData;
+import pl.edu.agh.kuce.planner.goal.dto.GoalPriority;
+import pl.edu.agh.kuce.planner.goal.dto.GoalPriorityUpdate;
+import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
 import pl.edu.agh.kuce.planner.goal.persistence.Goal;
 import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
 
