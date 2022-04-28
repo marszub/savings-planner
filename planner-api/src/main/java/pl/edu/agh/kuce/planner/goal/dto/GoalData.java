@@ -12,9 +12,12 @@ public record GoalData(
         String title,
 
         @NotNull
-        Integer amount
+        Integer amount,
+
+        @NotNull
+        Integer priority
 ) {
     public GoalData(final Goal goal) {
-        this(goal.getId(), goal.getTitle(), goal.getAmount());
+        this(goal.getId(), goal.getTitle(), goal.getAmount(), goal.getPriority());
     }
 }

@@ -55,11 +55,11 @@ class GoalServiceTest {
         user2.setId(2);
         MockitoAnnotations.openMocks(this);
 
-        final Goal goal = new Goal(user1, title1, amount1);
+        final Goal goal = new Goal(user1, title1, amount1, 1);
         goal.setId(1);
-        when(goalRepository.findByUser(user1))
-                .thenReturn(List.of(new Goal(user1, title1, amount1)));
-        when(goalRepository.findByUser(user2))
+        when(goalRepository.findByUserOOrderByPriorityDesc(user1))
+                .thenReturn(List.of(new Goal(user1, title1, amount1, 1)));
+        when(goalRepository.findByUserOOrderByPriorityDesc(user2))
                 .thenReturn(List.of());
         when(goalRepository.save(any())).thenReturn(goal);
 
@@ -69,7 +69,7 @@ class GoalServiceTest {
     @Test
     void create_doesNotThrow() {
         Assertions.assertDoesNotThrow(
-                () -> goalService.create(new GoalInputData(title1, amount1), user1));
+                () -> goalService.create(new GoalInputData(title1, amount1, 1), user1));
     }
 
     @Test
@@ -99,7 +99,7 @@ class GoalServiceTest {
         goalService = new GoalService(notMockedGoalRepository);
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        final Goal testGoal = new Goal(user, "test", 11);
+        final Goal testGoal = new Goal(user, "test", 11, 2);
         notMockedGoalRepository.save(testGoal);
         assertThat(goalService.list(user).goals().size()).isEqualTo(1);
         goalService.destroy(goalService.list(user).goals().get(0).id(), user);
