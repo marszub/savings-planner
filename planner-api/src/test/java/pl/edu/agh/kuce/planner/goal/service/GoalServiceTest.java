@@ -57,9 +57,9 @@ class GoalServiceTest {
 
         final Goal goal = new Goal(user1, title1, amount1, 1);
         goal.setId(1);
-        when(goalRepository.findByUserOOrderByPriorityDesc(user1))
+        when(goalRepository.findByUserOrderByPriorityDesc(user1))
                 .thenReturn(List.of(new Goal(user1, title1, amount1, 1)));
-        when(goalRepository.findByUserOOrderByPriorityDesc(user2))
+        when(goalRepository.findByUserOrderByPriorityDesc(user2))
                 .thenReturn(List.of());
         when(goalRepository.save(any())).thenReturn(goal);
 

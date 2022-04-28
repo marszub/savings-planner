@@ -28,9 +28,11 @@ public class GoalService {
     public ListResponse list(final User user) {
         return new ListResponse(
                 goalRepository
-                        .findByUser(user)
+                        .findByUserOrderByPriorityDesc(user)
                         .stream()
-                        .map(GoalData::new).toList());
+                        .map(GoalData::new)
+                        .toList()
+        );
     }
 
     @Transactional
