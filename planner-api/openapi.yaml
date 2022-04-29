@@ -82,12 +82,12 @@ paths:
     post:
       summary: "Creates new one-time event"
       requestBody:
-        description: "Event data"
+        description: "Event description"
         required: true
         content:
           "application/json":
             schema:
-              "$ref": "#/components/schemas/EventCreateRequest"
+              "$ref": "#/components/schemas/EventInfo"
       responses:
         "201":
           description: "Event has been created"
@@ -110,6 +110,39 @@ paths:
                 "$ref": "#/components/schemas/EventListResponse"
         "401":
           description: "User unauthorized"
+
+
+  "/api/events/{id}":
+    put:
+      summary: "Updates one-time event"
+      requestBody:
+        description: "Event description"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/EventInfo"
+      responses:
+        "201":
+          description: "Event has been updated"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/EventData"
+        "400":
+          description: "Invalid request body"
+        "401":
+          description: "User unauthorized"
+
+    delete:
+      summary: "Deletes one-time event"
+      responses:
+        "204":
+          description: "Event successfully deleted"
+        "401":
+          description: "User unauthorized"
+        "404":
+          description: "Event with that ID does not exist"
 
   "/api/goals":
     post:
@@ -141,7 +174,6 @@ paths:
                 "$ref": "#/components/schemas/GoalListResponse"
         "401":
           description: "User unauthorized"
-
 
   "/api/goals/{id}":
     delete:
@@ -236,7 +268,7 @@ components:
           format: "positive or zero account balance"
           example: 0
 
-    EventCreateRequest:
+    EventInfo:
       type: "object"
       properties:
         title:
