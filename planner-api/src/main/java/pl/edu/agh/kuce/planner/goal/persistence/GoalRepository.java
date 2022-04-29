@@ -12,8 +12,7 @@ public interface GoalRepository extends JpaRepository<Goal, Integer> {
     @Query("SELECT g FROM Goal g where g.id = ?1 AND g.user = ?2")
     Optional<Goal> getGoalById(Integer id, User user);
 
-    @Query("SELECT g FROM Goal g where g.user = ?1")
-    List<Goal> findByUser(User user);
+    List<Goal> findByUserOrderByPriorityDesc(User user);
 
     @Modifying
     @Query("DELETE FROM Goal g where g.id = ?1 AND g.user = ?2")

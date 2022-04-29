@@ -36,9 +36,11 @@ public class GoalTest {
     void singleGoalIsProperlySavedInDatabase() {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        final Goal testGoal = new Goal(user, "test", 11);
+        final Goal testGoal = new Goal(user, "test", 11, 1);
         goalRepository.save(testGoal);
-        final List<Goal> result = goalRepository.findByUser(user);
+
+        final List<Goal> result = goalRepository.findByUserOrderByPriorityDesc(user);
+
         assertThat(result.get(0)).isEqualTo(testGoal);
     }
 
@@ -47,13 +49,33 @@ public class GoalTest {
     void multipleGoalsAreSavedProperlyInDatabase() {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        final Goal testGoal1 = new Goal(user, "test", 11);
-        final Goal testGoal2 = new Goal(user, "test", 112);
-        goalRepository.save(testGoal1);
-        goalRepository.save(testGoal2);
-        final List<Goal> result = goalRepository.findByUser(user);
-        assertThat(result.get(0)).isEqualTo(testGoal1);
-        assertThat(result.get(1)).isEqualTo(testGoal2);
+        final List<Goal> testGoals = List.of(
+                new Goal(user, "test", 11, 1),
+                new Goal(user, "test", 112, 5),
+                new Goal(user, "test", 112, 2)
+        );
+        goalRepository.saveAll(testGoals);
+
+        final List<Goal> result = goalRepository.findByUserOrderByPriorityDesc(user);
+
+        assertThat(result).containsAll(testGoals);
+    }
+
+    @Test
+    @Transactional
+    void multipleGoalsAreReturnedInOrder() {
+        final User user = new User("TEST", "TEST", "TEST");
+        userRepository.save(user);
+        final List<Goal> testGoals = List.of(
+                new Goal(user, "test", 11, 1),
+                new Goal(user, "test", 112, 5),
+                new Goal(user, "test", 112, 2)
+        );
+        goalRepository.saveAll(testGoals);
+
+        final List<Goal> result = goalRepository.findByUserOrderByPriorityDesc(user);
+
+        assertThat(result).containsExactly(testGoals.get(1), testGoals.get(2), testGoals.get(0));
     }
 
     @Test
@@ -61,10 +83,11 @@ public class GoalTest {
     void goalIsProperlyDeletedFromDatabase() {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        final Goal testGoal = new Goal(user, "test", 11);
+        final Goal testGoal = new Goal(user, "test", 11, 1);
         goalRepository.save(testGoal);
-        assertThat(goalRepository.getGoalById(testGoal.getId(), user).isPresent()).isEqualTo(true);
+
+        assertThat(goalRepository.getGoalById(testGoal.getId(), user)).isPresent();
         goalRepository.deleteGoal(testGoal.getId(), user);
-        assertThat(goalRepository.getGoalById(testGoal.getId(), user).isPresent()).isEqualTo(false);
+        assertThat(goalRepository.getGoalById(testGoal.getId(), user)).isEmpty();
     }
 }

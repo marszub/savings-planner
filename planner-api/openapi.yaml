@@ -141,7 +141,22 @@ paths:
                 "$ref": "#/components/schemas/GoalListResponse"
         "401":
           description: "User unauthorized"
-
+    patch:
+      summary: "Update goals priorities"
+      requestBody:
+        description: "IDs and new priorities of goals to update"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/GoalPriorityUpdate"
+      responses:
+        "204":
+          description: "Update was successful"
+        "401":
+          description: "User unauthorized"
+        "404":
+          description: "Goal with the given ID not found among user's goals"
 
   "/api/goals/{id}":
     delete:
@@ -341,6 +356,19 @@ components:
                 type: "integer"
                 format: "cost of fulfilling the goal"
                 example: 201
+
+    GoalPriorityUpdate:
+      type: "object"
+      properties:
+        newPriorities:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              id:
+                type: "integer"
+              newPriority:
+                type: "integer"
 
     GoalData:
       type: "object"
