@@ -7,9 +7,11 @@ export const tokenStorage = {
 
     set accessToken(newToken) {
         this._accessToken = newToken;
+        localStorage.setItem("accessToken", newToken);
     },
 
     revokeToken() {
         this._accessToken = "";
+        localStorage.removeItem("accessToken");
     }
 }
