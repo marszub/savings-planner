@@ -9,10 +9,10 @@ import GoalList from "./Components/Goal/GoalList";
 import EventList from "./Components/Event/EventList";
 import ErrorPage from "./Components/Error/ErrorPage";
 import NotFoundPage from "./Components/Error/NotFoundPage";
-import { tokenStorage } from "./services/token-storage";
+import { ACCESS_TOKEN, tokenStorage } from "./services/token-storage";
 
 function App() {
-    tokenStorage.accessToken = localStorage.getItem("accessToken");
+    tokenStorage.accessToken = localStorage.getItem(ACCESS_TOKEN);
 
     return (
         <Router>
