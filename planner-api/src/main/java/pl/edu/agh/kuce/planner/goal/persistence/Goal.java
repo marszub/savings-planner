@@ -31,7 +31,7 @@ public class Goal {
     @Column(nullable = false)
     private Integer amount;
 
-    @Column(name="priority", nullable = false)
+    @Column(name = "priority", nullable = false)
     private Integer priority;
 
     public Goal() { }

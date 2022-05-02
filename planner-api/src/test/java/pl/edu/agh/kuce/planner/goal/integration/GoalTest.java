@@ -13,7 +13,9 @@ import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 @SpringBootTest
 @AutoConfigureMockMvc
