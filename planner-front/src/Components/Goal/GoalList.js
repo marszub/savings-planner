@@ -31,6 +31,9 @@ import {goalService} from "../../services/goal-service";
 import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
 import {goalCompare} from "../../utils/goal-compare";
 import {CircularProgress} from "@mui/material";
+import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
+import {GoalPriorityUpdateModel} from "../../models/goal-priority-update-model";
+import {common} from "@mui/material/colors";
 
 const theme = createTheme();
 
@@ -116,12 +119,42 @@ export default function GoalList() {
         .finally(() => setLoading(false));
   };
 
-  const goalsItems = goals.map(goal =>
+  const onDragEnd = d => {
+    if (d.source.index === d.destination.index) {
+      return;
+    }
+
+    const sourceGoal = goals[d.source.index];
+    const destinationGoal = goals[d.destination.index];
+    const destinationGoalPriority = destinationGoal.priority;
+
+    const newPriorities = [];
+
+    if (d.source.index < d.destination.index) {
+      for (let i = d.destination.index; i > d.source.index; i--) {
+        goals[i].priority = goals[i - 1].priority;
+        newPriorities.push(new GoalPriorityUpdateModel(goals[i].id, goals[i].priority));
+      }
+    } else {
+      for (let i = d.destination.index; i < d.source.index; i++) {
+        goals[i].priority = goals[i + 1].priority;
+        newPriorities.push(new GoalPriorityUpdateModel(goals[i].id, goals[i].priority));
+      }
+    }
+
+    sourceGoal.priority = destinationGoalPriority;
+    newPriorities.push(new GoalPriorityUpdateModel(sourceGoal.id, destinationGoal.priority));
+
+    setGoals(prev => [...prev].sort(goalCompare));
+  }
+
+  const goalsItems = goals.map((goal, index) =>
       <Goal
           key={goal.id}
           goal={goal}
           isLast={goal.id === goals[goals.length - 1].id}
           handleDelete={deleteGoal}
+          index={index}
       />
   );
 
@@ -162,9 +195,24 @@ export default function GoalList() {
             Goal list
           </Typography>
 
-          <List sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}>
-            {goalsItems}
-          </List>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="droppable-list">
+              {provided => (
+                  <List
+                      sx={{
+                        width: '100%',
+                        maxWidth: 360,
+                        bgcolor: 'background.paper'
+                      }}
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                  >
+                    {goalsItems}
+                    {provided.placeholder}
+                  </List>
+              )}
+            </Droppable>
+          </DragDropContext>
 
           <Button
               fullWidth
@@ -192,30 +240,38 @@ function Goal(props) {
 
   return (
       <>
-        <ListItem>
-          <ListItemText
-              primary={props.goal.title}
-              secondary={moneyFormatter.mapPenniesNumberToString(props.goal.amount) + ' PLN'}
-          />
-          <ListItemText
-              primary={props.goal.priority}
-          />
-          <Tooltip title="Delete">
-            <IconButton
-                edge="end"
-                aria-label="delete"
-                onClick={() => setGoalRemovalOpen(true)}
-            >
-              <DeleteIcon/>
-            </IconButton>
-          </Tooltip>
-          <GoalRemovalConfirmationDialog
-              open={goalRemovalOpen}
-              onClose={() => setGoalRemovalOpen(false)}
-              delete={() => props.handleDelete(props.goal.id)}
-              goal={props.goal}
-          />
-        </ListItem>
+        <Draggable key={props.goal.id.toString()} draggableId={props.goal.id.toString()} index={props.index}>
+          {(provided) => (
+              <ListItem
+                  ref={provided.innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+              >
+                <ListItemText
+                    primary={props.goal.title}
+                    secondary={moneyFormatter.mapPenniesNumberToString(props.goal.amount) + ' PLN'}
+                />
+                <ListItemText
+                    primary={props.goal.priority}
+                />
+                <Tooltip title="Delete">
+                  <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => setGoalRemovalOpen(true)}
+                  >
+                    <DeleteIcon/>
+                  </IconButton>
+                </Tooltip>
+                <GoalRemovalConfirmationDialog
+                    open={goalRemovalOpen}
+                    onClose={() => setGoalRemovalOpen(false)}
+                    delete={() => props.handleDelete(props.goal.id)}
+                    goal={props.goal}
+                />
+              </ListItem>
+          )}
+        </Draggable>
 
         {!props.isLast &&
             <Divider/>
