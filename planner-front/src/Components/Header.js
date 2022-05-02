@@ -12,9 +12,10 @@ import Avatar from "@mui/material/Avatar";
 import Divider from "@mui/material/Divider";
 import { ListItemIcon } from "@mui/material";
 import { Logout } from "@mui/icons-material";
-import { userService } from "../services/user-service";
+import { USER_NICK, userService} from "../services/user-service";
 
 export default function Header() {
+    const userNick = localStorage.getItem(USER_NICK);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
 
@@ -91,7 +92,7 @@ export default function Header() {
                         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                     >
                         <MenuItem disabled>
-                            <Avatar /> Nick
+                            <Avatar /> { userNick }
                         </MenuItem>
                         <Divider />
                         <MenuItem onClick={handleLogout}>
