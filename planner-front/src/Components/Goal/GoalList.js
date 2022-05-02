@@ -25,10 +25,10 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import {GoalCreateForm} from '../../models/goal-create-form';
 import {goalValidators} from '../../utils/goal-validators';
-import {moneyValidators} from "../../utils/money-validators";
+import {MAX_INT32, moneyValidators} from "../../utils/money-validators";
 import {moneyFormatter} from "../../utils/money-formatter";
 import {goalService} from "../../services/goal-service";
-import {HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
+import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
 import {goalCompare} from "../../utils/goal-compare";
 import {CircularProgress} from "@mui/material";
 
@@ -37,6 +37,7 @@ const theme = createTheme();
 const GOAL_CREATED_ALERT = 'GOAL_CREATED';
 const GOAL_DELETED_ALERT = 'GOAL_DELETED';
 const GOAL_404_ALERT = 'GOAL_404';
+const GOAL_409_ALERT = 'GOAL_409';
 
 export default function GoalList() {
   const [goals, setGoals] = useState([]);
@@ -45,17 +46,19 @@ export default function GoalList() {
   const [refreshAlert, setRefreshAlert] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const onGoalList = res => {
+    if (res.status !== HTTP_OK) {
+      return Promise.reject(res.status);
+    }
+
+    setGoals(res.body.goals);
+  }
+
   useEffect(() => {
     setLoading(true);
 
     goalService.getList()
-        .then(res => {
-          if (res.status !== HTTP_OK) {
-            return Promise.reject(res.status);
-          }
-
-          setGoals(res.body.goals);
-        })
+        .then(onGoalList)
         .catch(err => console.log(err))
         .finally(() => setLoading(false));
   }, []);
@@ -63,19 +66,26 @@ export default function GoalList() {
   const createGoal = model => {
     setLoading(true);
 
-    const p = goals[goals.length - 1]?.priority ?? 1000000;
+    const lastGoal = goals[goals.length - 1];
+    const newPriority = lastGoal ? lastGoal.priority - 1 : MAX_INT32;
 
-    goalService.create(model, p - 1)
+    goalService.create(model, newPriority)
         .then(res => {
-          if (res.status !== HTTP_CREATED) {
-            return Promise.reject(res.status);
+          switch (res.status) {
+            case HTTP_CREATED:
+              setGoals(prev => [res.body, ...prev].sort(goalCompare));
+
+              setAlertStatus(GOAL_CREATED_ALERT);
+              setRefreshAlert(prev => !prev);
+              break;
+            case HTTP_CONFLICT:
+              setAlertStatus(GOAL_409_ALERT);
+              setRefreshAlert(prev => !prev);
+
+              return goalService.getList();
           }
-
-          setGoals(prev => [res.body, ...prev].sort(goalCompare));
-
-          setAlertStatus(GOAL_CREATED_ALERT);
-          setRefreshAlert(prev => !prev);
         })
+        .then(onGoalList)
         .catch(err => console.log(err))
         .finally(() => setLoading(false));
   };
@@ -95,11 +105,13 @@ export default function GoalList() {
             case HTTP_NOT_FOUND:
               setAlertStatus(GOAL_404_ALERT);
               setRefreshAlert(prev => !prev);
-              break;
+
+              return goalService.getList();
             default:
               return Promise.reject(res.status);
           }
         })
+        .then(onGoalList)
         .catch(err => console.log(err))
         .finally(() => setLoading(false));
   };
@@ -372,6 +384,11 @@ function GoalActionSnackbar(props) {
       case GOAL_404_ALERT:
         setAlertSeverity("error");
         setAlertMessage("This goal does not exist!");
+        setAlertOpen(true);
+        break;
+      case GOAL_409_ALERT:
+        setAlertSeverity("error");
+        setAlertMessage("Goal conflict!");
         setAlertOpen(true);
         break;
       default:
