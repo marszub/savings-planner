@@ -26,7 +26,7 @@ function App() {
                 <Route path='/error' element={ <ErrorPage /> } />
                 <Route path='*' element={ <NotFoundPage /> } />
             </Routes>
-            <Footer sx={{ mt: 5 }} />
+            <Footer sx={{ mt: 5, mb: 3 }} />
         </Router>
   );
 }
