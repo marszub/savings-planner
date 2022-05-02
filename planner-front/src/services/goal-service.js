@@ -7,9 +7,15 @@ export const goalService = {
         return httpService.get("/goals");
     },
 
-    create(formModel) {
-        const body = new CreateGoalRequest(formModel.title, moneyFormatter.mapStringToPenniesNumber(formModel.amount));
-        return httpService.post("/goals", body);
+    create(formModel, priority) {
+        return httpService.post(
+            "/goals",
+            new CreateGoalRequest(
+                formModel.title,
+                moneyFormatter.mapStringToPenniesNumber(formModel.amount),
+                priority
+            )
+        );
     },
 
     delete(id) {

@@ -29,6 +29,8 @@ import {moneyValidators} from "../../utils/money-validators";
 import {moneyFormatter} from "../../utils/money-formatter";
 import {goalService} from "../../services/goal-service";
 import {HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
+import {goalCompare} from "../../utils/goal-compare";
+import {CircularProgress} from "@mui/material";
 
 const theme = createTheme();
 
@@ -41,61 +43,65 @@ export default function GoalList() {
   const [goalCreationOpen, setGoalCreationOpen] = useState(false);
   const [alertStatus, setAlertStatus] = useState("");
   const [refreshAlert, setRefreshAlert] = useState(false);
-
-  const updateGoalList = () => {
-      goalService.getList()
-          .then(res => {
-              if (res.status !== HTTP_OK) {
-                  return;
-              }
-
-              setGoals(res.body.goals);
-          })
-          .catch(err => console.log(err));
-  }
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
+
     goalService.getList()
         .then(res => {
           if (res.status !== HTTP_OK) {
-            return;
+            return Promise.reject(res.status);
           }
 
           setGoals(res.body.goals);
         })
-        .catch(err => console.log(err));
-    }, []);
+        .catch(err => console.log(err))
+        .finally(() => setLoading(false));
+  }, []);
 
   const createGoal = model => {
-    goalService.create(model)
+    setLoading(true);
+
+    const p = goals[goals.length - 1]?.priority ?? 1000000;
+
+    goalService.create(model, p - 1)
         .then(res => {
           if (res.status !== HTTP_CREATED) {
-            return;
+            return Promise.reject(res.status);
           }
 
-            updateGoalList();
-            setAlertStatus(GOAL_CREATED_ALERT);
-            setRefreshAlert(prev => !prev);
+          setGoals(prev => [res.body, ...prev].sort(goalCompare));
+
+          setAlertStatus(GOAL_CREATED_ALERT);
+          setRefreshAlert(prev => !prev);
         })
-        .catch(err => console.log(err));
+        .catch(err => console.log(err))
+        .finally(() => setLoading(false));
   };
 
   const deleteGoal = id => {
+    setLoading(true);
+
     goalService.delete(id)
         .then(res => {
           switch (res.status) {
             case HTTP_NO_CONTENT:
-              updateGoalList();
-                setAlertStatus(GOAL_DELETED_ALERT);
-                setRefreshAlert(prev => !prev);
+              setGoals(prev => prev.filter(goal => goal.id !== id));
+
+              setAlertStatus(GOAL_DELETED_ALERT);
+              setRefreshAlert(prev => !prev);
               break;
             case HTTP_NOT_FOUND:
               setAlertStatus(GOAL_404_ALERT);
               setRefreshAlert(prev => !prev);
               break;
+            default:
+              return Promise.reject(res.status);
           }
         })
-        .catch(err => console.log(err));
+        .catch(err => console.log(err))
+        .finally(() => setLoading(false));
   };
 
   const goalsItems = goals.map(goal =>
@@ -113,7 +119,7 @@ export default function GoalList() {
             component="main"
             maxWidth="xs"
             sx={{
-              marginTop: 8,
+              position: 'relative',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -123,6 +129,23 @@ export default function GoalList() {
           <Avatar sx={{m: 1, bgcolor: 'secondary.main'}}>
             <SportsScoreOutlinedIcon/>
           </Avatar>
+
+          {loading &&
+              <Box sx={{
+                backgroundColor: '#fff',
+                opacity: 0.9,
+                position: 'absolute',
+                zIndex: 10,
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <CircularProgress/>
+              </Box>
+          }
+
           <Typography component="h1" variant="h5">
             Goal list
           </Typography>
@@ -161,6 +184,9 @@ function Goal(props) {
           <ListItemText
               primary={props.goal.title}
               secondary={moneyFormatter.mapPenniesNumberToString(props.goal.amount) + ' PLN'}
+          />
+          <ListItemText
+              primary={props.goal.priority}
           />
           <Tooltip title="Delete">
             <IconButton
