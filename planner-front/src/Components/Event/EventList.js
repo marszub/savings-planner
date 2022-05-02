@@ -21,6 +21,7 @@ import EventAvailableOutlinedIcon from '@mui/icons-material/EventAvailableOutlin
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import { EventCreateForm } from "../../models/event-create-form";
@@ -182,6 +183,14 @@ function Event(props) {
             <ListItemButton onClick={handleClick}>
                 { nestedListOpen ? <ExpandLess /> : <ExpandMore /> }
                 <ListItemText primary={props.event.title} sx={{ pl: 1 }} />
+                <Tooltip title="Edit" sx={{ mr: 0.2 }}>
+                    <IconButton
+                        edge="end"
+                        aria-label="edit"
+                    >
+                        <EditIcon/>
+                    </IconButton>
+                </Tooltip>
                 <Tooltip title="Delete">
                     <IconButton
                         edge="end"
