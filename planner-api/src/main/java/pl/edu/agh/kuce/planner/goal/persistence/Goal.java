@@ -10,10 +10,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import java.util.Objects;
 
 @Entity
-@Table(name = "goals")
+@Table(name = "goals", uniqueConstraints = { @UniqueConstraint(columnNames = { "user_id", "priority" }) })
 public class Goal {
 
     @Id
@@ -30,7 +31,7 @@ public class Goal {
     @Column(nullable = false)
     private Integer amount;
 
-    @Column(nullable = false, unique = true)
+    @Column(name="priority", nullable = false)
     private Integer priority;
 
     public Goal() { }
