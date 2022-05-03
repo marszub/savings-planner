@@ -12,12 +12,15 @@ import Avatar from "@mui/material/Avatar";
 import Divider from "@mui/material/Divider";
 import { ListItemIcon } from "@mui/material";
 import { Logout } from "@mui/icons-material";
-import { USER_NICK, userService} from "../services/user-service";
+import { userService } from "../services/user-service";
+import jwt_decode from "jwt-decode";
+import { tokenStorage } from "../services/token-storage";
 
 export default function Header() {
-    const userNick = localStorage.getItem(USER_NICK);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
+
+    const userNick = jwt_decode(tokenStorage.accessToken).sub;
 
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget);
