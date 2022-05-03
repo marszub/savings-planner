@@ -5,15 +5,8 @@ import { HTTP_OK } from "../utils/http-status";
 function changeTimestamp(EventData) {
       for (let event of EventData) {
         let x = new Date(event.timestamp*1000);
-        // console.log(event.timestamp)
-        // if (x instanceof Date && !isNaN(x)) {
-        //   continue;
-        // } else {
-        //   // 
           event.timestamp = x;
-          // console.log(event.timestamp)
           event.amount /= 100;
-        // }
       }
       EventData = sortEvents(EventData);
       return EventData;
@@ -23,25 +16,6 @@ function changeTimestamp(EventData) {
   function sortEvents(events) {
     return events.sort(compare);
   }
-
-// function parseDate(time) {
-//     // var timeArr = time.split(" ");
-//     // var date = timeArr[0].split("-");
-//     // var hour = timeArr[1].split(":");
-//     // var jsDate = new Date(
-//     //   date[0],
-//     //   parseInt(date[1]) - 1,
-//     //   date[2],
-//     //   hour[0],
-//     //   hour[1],
-//     //   hour[2]
-//     // );
-//     // return jsDate;
-//     var timestampTime = time.getTime(); // get your number
-//     var date = new Date(timestampTime);
-//     console.log(date);
-//     return date;
-//   }
 
   function compare(eventA, eventB) {
     let a = new Date(eventA.timestamp);
