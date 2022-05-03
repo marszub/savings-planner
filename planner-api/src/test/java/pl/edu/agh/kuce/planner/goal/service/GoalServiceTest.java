@@ -140,4 +140,30 @@ class GoalServiceTest {
         assertThat(goalsAfterUpdate.get(3).getId()).isEqualTo(savedGoals.get(2).getId());
         assertThat(goalsAfterUpdate.get(4).getId()).isEqualTo(savedGoals.get(0).getId());
     }
+
+    @Test
+    @Transactional
+    void exchangePriorities_PrioritiesAreUpdatedSuccessfully() {
+        goalService = new GoalService(notMockedGoalRepository);
+        final User user = new User("TEST", "TEST", "TEST");
+        userRepository.save(user);
+        final var testGoals = List.of(
+                new Goal(user, "test1", 11, 1),
+                new Goal(user, "test2", 22, 2)
+        );
+        final var savedGoals = notMockedGoalRepository.saveAll(testGoals);
+
+        goalService.updatePriority(new GoalPriorityUpdate(
+                List.of(
+                        new GoalPriority(savedGoals.get(0).getId(), 2),
+                        new GoalPriority(savedGoals.get(1).getId(), 1)
+                )
+        ), user);
+
+        final var goalsAfterUpdate = notMockedGoalRepository.findByUserOrderByPriorityDesc(user);
+        assertThat(goalsAfterUpdate.get(0).getId()).isEqualTo(savedGoals.get(0).getId());
+        assertThat(goalsAfterUpdate.get(1).getId()).isEqualTo(savedGoals.get(1).getId());
+    }
 }
+
+
