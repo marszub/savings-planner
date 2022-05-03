@@ -143,7 +143,7 @@ class GoalServiceTest {
 
     @Test
     @Transactional
-    void exchangePriorities_PrioritiesAreUpdatedSuccessfully() {
+    void swapPriorities_PrioritiesAreUpdatedSuccessfully() {
         goalService = new GoalService(notMockedGoalRepository);
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
