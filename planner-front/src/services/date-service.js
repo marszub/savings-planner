@@ -4,3 +4,7 @@ export const DateService =  {
         return months[month];
     }
 }
+
+export const NormalDate ={
+    
+}

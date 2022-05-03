@@ -26,9 +26,6 @@ export default function Home() {
                 <Grid container spacing={1}>
                     <Grid item xs={9}>
                         <div className="container">
-                            <div className="label-row title">
-                                <a>Cash Flow</a>
-                            </div>
                             <Cashflow/>
                             
                         </div>
@@ -46,7 +43,7 @@ export default function Home() {
                     </Grid>
                     <Grid item xs={12}>
                         <div className="container">
-                            <Events/>
+                            {/* <Events/> */}
                         </div>  
                     </Grid>
                 </Grid>
