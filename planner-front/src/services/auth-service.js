@@ -1,7 +1,7 @@
 import { httpService } from "./http-service";
 import { SignInRequest } from "../requests/sign-in-request";
 import { SignUpRequest } from "../requests/sign-up-request";
-import { HTTP_OK } from "../utils/http-status";
+import { HTTP_CREATED, HTTP_OK } from "../utils/http-status";
 import { tokenStorage } from "./token-storage";
 
 export const authService = {
@@ -18,7 +18,7 @@ export const authService = {
     },
 
     _try_set_access_token(res) {
-        if (res.status === HTTP_OK) {
+        if (res.status === HTTP_OK || res.status === HTTP_CREATED) {
             tokenStorage.accessToken = res.body.accessToken;
         }
         return res;
