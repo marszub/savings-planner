@@ -32,13 +32,13 @@ import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} f
 import {goalCompare} from "../../utils/goal-compare";
 import {CircularProgress} from "@mui/material";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
-import {GoalPriorityUpdateModel} from "../../models/goal-priority-update-model";
-import {common} from "@mui/material/colors";
+import {GoalModel} from "../../models/goal-model";
 
 const theme = createTheme();
 
 const GOAL_CREATED_ALERT = 'GOAL_CREATED';
 const GOAL_DELETED_ALERT = 'GOAL_DELETED';
+const GOAL_UPDATED_ALERT = 'GOAL_UPDATED';
 const GOAL_404_ALERT = 'GOAL_404';
 const GOAL_409_ALERT = 'GOAL_409';
 
@@ -119,33 +119,58 @@ export default function GoalList() {
         .finally(() => setLoading(false));
   };
 
-  const onDragEnd = d => {
-    if (d.source.index === d.destination.index) {
+  const onDragEnd = dnd => {
+    if (dnd.source.index === dnd.destination.index) {
       return;
     }
 
-    const sourceGoal = goals[d.source.index];
-    const destinationGoal = goals[d.destination.index];
+    const sourceGoal = goals[dnd.source.index];
+    const destinationGoal = goals[dnd.destination.index];
     const destinationGoalPriority = destinationGoal.priority;
 
-    const newPriorities = [];
+    const newPriorities = new Map();
 
-    if (d.source.index < d.destination.index) {
-      for (let i = d.destination.index; i > d.source.index; i--) {
-        goals[i].priority = goals[i - 1].priority;
-        newPriorities.push(new GoalPriorityUpdateModel(goals[i].id, goals[i].priority));
+    if (dnd.source.index < dnd.destination.index) {
+      for (let i = dnd.destination.index; i > dnd.source.index; i--) {
+        newPriorities.set(goals[i].id, goals[i - 1].priority);
       }
     } else {
-      for (let i = d.destination.index; i < d.source.index; i++) {
-        goals[i].priority = goals[i + 1].priority;
-        newPriorities.push(new GoalPriorityUpdateModel(goals[i].id, goals[i].priority));
+      for (let i = dnd.destination.index; i < dnd.source.index; i++) {
+        newPriorities.set(goals[i].id, goals[i + 1].priority);
+      }
+    }
+    newPriorities.set(sourceGoal.id, destinationGoalPriority);
+
+    const updatePriority = goal => {
+      if (newPriorities.has(goal.id)) {
+        return new GoalModel(goal.id, goal.title, goal.amount, newPriorities.get(goal.id))
+      } else {
+        return goal;
       }
     }
 
-    sourceGoal.priority = destinationGoalPriority;
-    newPriorities.push(new GoalPriorityUpdateModel(sourceGoal.id, destinationGoal.priority));
-
-    setGoals(prev => [...prev].sort(goalCompare));
+    setLoading(true);
+    goalService.updatePriority(newPriorities)
+        .then(res => {
+          switch (res.status) {
+            case HTTP_NO_CONTENT:
+              setGoals(prev => prev.map(updatePriority).sort(goalCompare));
+              setAlertStatus(GOAL_UPDATED_ALERT);
+              setRefreshAlert(prev => !prev);
+              break;
+            case HTTP_NOT_FOUND:
+              setAlertStatus(GOAL_404_ALERT);
+              setRefreshAlert(prev => !prev);
+              return goalService.getList();
+            case HTTP_CONFLICT:
+              setAlertStatus(GOAL_409_ALERT);
+              setRefreshAlert(prev => !prev);
+              return goalService.getList();
+            default:
+              return Promise.reject(res.status);
+          }
+        })
+        .finally(() => setLoading(false));
   }
 
   const goalsItems = goals.map((goal, index) =>
@@ -435,6 +460,11 @@ function GoalActionSnackbar(props) {
       case GOAL_DELETED_ALERT:
         setAlertSeverity('info');
         setAlertMessage('Goal successfully deleted!');
+        setAlertOpen(true);
+        break;
+      case GOAL_UPDATED_ALERT:
+        setAlertSeverity('info');
+        setAlertMessage('Goals successfully updated!');
         setAlertOpen(true);
         break;
       case GOAL_404_ALERT:
