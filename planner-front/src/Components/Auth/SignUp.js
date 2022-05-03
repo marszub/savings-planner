@@ -13,7 +13,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { SignUpForm } from "../../models/sign-up-form";
 import { userValidators } from "../../utils/user-validators";
 import { userService } from "../../services/user-service";
-import { HTTP_BAD_REQUEST, HTTP_CONFLICT, HTTP_OK } from "../../utils/http-status";
+import { HTTP_BAD_REQUEST, HTTP_CONFLICT, HTTP_CREATED } from "../../utils/http-status";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -61,7 +61,7 @@ export default function SignUp() {
         userService.signUp(formModel)
             .then(res => {
                 switch (res.status) {
-                    case HTTP_OK:
+                    case HTTP_CREATED:
                         console.log("User has been created");
                         navigate("/");
                         break;

@@ -28,7 +28,7 @@ import {goalValidators} from '../../utils/goal-validators';
 import {moneyValidators} from "../../utils/money-validators";
 import {moneyFormatter} from "../../utils/money-formatter";
 import {goalService} from "../../services/goal-service";
-import {HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
+import {HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
 
 const theme = createTheme();
 
