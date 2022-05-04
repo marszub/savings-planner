@@ -276,9 +276,6 @@ function Goal(props) {
                     primary={props.goal.title}
                     secondary={moneyFormatter.mapPenniesNumberToString(props.goal.amount) + ' PLN'}
                 />
-                <ListItemText
-                    primary={props.goal.priority}
-                />
                 <Tooltip title="Delete">
                   <IconButton
                       edge="end"
