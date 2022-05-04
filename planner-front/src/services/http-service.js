@@ -1,6 +1,7 @@
 import { HTTP_NO_CONTENT, HTTP_UNAUTHORIZED } from "../utils/http-status";
 import { BACKEND_URL } from "../config";
 import { tokenStorage } from "./token-storage";
+import { userService } from "./user-service";
 
 export const httpService = {
     get(path, queryParams) {
@@ -43,8 +44,7 @@ function onResponse(res) {
     }
     if (res.status === HTTP_UNAUTHORIZED && res.url !== `${BACKEND_URL}/auth/access-token`) {
         console.log("User is unauthorized");
-        tokenStorage.revokeToken();
-        window.location.replace("/sign-in");
+        userService.signOut();
     }
     return new Promise((resolve, reject) => res.json()
             .then(body => resolve(new ResponseShort(res.status, body)))
