@@ -3,6 +3,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
@@ -13,6 +14,8 @@ import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -89,5 +92,41 @@ public class GoalTest {
         assertThat(goalRepository.getGoalById(testGoal.getId(), user)).isPresent();
         goalRepository.deleteGoal(testGoal.getId(), user);
         assertThat(goalRepository.getGoalById(testGoal.getId(), user)).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    void goalsPrioritiesOfDifferentUsersAreNotInConflict() {
+        final User user1 = new User("TEST1", "TEST1", "TEST");
+        final User user2 = new User("TEST2", "TEST2", "TEST");
+        userRepository.save(user1);
+        userRepository.save(user2);
+
+        final Goal testGoal1 = new Goal(user1, "test", 11, 1);
+        final Goal testGoal2 = new Goal(user2, "test", 11, 1);
+
+        assertThatNoException()
+                .isThrownBy(() -> {
+                    goalRepository.save(testGoal1);
+                    goalRepository.save(testGoal2);
+                    goalRepository.flush();
+                });
+    }
+
+    @Test
+    @Transactional
+    void goalsPrioritiesOfSameUserAreInConflict() {
+        final User user1 = new User("TEST", "TEST", "TEST");
+        userRepository.save(user1);
+
+        final Goal testGoal1 = new Goal(user1, "test1", 1, 5);
+        final Goal testGoal2 = new Goal(user1, "test2", 2, 5);
+
+        assertThatExceptionOfType(DataIntegrityViolationException.class)
+                .isThrownBy(() -> {
+                    goalRepository.save(testGoal1);
+                    goalRepository.save(testGoal2);
+                    goalRepository.flush();
+                });
     }
 }

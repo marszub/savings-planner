@@ -21,7 +21,7 @@ import pl.edu.agh.kuce.planner.goal.service.GoalService;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/goals")
 public class GoalController {
     private final GoalService goalService;
 
@@ -29,13 +29,13 @@ public class GoalController {
         this.goalService = goalService;
     }
 
-    @PostMapping("/goals")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GoalData create(@Valid @RequestBody final GoalInputData data, @Current final User user) {
         return goalService.create(data, user);
     }
 
-    @GetMapping("/goals")
+    @GetMapping
     public ListResponse list(@Current final User user) {
         return goalService.list(user);
     }
@@ -46,7 +46,7 @@ public class GoalController {
         goalService.updatePriority(dto, user);
     }
 
-    @DeleteMapping("goals/{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void destroy(@PathVariable("id") final Integer goalId,
                         @Current final User user) {
