@@ -14,11 +14,14 @@ public interface SubBalanceRepository extends JpaRepository<SubBalance, Integer>
     List<SubBalance> findByUser(User user);
 
     @Query("SELECT sb.id FROM SubBalance sb WHERE sb.user = :user")
-    List<Integer> findIdsOfSubBalancesInRepo(@Param("user") User user);
+    List<Integer> findIdsOfSubBalancesByUser(@Param("user") User user);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("UPDATE SubBalance sb SET sb.subBalance = :subBalance WHERE sb.id = :id")
-    void updateSubBalanceById(@Param("id") Integer id, @Param("subBalance") Integer subBalance);
+    @Query("UPDATE SubBalance sb SET sb.subBalance = :subBalance WHERE sb.user = :user AND sb.id = :id")
+    void updateSubBalanceById(
+            @Param("user") User user,
+            @Param("id") Integer id,
+            @Param("subBalance") Integer subBalance);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("DELETE FROM SubBalance sb WHERE sb.user = :user")
