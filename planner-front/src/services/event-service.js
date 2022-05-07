@@ -65,6 +65,10 @@ export const eventService = {
         return httpService.post("/events", body);
     },
 
+    delete(id) {
+        return httpService.delete(`/events/${id}`);
+    },
+
     getEventsList() { 
         return httpService.get("/events")
         .then(res => this.setEvents(res))

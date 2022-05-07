@@ -35,7 +35,7 @@ import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
 import { Collapse, ListItemButton, ListItemIcon, MenuItem } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import { HTTP_BAD_REQUEST, HTTP_CREATED, HTTP_OK } from "../../utils/http-status";
+import {HTTP_BAD_REQUEST, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
 import { eventService } from "../../services/event-service";
 import { INCOME_EVENT_TYPE, OUTGO_EVENT_TYPE } from "../../utils/event-types";
 import { dateFormatter } from "../../utils/date-formatter";
@@ -44,6 +44,7 @@ const theme = createTheme();
 
 const EVENT_CREATED_ALERT = 'EVENT_CREATED';
 const EVENT_DELETED_ALERT = 'EVENT_DELETED';
+const EVENT_404_ALERT = 'EVENT_404';
 
 const eventTypes = [
     {
@@ -101,10 +102,24 @@ export default function EventList() {
             .catch(err => console.log(err));
     };
 
-    const deleteEvent = (eventId) => {
-        setEvents(prev => [...prev.filter(event => event.id !== eventId)]);
-        setAlertStatus(EVENT_DELETED_ALERT);
-        setRefreshAlert(prev => !prev);
+    const deleteEvent = id => {
+        eventService.delete(id)
+            .then(res => {
+                switch (res.status) {
+                    case HTTP_NO_CONTENT:
+                        updateEventList();
+                        setAlertStatus(EVENT_DELETED_ALERT);
+                        setRefreshAlert(prev => !prev);
+                        break;
+                    case HTTP_NOT_FOUND:
+                        setAlertStatus(EVENT_404_ALERT);
+                        setRefreshAlert(prev => !prev);
+                        break;
+                    default:
+                        console.log("Unexpected error");
+                }
+            })
+            .catch(err => console.log(err));
     };
 
     const eventsItems = events.map(event =>

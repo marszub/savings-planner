@@ -93,6 +93,8 @@ export default function GoalList() {
               setAlertStatus(GOAL_404_ALERT);
               setRefreshAlert(prev => !prev);
               break;
+            default:
+              console.log("Unexpected error");
           }
         })
         .catch(err => console.log(err));
