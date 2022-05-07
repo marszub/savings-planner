@@ -53,6 +53,18 @@ public class GoalService {
         final var newPriorities = dto.newPriorities().stream()
                 .collect(Collectors.toMap(GoalPriority::id, GoalPriority::newPriority));
 
+        /*
+        This trick allows to swap values of columns with unique constraints. I have no idea how to make it work another
+        way.
+         */
+        goalRepository.saveAll(
+                savedGoals.values().stream()
+                        .filter(goal -> newPriorities.containsKey(goal.getId()))
+                        .peek(goal -> goal.setPriority(Integer.MIN_VALUE + goal.getId()))
+                        .toList()
+        );
+        goalRepository.flush();
+
         goalRepository.saveAll(
                 savedGoals.values().stream()
                         .filter(goal -> newPriorities.containsKey(goal.getId()))
