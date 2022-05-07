@@ -16,7 +16,6 @@ import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
 import pl.edu.agh.kuce.planner.goal.persistence.SubGoal;
 import pl.edu.agh.kuce.planner.goal.persistence.SubGoalRepository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -102,7 +101,7 @@ public class GoalService {
         final Optional<Goal> goal = goalRepository.getGoalById(id, user);
         if (goal.isPresent()) {
             subGoalRepository.getSubGoals(goal.get(), user).forEach(subGoal -> {
-                subGoalRepository.deleteSubGoal(subGoal.getId(), user);
+                subGoalRepository.deleteSubGoal(subGoal.getId(), goal.get());
             });
             goalRepository.deleteGoal(id, user);
             return;
@@ -111,12 +110,12 @@ public class GoalService {
     }
 
     @Transactional
-    public void destroySubGoal(final Integer goalId, final Integer id, final User user) {
+    public void destroySubGoal(final Integer subGoalId, final Integer goalId, final User user) {
         final Optional<Goal> goal = goalRepository.getGoalById(goalId, user);
         if (goal.isPresent()) {
-            final Optional<SubGoal> subGoal = subGoalRepository.getSubGoalById(id, user);
+            final Optional<SubGoal> subGoal = subGoalRepository.getSubGoalById(subGoalId, user);
             if (subGoal.isPresent()) {
-                subGoalRepository.deleteSubGoal(goalId, user);
+                subGoalRepository.deleteSubGoal(subGoalId, goal.get());
                 return;
             }
         }

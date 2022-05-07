@@ -1,7 +1,6 @@
 package pl.edu.agh.kuce.planner.goal.dto;
 
 import pl.edu.agh.kuce.planner.goal.persistence.Goal;
-import pl.edu.agh.kuce.planner.goal.persistence.SubGoal;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;

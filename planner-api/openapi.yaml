@@ -169,6 +169,37 @@ paths:
         "404":
           description: "Goal with that ID does not exist"
 
+  "/api/goals/{id}/subGoals":
+    post:
+      summary: "Create SubGoal"
+      requestBody:
+        description: "SubGoal data"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/SubGoalCreateRequest"
+      responses:
+        "201":
+          description: "SubGoal successfully created"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/SubGoalData"
+        "401":
+          description: "User unauthorized"
+
+  "/api/goals/{id}/subGoals/{subGoalId}":
+    delete:
+      summary: "Deletes SubGoal"
+      responses:
+        "204":
+          description: "SubGoal successfully deleted"
+        "401":
+          description: "User unauthorized"
+        "404":
+          description: "SubGoal with that ID does not exist"
+
 components:
   schemas:
     RegistrationRequest:
@@ -271,7 +302,7 @@ components:
     EventListResponse:
       type: "object"
       properties:
-        list:
+        events:
           type: "array"
           items:
             type: "object"
@@ -318,7 +349,7 @@ components:
     GoalListResponse:
       type: "object"
       properties:
-        list:
+        goals:
           type: "array"
           items:
             type: "object"
@@ -337,6 +368,19 @@ components:
                 type: "integer"
                 format: "cost of fulfilling the goal"
                 example: 201
+              subGoals:
+                type: "array"
+                properties:
+                  id:
+                    type: "integer"
+                    format: "id of an subGoal"
+                    example: 1
+                  title:
+                    type: "string"
+                    format: "subGoal name"
+                    minLength: 1
+                    maxLength: 200
+                    example: "Car"
 
     GoalCreateRequest:
       type: "object"
@@ -348,7 +392,6 @@ components:
             properties:
               title:
                 type: "string"
-                format: "goal name"
                 minLength: 1
                 maxLength: 200
                 example: "Car"
@@ -387,3 +430,37 @@ components:
           type: "integer"
           format: "cost of fulfilling the goal"
           example: 201
+        subGoals:
+          type: "array"
+          properties:
+            id:
+              type: "integer"
+              format: "id of an subGoal"
+              example: 1
+            title:
+              type: "string"
+              minLength: 1
+              maxLength: 200
+              example: "Car"
+
+    SubGoalCreateRequest:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+          example: "Bricks"
+          minLength: 1
+          maxLength: 200
+
+    SubGoalData:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "id of an subGoal"
+          example: 1
+        title:
+          type: "string"
+          minLength: 1
+          maxLength: 200
+          example: "Bricks"

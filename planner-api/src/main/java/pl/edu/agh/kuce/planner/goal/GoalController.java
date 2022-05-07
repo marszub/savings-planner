@@ -37,7 +37,7 @@ public class GoalController {
         return goalService.create(data, user);
     }
 
-    @PostMapping("/{id}/subGoal")
+    @PostMapping("/{id}/subGoals")
     @ResponseStatus(HttpStatus.CREATED)
     public SubGoalData create(@PathVariable("id") final Integer goalId,
                            @Valid @RequestBody final SubGoalInputData data,
@@ -63,7 +63,7 @@ public class GoalController {
         goalService.destroy(goalId, user);
     }
 
-    @DeleteMapping("/{id}/subGoal/{subGoalId}")
+    @DeleteMapping("/{id}/subGoals/{subGoalId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void destroy(@PathVariable("id") final Integer goalId,
                         @Current final User user,

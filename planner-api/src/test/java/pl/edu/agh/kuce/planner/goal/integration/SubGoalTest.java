@@ -13,6 +13,7 @@ import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
 import pl.edu.agh.kuce.planner.goal.persistence.SubGoal;
 import pl.edu.agh.kuce.planner.goal.persistence.SubGoalRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,11 +80,12 @@ public class SubGoalTest {
     }
 
     @Test
+    @Transactional
     void deleteSubGoal() {
         final User user = userRepository.save(new User("TEST4", "TEST4", "TEST4"));
         final Goal goal = goalRepository.save(new Goal(user, "TEST1", 1, 4));
         SubGoal subGoal = subGoalRepository.save(new SubGoal(goal, "TEST"));
-        subGoalRepository.delete(subGoal);
+        subGoalRepository.deleteSubGoal(subGoal.getId(), goal);
         List<SubGoal> result = subGoalRepository.getSubGoals(goal, user);
         assertThat(result.size()).isEqualTo(0);
     }

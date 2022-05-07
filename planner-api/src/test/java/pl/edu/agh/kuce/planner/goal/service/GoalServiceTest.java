@@ -18,7 +18,6 @@ import pl.edu.agh.kuce.planner.goal.dto.GoalPriorityUpdate;
 import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
 import pl.edu.agh.kuce.planner.goal.persistence.Goal;
 import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
-import pl.edu.agh.kuce.planner.goal.persistence.SubGoal;
 import pl.edu.agh.kuce.planner.goal.persistence.SubGoalRepository;
 
 import java.util.LinkedList;
@@ -46,9 +45,6 @@ class GoalServiceTest {
 
     @Autowired
     private GoalRepository notMockedGoalRepository;
-
-    @Autowired
-    private SubGoalRepository notMockedSubGoalRepository;
 
     private final String nick1 = "nick1";
     private final String email1 = "nick1@abc.com";
@@ -173,18 +169,6 @@ class GoalServiceTest {
         final var goalsAfterUpdate = notMockedGoalRepository.findByUserOrderByPriorityDesc(user);
         assertThat(goalsAfterUpdate.get(0).getId()).isEqualTo(savedGoals.get(0).getId());
         assertThat(goalsAfterUpdate.get(1).getId()).isEqualTo(savedGoals.get(1).getId());
-    }
-
-    @Test
-    @Transactional
-    void checkIfSubGoalsDeletesWhenGoalIsDeleted() {
-        goalService = new GoalService(notMockedGoalRepository, notMockedSubGoalRepository);
-        final User user = userRepository.save(new User("TEST5", "TEST5", "TEST5"));
-        final Goal goal = notMockedGoalRepository.save(new Goal(user, "TEST1", 1, 99));
-        SubGoal subGoal = notMockedSubGoalRepository.save(new SubGoal(goal, "TEST"));
-        assertThat(notMockedSubGoalRepository.getSubGoalById(subGoal.getId(), user).get()).isEqualTo(subGoal);
-        goalService.destroy(goal.getId(), user);
-        assertThat(notMockedSubGoalRepository.getSubGoalById(subGoal.getId(), user).isEmpty()).isTrue();
     }
 }
 

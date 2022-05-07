@@ -16,6 +16,6 @@ public interface SubGoalRepository extends JpaRepository<SubGoal, Integer> {
     List<SubGoal> getSubGoals(Goal goal, User user);
 
     @Modifying
-    @Query("DELETE FROM SubGoal g where g.id = ?1 AND g.goal.user = ?2")
-    void deleteSubGoal(Integer id, User user);
+    @Query("DELETE FROM SubGoal g where g.id = ?1 AND g.goal = ?2")
+    void deleteSubGoal(Integer id, Goal goal);
 }

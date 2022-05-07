@@ -35,7 +35,7 @@ public class User {
     private List<OneTimeEvent> oneTimeEventList;
 
     @OneToMany(mappedBy = "user")
-    private List<Goal> targetList;
+    private List<Goal> goalList;
 
     @OneToOne(mappedBy = "user")
     private Balance balance;

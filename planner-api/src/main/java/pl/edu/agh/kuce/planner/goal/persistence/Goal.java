@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.CascadeType;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,7 +28,7 @@ public class Goal {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "goal")
+    @OneToMany(mappedBy = "goal", cascade = CascadeType.REMOVE)
     private List<SubGoal> subGoalList;
 
     @Column(nullable = false)

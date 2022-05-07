@@ -1,8 +1,8 @@
 package pl.edu.agh.kuce.planner.goal.persistence;
 
-import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.goal.dto.SubGoalInputData;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,13 +15,14 @@ import java.util.Objects;
 @Entity
 @Table(name = "subGoals")
 public class SubGoal {
+
     @Id
     @GeneratedValue
     @Column(unique = true, nullable = false)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "goal_id")
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "goal_id", nullable = false)
     private Goal goal;
 
     @Column(nullable = false)
