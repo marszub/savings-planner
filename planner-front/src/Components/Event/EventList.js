@@ -25,7 +25,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import { EventCreateForm } from "../../models/event-create-form";
+import { EventUpdateForm } from "../../models/event-update-form";
 import { goalValidators } from '../../utils/goal-validators';
+import { moneyValidators } from "../../utils/money-validators";
 import { moneyFormatter } from "../../utils/money-formatter";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -39,6 +41,7 @@ const theme = createTheme();
 
 const EVENT_CREATED_ALERT = 'EVENT_CREATED';
 const EVENT_DELETED_ALERT = 'EVENT_DELETED';
+const EVENT_EDITED_ALERT = 'EVENT_EDITED';
 
 const INCOME_EVENT_TYPE = 1;
 const OUTGO_EVENT_TYPE = 0;
@@ -116,12 +119,27 @@ export default function EventList() {
         setRefreshAlert(prev => !prev);
     };
 
+    const editEvent = (model) => {
+        setEvents(prev => [
+            ...prev.filter(event => event.id !== model.id),
+            {
+                id: model.id,
+                title: model.title,
+                amount: model.eventType == INCOME_EVENT_TYPE ? moneyFormatter.mapStringToPenniesNumber(model.amount) : (-1) * moneyFormatter.mapStringToPenniesNumber(model.amount),
+                date: model.date
+            }
+        ]);
+        setAlertStatus(EVENT_EDITED_ALERT);
+        setRefreshAlert(prev => !prev);
+    }
+
     const eventsItems = events.map(event =>
         <Event
             key={event.id}
             event={event}
             isLast={event.id === events[events.length - 1].id}
             handleDelete={deleteEvent}
+            handleEdit={editEvent}
         />
     );
 
@@ -172,6 +190,7 @@ export default function EventList() {
 
 function Event(props) {
     const [eventRemovalOpen, setEventRemovalOpen] = useState(false);
+    const [eventEditOpen, setEventEditOpen] = useState(false);
     const [nestedListOpen, setNestedListOpen] = useState(false);
 
     const handleClick = () => {
@@ -187,6 +206,7 @@ function Event(props) {
                     <IconButton
                         edge="end"
                         aria-label="edit"
+                        onClick={() => setEventEditOpen(true)}
                     >
                         <EditIcon/>
                     </IconButton>
@@ -200,6 +220,12 @@ function Event(props) {
                         <DeleteIcon/>
                     </IconButton>
                 </Tooltip>
+                <EventEditDialog
+                    open={eventEditOpen}
+                    onClose={() => setEventEditOpen(false)}
+                    edit={(model) => props.handleEdit(model)}
+                    event={props.event}
+                />
                 <EventRemovalConfirmationDialog
                     open={eventRemovalOpen}
                     onClose={() => setEventRemovalOpen(false)}
@@ -260,7 +286,7 @@ function EventCreationDialog(props) {
         );
 
         const titleError = goalValidators.validateTitle(formModel.title);
-        const amountError = goalValidators.validateAmount(formModel.amount);
+        const amountError = moneyValidators.validateAmount(formModel.amount);
         const dateError = Object.values(event.currentTarget.date)[1]['aria-invalid'];
 
         setTitleErrorMessage(titleError);
@@ -379,6 +405,157 @@ function BasicDatePicker() {
     );
 }
 
+function EventEditDialog(props) {
+    const [titleErrorMessage, setTitleErrorMessage] = useState("");
+    const [amountErrorMessage, setAmountErrorMessage] = useState("");
+    const [eventType, setEventType] = useState(props.event.amount < 0 ? OUTGO_EVENT_TYPE : INCOME_EVENT_TYPE);
+
+    const handleChange = (event) => {
+        setEventType(event.target.value);
+    };
+
+    const handleClose = () => {
+        props.onClose();
+        setTitleErrorMessage('');
+        setAmountErrorMessage('');
+    };
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+
+        const data = new FormData(event.currentTarget);
+        const formModel = new EventUpdateForm(
+            props.event.id,
+            data.get('title'),
+            data.get('event-type'),
+            data.get('amount'),
+            data.get('date')
+        );
+
+        const titleError = goalValidators.validateTitle(formModel.title);
+        const amountError = moneyValidators.validateAmount(formModel.amount);
+        const dateError = Object.values(event.currentTarget.date)[1]['aria-invalid'];
+
+        setTitleErrorMessage(titleError);
+        setAmountErrorMessage(amountError);
+
+        if (titleError || amountError || dateError) {
+            return;
+        }
+
+        props.edit(formModel);
+        handleClose();
+    };
+
+    return (
+        <Dialog
+            maxWidth="xs"
+            open={props.open}
+            onClose={handleClose}
+        >
+            <Box
+                sx={{
+                    margin: 1
+                }}
+            >
+                <DialogTitle>Edit the event</DialogTitle>
+                <Box
+                    component="form"
+                    onSubmit={handleSubmit}
+                >
+                    <DialogContent>
+                        <TextField
+                            defaultValue={props.event.title}
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="title"
+                            label="Title"
+                            name="title"
+                            autoFocus
+                            error={!!titleErrorMessage}
+                            helperText={titleErrorMessage}
+                        />
+                        <TextField
+                            margin="normal"
+                            fullWidth
+                            id="event-type"
+                            name="event-type"
+                            select
+                            label="Select type"
+                            value={eventType}
+                            onChange={handleChange}
+                        >
+                            {eventTypes.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                        <TextField
+                            defaultValue={moneyFormatter.mapPenniesNumberToString(Math.abs(props.event.amount))}
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="amount"
+                            label="Amount"
+                            name="amount"
+                            error={!!amountErrorMessage}
+                            helperText={amountErrorMessage}
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">PLN</InputAdornment>,
+                            }}
+                        />
+                        <BasicDateEditor
+                            event={props.event}
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            type="button"
+                            onClick={handleClose}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                        >
+                            Update
+                        </Button>
+                    </DialogActions>
+                </Box>
+            </Box>
+        </Dialog>
+    );
+}
+
+function BasicDateEditor(props) {
+    const [value, setValue] = useState(props.event.date);
+
+    return (
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DatePicker
+                label="Date"
+                value={value}
+                onChange={(newValue) => {
+                    setValue(newValue);
+                }}
+                renderInput={
+                    (params) => <TextField
+                        id="date"
+                        name="date"
+                        {...params}
+                        required
+                        fullWidth
+                        sx={{ mt: 2, mb: 1 }}
+                    />
+                }
+            />
+        </LocalizationProvider>
+    );
+}
+
 function EventRemovalConfirmationDialog(props) {
     const handleDelete = () => {
         props.delete();
@@ -439,6 +616,11 @@ function EventActionSnackbar(props) {
             case EVENT_DELETED_ALERT:
                 setAlertSeverity('info');
                 setAlertMessage('Event successfully deleted!');
+                setAlertOpen(true);
+                break;
+            case EVENT_EDITED_ALERT:
+                setAlertSeverity('info');
+                setAlertMessage('Event successfully edited!');
                 setAlertOpen(true);
                 break;
             default:
