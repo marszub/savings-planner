@@ -70,7 +70,7 @@ class GoalServiceTest {
         when(goalRepository.findByUserOrderByPriorityDesc(user2))
                 .thenReturn(List.of());
         when(goalRepository.save(any())).thenReturn(goal);
-        when(subGoalRepository.getSubGoals(any(),any())).thenReturn(new LinkedList<>());
+        when(subGoalRepository.getSubGoals(any(), any())).thenReturn(new LinkedList<>());
 
         goalService = new GoalService(goalRepository, subGoalRepository);
     }
