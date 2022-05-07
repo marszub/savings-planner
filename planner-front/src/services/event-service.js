@@ -1,6 +1,9 @@
 import { httpService } from "./http-service"
 import { EventStorge } from "./events-storage";
 import { HTTP_OK } from "../utils/http-status";
+import { CreateEventRequest } from "../requests/create-event-request";
+import { moneyFormatter } from "../utils/money-formatter";
+import { INCOME_EVENT_TYPE } from "../utils/event-types";
 
 function changeTimestamp(EventData) {
       for (let event of EventData) {
@@ -47,6 +50,21 @@ function parseDate(time) {
   
 
 export const eventService = {
+    getList() {
+        return httpService.get("/events");
+    },
+
+    create(formModel) {
+        const body = new CreateEventRequest(
+            formModel.title,
+            moneyFormatter.mapStringToPenniesNumber(
+                formModel.eventType == INCOME_EVENT_TYPE ? formModel.amount : -formModel.amount
+            ),
+            new Date(formModel.date).getTime()
+        );
+        return httpService.post("/events", body);
+    },
+
     getEventsList() { 
         return httpService.get("/events")
         .then(res => this.setEvents(res))

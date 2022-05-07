@@ -26,6 +26,7 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import { EventCreateForm } from "../../models/event-create-form";
 import { goalValidators } from '../../utils/goal-validators';
+import { moneyValidators } from "../../utils/money-validators";
 import { moneyFormatter } from "../../utils/money-formatter";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -34,14 +35,15 @@ import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
 import { Collapse, ListItemButton, ListItemIcon, MenuItem } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import { HTTP_BAD_REQUEST, HTTP_CREATED, HTTP_OK } from "../../utils/http-status";
+import { eventService } from "../../services/event-service";
+import { INCOME_EVENT_TYPE, OUTGO_EVENT_TYPE } from "../../utils/event-types";
+import { dateFormatter } from "../../utils/date-formatter";
 
 const theme = createTheme();
 
 const EVENT_CREATED_ALERT = 'EVENT_CREATED';
 const EVENT_DELETED_ALERT = 'EVENT_DELETED';
-
-const INCOME_EVENT_TYPE = 1;
-const OUTGO_EVENT_TYPE = 0;
 
 const eventTypes = [
     {
@@ -54,60 +56,49 @@ const eventTypes = [
     },
 ];
 
-const fakeEvents = [
-    {
-        id: 1,
-        title: 'Event Title 1',
-        amount: 100000,
-        date: '04/16/2022'
-    },
-    {
-        id: 2,
-        title: 'Event Title 2',
-        amount: 200000,
-        date: '03/19/2020'
-    },
-    {
-        id: 3,
-        title: 'Event Title 3',
-        amount: -300000,
-        date: '03/13/2019'
-    },
-    {
-        id: 4,
-        title: 'Event Title 4',
-        amount: -400000,
-        date: '12/18/2021'
-    },
-    {
-        id: 5,
-        title: 'Event Title 5',
-        amount: 500000,
-        date: '05/23/2004'
-    }
-];
-
 export default function EventList() {
-    const [events, setEvents] = useState(fakeEvents);
+    const [events, setEvents] = useState([]);
     const [eventCreationOpen, setEventCreationOpen] = useState(false);
     const [alertStatus, setAlertStatus] = useState("");
     const [refreshAlert, setRefreshAlert] = useState(false);
 
-    const findNewId = () => Math.max(...events.map(event => event.id)) + 1;
+    const updateEventList = () => {
+        eventService.getList()
+            .then(res => {
+                if (res.status !== HTTP_OK) {
+                    return;
+                }
 
-    const createEvent = (model) => {
-        setEvents(prev => [
-            ...prev,
-            {
-                id: findNewId(),
-                title: model.title,
-                amount: model.eventType == INCOME_EVENT_TYPE ? moneyFormatter.mapStringToPenniesNumber(model.amount) : (-1) * moneyFormatter.mapStringToPenniesNumber(model.amount),
-                date: model.date
-            }
-        ]);
+                setEvents(res.body.events);
+            })
+            .catch(err => console.log(err));
+    }
 
-        setAlertStatus(EVENT_CREATED_ALERT);
-        setRefreshAlert(prev => !prev);
+    useEffect(() => {
+        eventService.getList()
+            .then(res => {
+                if (res.status !== HTTP_OK) {
+                    return;
+                }
+
+                setEvents(res.body.events);
+            })
+            .catch(err => console.log(err));
+    }, []);
+
+    const createEvent = model => {
+        eventService.create(model)
+            .then(res => {
+                if (res.status !== HTTP_CREATED) {
+                    if (res.status === HTTP_BAD_REQUEST) console.log("Invalid request body");
+                    return;
+                }
+
+                updateEventList();
+                setAlertStatus(EVENT_CREATED_ALERT);
+                setRefreshAlert(prev => !prev);
+            })
+            .catch(err => console.log(err));
     };
 
     const deleteEvent = (eventId) => {
@@ -220,7 +211,7 @@ function Event(props) {
                         <ListItemIcon>
                             <EventOutlinedIcon />
                         </ListItemIcon>
-                        <ListItemText primary={props.event.date} />
+                        <ListItemText primary={dateFormatter.formatDate(new Date(props.event.timestamp))} />
                     </ListItem>
                 </List>
             </Collapse>
@@ -260,7 +251,7 @@ function EventCreationDialog(props) {
         );
 
         const titleError = goalValidators.validateTitle(formModel.title);
-        const amountError = goalValidators.validateAmount(formModel.amount);
+        const amountError = moneyValidators.validateAmount(formModel.amount);
         const dateError = Object.values(event.currentTarget.date)[1]['aria-invalid'];
 
         setTitleErrorMessage(titleError);
