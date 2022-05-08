@@ -169,7 +169,7 @@ paths:
         "404":
           description: "Goal with that ID does not exist"
 
-  "/api/goals/{id}/subGoals":
+  "/api/goals/{id}/sub-goals":
     post:
       summary: "Create SubGoal"
       requestBody:
@@ -189,7 +189,7 @@ paths:
         "401":
           description: "User unauthorized"
 
-  "/api/goals/{id}/subGoals/{subGoalId}":
+  "/api/goals/{id}/sub-goals/{subGoalId}":
     delete:
       summary: "Deletes SubGoal"
       responses:
