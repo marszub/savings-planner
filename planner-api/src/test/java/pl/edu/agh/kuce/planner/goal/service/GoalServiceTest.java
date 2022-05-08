@@ -13,6 +13,8 @@ import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
 import pl.edu.agh.kuce.planner.shared.ResourceNotFoundException;
 import pl.edu.agh.kuce.planner.goal.dto.GoalData;
 import pl.edu.agh.kuce.planner.goal.dto.GoalInputData;
+import pl.edu.agh.kuce.planner.goal.dto.GoalPriority;
+import pl.edu.agh.kuce.planner.goal.dto.GoalPriorityUpdate;
 import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
 import pl.edu.agh.kuce.planner.goal.persistence.Goal;
 import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
@@ -56,11 +58,11 @@ class GoalServiceTest {
         user2.setId(2);
         MockitoAnnotations.openMocks(this);
 
-        final Goal goal = new Goal(user1, title1, amount1);
+        final Goal goal = new Goal(user1, title1, amount1, 1);
         goal.setId(1);
-        when(goalRepository.findByUser(user1))
-                .thenReturn(List.of(new Goal(user1, title1, amount1)));
-        when(goalRepository.findByUser(user2))
+        when(goalRepository.findByUserOrderByPriorityDesc(user1))
+                .thenReturn(List.of(new Goal(user1, title1, amount1, 1)));
+        when(goalRepository.findByUserOrderByPriorityDesc(user2))
                 .thenReturn(List.of());
         when(goalRepository.save(any())).thenReturn(goal);
 
@@ -79,6 +81,7 @@ class GoalServiceTest {
         final GoalData foundGoal = response.goals().get(0);
         assertThat(foundGoal.title()).isEqualTo(title1);
         assertThat(foundGoal.amount()).isEqualTo(amount1);
+        assertThat(foundGoal.priority()).isEqualTo(1);
     }
 
     @Test
@@ -89,21 +92,77 @@ class GoalServiceTest {
 
     @Test
     void delete_NonExistingGoalThrows() {
-        assertThatExceptionOfType(ResourceNotFoundException.class)
+        assertThatExceptionOfType(GoalNotFoundException.class)
                 .isThrownBy(() -> goalService.destroy(10, user1));
     }
 
     @Test
     @Transactional
-    void delete_GoalIsDeletedSuccessfully() throws ResourceNotFoundException {
+    void delete_GoalIsDeletedSuccessfully() {
         goalService = new GoalService(notMockedGoalRepository);
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        final Goal testGoal = new Goal(user, "test", 11);
+        final Goal testGoal = new Goal(user, "test", 11, 2);
         notMockedGoalRepository.save(testGoal);
         assertThat(goalService.list(user).goals().size()).isEqualTo(1);
         goalService.destroy(goalService.list(user).goals().get(0).id(), user);
         assertThat(goalService.list(user).goals().size()).isEqualTo(0);
     }
 
+    @Test
+    @Transactional
+    void updatePriority_PrioritiesAreUpdatedSuccessfully() {
+        goalService = new GoalService(notMockedGoalRepository);
+        final User user = new User("TEST", "TEST", "TEST");
+        userRepository.save(user);
+        final var testGoals = List.of(
+                new Goal(user, "test1", 11, 1),
+                new Goal(user, "test2", 22, 2),
+                new Goal(user, "test3", 33, 3),
+                new Goal(user, "test4", 44, 4),
+                new Goal(user, "test5", 55, 5)
+        );
+        final var savedGoals = notMockedGoalRepository.saveAll(testGoals);
+
+        goalService.updatePriority(new GoalPriorityUpdate(
+                List.of(
+                        new GoalPriority(savedGoals.get(1).getId(), 22),
+                        new GoalPriority(savedGoals.get(3).getId(), 44),
+                        new GoalPriority(savedGoals.get(4).getId(), 55)
+                )
+        ), user);
+
+        final var goalsAfterUpdate = notMockedGoalRepository.findByUserOrderByPriorityDesc(user);
+        assertThat(goalsAfterUpdate.get(0).getId()).isEqualTo(savedGoals.get(4).getId());
+        assertThat(goalsAfterUpdate.get(1).getId()).isEqualTo(savedGoals.get(3).getId());
+        assertThat(goalsAfterUpdate.get(2).getId()).isEqualTo(savedGoals.get(1).getId());
+        assertThat(goalsAfterUpdate.get(3).getId()).isEqualTo(savedGoals.get(2).getId());
+        assertThat(goalsAfterUpdate.get(4).getId()).isEqualTo(savedGoals.get(0).getId());
+    }
+
+    @Test
+    @Transactional
+    void swapPriorities_PrioritiesAreUpdatedSuccessfully() {
+        goalService = new GoalService(notMockedGoalRepository);
+        final User user = new User("TEST", "TEST", "TEST");
+        userRepository.save(user);
+        final var testGoals = List.of(
+                new Goal(user, "test1", 11, 1),
+                new Goal(user, "test2", 22, 2)
+        );
+        final var savedGoals = notMockedGoalRepository.saveAll(testGoals);
+
+        goalService.updatePriority(new GoalPriorityUpdate(
+                List.of(
+                        new GoalPriority(savedGoals.get(0).getId(), 2),
+                        new GoalPriority(savedGoals.get(1).getId(), 1)
+                )
+        ), user);
+
+        final var goalsAfterUpdate = notMockedGoalRepository.findByUserOrderByPriorityDesc(user);
+        assertThat(goalsAfterUpdate.get(0).getId()).isEqualTo(savedGoals.get(0).getId());
+        assertThat(goalsAfterUpdate.get(1).getId()).isEqualTo(savedGoals.get(1).getId());
+    }
 }
+
+

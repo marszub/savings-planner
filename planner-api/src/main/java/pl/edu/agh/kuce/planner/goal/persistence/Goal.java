@@ -10,10 +10,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import java.util.Objects;
 
 @Entity
-@Table(name = "goals")
+@Table(name = "goals", uniqueConstraints = { @UniqueConstraint(columnNames = { "user_id", "priority" }) })
 public class Goal {
 
     @Id
@@ -30,19 +31,24 @@ public class Goal {
     @Column(nullable = false)
     private Integer amount;
 
+    @Column(name = "priority", nullable = false)
+    private Integer priority;
+
     public Goal() { }
 
-    public Goal(final User user, final String title, final Integer amount) {
+    public Goal(final User user, final String title, final Integer amount, final Integer priority) {
         this.user = user;
         this.title = title;
         this.amount = amount;
+        this.priority = priority;
     }
 
     public Goal(final User user, final GoalInputData data) {
         this(
                 user,
                 data.title(),
-                data.amount()
+                data.amount(),
+                data.priority()
         );
     }
 
@@ -76,6 +82,14 @@ public class Goal {
 
     public void setAmount(final Integer amount) {
         this.amount = amount;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(final Integer priority) {
+        this.priority = priority;
     }
 
     @Override

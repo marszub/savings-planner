@@ -9,8 +9,11 @@ import GoalList from "./Components/Goal/GoalList";
 import EventList from "./Components/Event/EventList";
 import ErrorPage from "./Components/Error/ErrorPage";
 import NotFoundPage from "./Components/Error/NotFoundPage";
+import { ACCESS_TOKEN, tokenStorage } from "./services/token-storage";
 
 function App() {
+    tokenStorage.accessToken = localStorage.getItem(ACCESS_TOKEN);
+
     return (
         <Router>
             <Routes>
@@ -23,7 +26,7 @@ function App() {
                 <Route path='/error' element={ <ErrorPage /> } />
                 <Route path='*' element={ <NotFoundPage /> } />
             </Routes>
-            <Footer sx={{ mt: 5 }} />
+            <Footer sx={{ mt: 5, mb: 3 }} />
         </Router>
   );
 }
