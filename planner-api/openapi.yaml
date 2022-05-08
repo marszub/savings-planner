@@ -123,12 +123,8 @@ paths:
             schema:
               "$ref": "#/components/schemas/EventInfo"
       responses:
-        "201":
+        "204":
           description: "Event has been updated"
-          content:
-            "application/json":
-              schema:
-                "$ref": "#/components/schemas/EventData"
         "400":
           description: "Invalid request body"
         "401":

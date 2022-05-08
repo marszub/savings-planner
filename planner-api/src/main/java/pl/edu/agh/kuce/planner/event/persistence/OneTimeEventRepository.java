@@ -12,20 +12,7 @@ public interface OneTimeEventRepository extends JpaRepository<OneTimeEvent, Inte
 
     List<OneTimeEvent> findByUser(User user);
 
-    @Query("SELECT event FROM OneTimeEvent event WHERE event.id = ?1 AND event.user = ?2")
-    Optional<OneTimeEvent> getEventById(Integer id, User user);
-
-    @Modifying
-    @Query("UPDATE OneTimeEvent AS event SET event.title = ?1 WHERE event.id = ?2 AND event.user = ?3")
-    void updateTitle(String title, Integer id, User user);
-
-    @Modifying
-    @Query("UPDATE OneTimeEvent AS event SET event.amount = ?1 WHERE event.id = ?2 AND event.user = ?3")
-    void updateAmount(Integer amount, Integer id, User user);
-
-    @Modifying
-    @Query("UPDATE OneTimeEvent AS event SET event.timestamp = ?1 WHERE event.id = ?2 AND event.user = ?3")
-    void updateTimestamp(Long timestamp, Integer id, User user);
+    Optional<OneTimeEvent> findByIdAndUser(Integer id, User user);
 
     @Modifying
     @Query("DELETE FROM OneTimeEvent event WHERE event.id = ?1 AND event.user = ?2")

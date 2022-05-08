@@ -42,10 +42,11 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    public OneTimeEventData update(@PathVariable("id") final Integer eventId,
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void update(@PathVariable("id") final Integer eventId,
                                    @Valid @RequestBody final OneTimeEventDataInput data,
                                    @Current final User user) throws ResourceNotFoundException {
-        return eventService.update(data, eventId, user);
+        eventService.update(data, eventId, user);
     }
 
     @DeleteMapping("/{id}")

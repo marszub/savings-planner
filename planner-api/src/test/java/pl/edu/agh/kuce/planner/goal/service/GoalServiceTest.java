@@ -1,6 +1,5 @@
 package pl.edu.agh.kuce.planner.goal.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -21,6 +20,8 @@ import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -68,8 +69,7 @@ class GoalServiceTest {
 
     @Test
     void create_doesNotThrow() {
-        Assertions.assertDoesNotThrow(
-                () -> goalService.create(new GoalInputData(title1, amount1), user1));
+        assertThatNoException().isThrownBy(() -> goalService.create(new GoalInputData(title1, amount1), user1));
     }
 
     @Test
@@ -89,8 +89,8 @@ class GoalServiceTest {
 
     @Test
     void delete_NonExistingGoalThrows() {
-        Assertions.assertThrows(ResourceNotFoundException.class,
-                () -> goalService.destroy(10, user1));
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> goalService.destroy(10, user1));
     }
 
     @Test
