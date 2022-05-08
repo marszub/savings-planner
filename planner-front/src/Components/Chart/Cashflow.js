@@ -25,36 +25,37 @@ function createCashflow(data) {
   return cashData;
 }
 
-function moveChart(chart){ 
-  const {ctx, canvas, chartArea: {left, right, top, down, width, height}} = chart;
-  
-  canvas.addEventListener('click', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    if(x>= right -15 && x<= right+15 && y >= height /2 +top -15 && y<= height /2 +top +15){
-      console.log("right")
-      chart.options.scales.x.min = chart.options.scales.x.min +5
-      chart.options.scales.x.max = chart.options.scales.x.max +5
-      if(chart.options.scales.x.max >= chart.data.datasets[0].data.length){
-        chart.options.scales.x.max = chart.data.datasets[0].data.length;
-        chart.options.scales.x.min = chart.data.datasets[0].data.length -5
-      }
-      chart.update()
-    }
+function moveChart(chart, ex,ey){ 
+  const {canvas, chartArea: {left, right, top, down, width, height}} = chart;
+  const rect = canvas.getBoundingClientRect();
+  const x = ex- rect.left;
+  const y = ey- rect.top;
 
-    else if(x>= left -15 && x<= left+15 && y >= height /2 +top -15 && y<= height /2 +top +15){
-          console.log("left")
-          chart.options.scales.x.min = chart.options.scales.x.min -5
-          chart.options.scales.x.max = chart.options.scales.x.max -5
-          if(chart.options.scales.x.min <= 0){
-            chart.options.scales.x.max = 5
-            chart.options.scales.x.min = 0
-          }
-          chart.update()
+  console.log(rect)
+  console.log(x,y)
+  console.log(right, left)
+  
+  if(x>= 715 && x<= 745 && y >=65 && y<= 95){
+    console.log("right")
+    chart.options.scales.x.min = chart.options.scales.x.min +5
+    chart.options.scales.x.max = chart.options.scales.x.max +5
+    if(chart.options.scales.x.max >= chart.data.datasets[0].data.length){
+      chart.options.scales.x.max = chart.data.datasets[0].data.length;
+      chart.options.scales.x.min = chart.data.datasets[0].data.length -5
+    }
+    chart.update()
+  }
+
+  else if(x>= 0 && x<= 30 && y >= 65 && y<= 95){
+        console.log("left")
+        chart.options.scales.x.min = chart.options.scales.x.min -5
+        chart.options.scales.x.max = chart.options.scales.x.max -5
+        if(chart.options.scales.x.min <= 0){
+          chart.options.scales.x.max = 5
+          chart.options.scales.x.min = 0
         }
-  })
+        chart.update()
+      }
 }
 
 export default function Cashflow() {
@@ -134,8 +135,9 @@ export default function Cashflow() {
         setPluginData({
           id: 'moveData',
 
-          afterEvent(chart, args){
-            moveChart(chart)
+          afterEvent(chart, evt, opts){
+            if(evt.event.type == 'click')
+              moveChart(chart, evt.event.x, evt.event.y)
           },
 
           afterDraw(chart, args, pluginOptions){
@@ -171,6 +173,8 @@ export default function Cashflow() {
 
             let drawCircleRight = new CircleChevron();
             drawCircleLeft.draw(ctx,right, -5)
+
+            // moveChart(chart)
           }
         })
 
