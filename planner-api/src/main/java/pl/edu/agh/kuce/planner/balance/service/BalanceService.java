@@ -14,8 +14,8 @@ public class BalanceService {
         this.balanceRepository = balanceRepository;
     }
 
-    public void create(final User user, final Integer balance) {
-        balanceRepository.save(new Balance(user, balance));
+    public void create(final User user, final BalanceDto balanceDto) {
+        balanceRepository.save(new Balance(user, balanceDto.balance()));
     }
 
     public void update(final User user, final BalanceDto newBalanceDto) {

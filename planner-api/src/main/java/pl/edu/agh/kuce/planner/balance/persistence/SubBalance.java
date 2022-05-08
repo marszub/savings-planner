@@ -7,50 +7,45 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "balances")
-public class Balance {
+@Table(name = "subBalances")
+public class SubBalance {
     @Id
     @GeneratedValue
     private Integer id;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne
+    @JoinColumn(name = "balance_user")
     private User user;
 
     @Column(nullable = false)
-    private Integer balance;
+    private Integer subBalance;
 
-    @OneToMany(mappedBy = "subBalance")
-    private List<SubBalance> subBalance;
+    public SubBalance() { }
 
-    public Balance() { }
-
-    public Balance(final User user, final Integer balance) {
+    public SubBalance(final User user, final Integer subBalance) {
         this.user = user;
-        this.balance = balance;
+        this.subBalance = subBalance;
     }
 
     public void setUser(final User user) {
         this.user = user;
     }
 
-    public void setBalance(final Integer balance) {
-        this.balance = balance;
+    public void setSubBalance(final Integer subBalance) {
+        this.subBalance = subBalance;
     }
 
     public User getUser() {
         return this.user;
     }
 
-    public Integer getBalance() {
-        return this.balance;
+    public Integer getSubBalance() {
+        return this.subBalance;
     }
 
     @Override
@@ -61,12 +56,12 @@ public class Balance {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final Balance balance = (Balance) o;
-        return Objects.equals(this.user, balance.user) && Objects.equals(this.balance, balance.balance);
+        final SubBalance subBalance = (SubBalance) o;
+        return Objects.equals(this.user, subBalance.user) && Objects.equals(this.subBalance, subBalance.subBalance);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(user);
+        return Objects.hash(user, subBalance);
     }
 }
