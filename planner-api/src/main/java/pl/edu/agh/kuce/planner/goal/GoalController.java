@@ -17,7 +17,6 @@ import pl.edu.agh.kuce.planner.goal.dto.GoalInputData;
 import pl.edu.agh.kuce.planner.goal.dto.GoalPriorityUpdate;
 import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
 import pl.edu.agh.kuce.planner.goal.service.GoalService;
-import pl.edu.agh.kuce.planner.shared.ResourceNotFoundException;
 
 import javax.validation.Valid;
 
@@ -50,7 +49,7 @@ public class GoalController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void destroy(@PathVariable("id") final Integer goalId,
-                        @Current final User user) throws GoalNotFoundException {
+                        @Current final User user) {
         goalService.destroy(goalId, user);
     }
 }
