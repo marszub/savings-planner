@@ -7,4 +7,8 @@ public class GoalNotFoundException extends ResourceNotFoundException {
     public GoalNotFoundException() {
         super("Goal with that id does not exist");
     }
+    
+    public GoalNotFoundException(final String string) {
+        super(string);
+    }
 }
