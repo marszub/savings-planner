@@ -35,9 +35,13 @@ public class EventService {
     public void update(final OneTimeEventDataInput newData,
                                    final Integer eventId,
                                    final User user) throws ResourceNotFoundException {
-        oneTimeEventRepository
+        final OneTimeEvent eventToUpdate = oneTimeEventRepository
                 .findByIdAndUser(eventId, user).orElseThrow(EventNotFoundException::new);
-        oneTimeEventRepository.save(new OneTimeEvent(newData, user));
+
+        eventToUpdate.setTitle(newData.title());
+        eventToUpdate.setAmount(newData.amount());
+        eventToUpdate.setTimestamp(newData.timestamp());
+        oneTimeEventRepository.save(eventToUpdate);
     }
 
     public void delete(final Integer eventId, final User user) throws ResourceNotFoundException {
