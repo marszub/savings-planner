@@ -3,14 +3,13 @@ package pl.edu.agh.kuce.planner.goal.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
-import pl.edu.agh.kuce.planner.goal.GoalNotFoundException;
+import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
 import pl.edu.agh.kuce.planner.goal.dto.GoalData;
 import pl.edu.agh.kuce.planner.goal.dto.SubGoalData;
 import pl.edu.agh.kuce.planner.goal.dto.GoalInputData;
 import pl.edu.agh.kuce.planner.goal.dto.SubGoalInputData;
 import pl.edu.agh.kuce.planner.goal.dto.GoalPriority;
 import pl.edu.agh.kuce.planner.goal.dto.GoalPriorityUpdate;
-import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
 import pl.edu.agh.kuce.planner.goal.persistence.Goal;
 import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
 import pl.edu.agh.kuce.planner.goal.persistence.SubGoal;
@@ -70,7 +69,7 @@ public class GoalService {
                 .anyMatch(goal -> !savedGoals.containsKey(goal.id()));
 
         if (goalNotPresent) {
-            throw new GoalNotFoundException("Some of the goals to update do not exist");
+            throw new GoalNotFoundException();
         }
 
         final var newPriorities = dto.newPriorities().stream()
@@ -106,6 +105,7 @@ public class GoalService {
             goalRepository.deleteGoal(id, user);
             return;
         }
+
         throw new GoalNotFoundException(goalNotFoundText);
     }
 

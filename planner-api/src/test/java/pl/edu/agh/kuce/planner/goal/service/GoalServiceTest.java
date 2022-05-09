@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
-import pl.edu.agh.kuce.planner.goal.GoalNotFoundException;
 import pl.edu.agh.kuce.planner.goal.dto.GoalData;
 import pl.edu.agh.kuce.planner.goal.dto.GoalInputData;
 import pl.edu.agh.kuce.planner.goal.dto.GoalPriority;
@@ -77,8 +76,7 @@ class GoalServiceTest {
 
     @Test
     void create_doesNotThrow() {
-        assertThatNoException()
-                .isThrownBy(() -> goalService.create(new GoalInputData(title1, amount1, 1), user1));
+        assertThatNoException().isThrownBy(() -> goalService.create(new GoalInputData(title1, amount1, 1), user1));
     }
 
     @Test
