@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.edu.agh.kuce.planner.auth.Current;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.event.dto.ListResponse;
-import pl.edu.agh.kuce.planner.event.dto.OneTimeEventData;
+import pl.edu.agh.kuce.planner.event.dto.EventData;
 import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.service.EventService;
 import pl.edu.agh.kuce.planner.shared.ResourceNotFoundException;
@@ -32,7 +32,7 @@ public class EventController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public OneTimeEventData create(@Valid @RequestBody final OneTimeEventDataInput data, @Current final User user) {
+    public EventData create(@Valid @RequestBody final OneTimeEventDataInput data, @Current final User user) {
         return eventService.create(data, user);
     }
 

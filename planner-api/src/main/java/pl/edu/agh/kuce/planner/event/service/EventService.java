@@ -3,7 +3,7 @@ package pl.edu.agh.kuce.planner.event.service;
 import org.springframework.stereotype.Service;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.event.dto.ListResponse;
-import pl.edu.agh.kuce.planner.event.dto.OneTimeEventData;
+import pl.edu.agh.kuce.planner.event.dto.EventData;
 import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
@@ -19,9 +19,9 @@ public class EventService {
         this.oneTimeEventRepository = oneTimeEventRepository;
     }
 
-    public OneTimeEventData create(final OneTimeEventDataInput request, final User user) {
+    public EventData create(final OneTimeEventDataInput request, final User user) {
         final OneTimeEvent event = oneTimeEventRepository.save(new OneTimeEvent(request, user));
-        return new OneTimeEventData(event);
+        return new EventData(event);
     }
 
     public ListResponse list(final User user) {
@@ -29,7 +29,7 @@ public class EventService {
                 oneTimeEventRepository
                         .findByUser(user)
                         .stream()
-                        .map(OneTimeEventData::new).toList());
+                        .map(EventData::new).toList());
     }
 
     public void update(final OneTimeEventDataInput newData,
