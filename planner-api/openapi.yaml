@@ -78,6 +78,87 @@ paths:
         "401":
           description: "User unauthorized"
 
+  "/api/subBalances":
+    post:
+      summary: "Create user balance"
+      requestBody:
+        description: "New subBalances"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/SubBalancesArrayData"
+      responses:
+        "204":
+          description: "SubBalances Created"
+        "401":
+          description: "User unauthorized"
+
+    get:
+      summary: "List user subBalances"
+      responses:
+        "200":
+          description: "Get user subBalnces"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/SubBalancesArrayData"
+        "401":
+          description: "User unauthorized"
+
+    delete:
+      summary: "Delete all user subBalances"
+      responses:
+        "204":
+          description: "SubBalances were deleted"
+        "401":
+          description: "User unauthorized"
+
+  "/api/subBalances/single":
+    post:
+      summary: "Create user balance"
+      requestBody:
+        description: "New subBalance"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/SingleSubBalanceData"
+      responses:
+        "204":
+          description: "SubBalance Created"
+        "401":
+          description: "User unauthorized"
+
+  "/api/subBalances/single/{id}":
+    put:
+      summary: "Update user balance"
+      requestBody:
+        description: "Update single subBalance with index id"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/SingleSubBalanceData"
+      responses:
+        "204":
+          description: "SubBalance updated"
+        "401":
+          description: "User unauthorized"
+
+  "/api/subBalances/count":
+    get:
+      summary: "Return count of user subBalances"
+      responses:
+        "200":
+          description: "Count of subBalances"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/AmountOfSubBalances"
+        "401":
+          description: "User unauthorized"
+
   "/api/events":
     post:
       summary: "Creates new one-time event"
@@ -310,6 +391,32 @@ components:
           type: "integer"
           format: "positive or zero account balance"
           example: 0
+
+    SubBalancesArrayData:
+      type: "object"
+      properties:
+        list:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              subBalances:
+                type: "integer"
+                format: "positive or zero account balance"
+                example: 0
+
+    SingleSubBalanceData:
+      type: "object"
+      properties:
+        subBalances:
+          type: "integer"
+          format: "positive or zero account balance"
+          example: 100
+
+    AmountOfSubBalances:
+      type: "integer"
+      format: "Amount of user subBalances 0 or positive"
+      example: 0
 
     EventInfo:
       type: "object"

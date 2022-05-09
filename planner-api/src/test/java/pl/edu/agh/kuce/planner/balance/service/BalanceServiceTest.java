@@ -9,6 +9,7 @@ import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
 import pl.edu.agh.kuce.planner.balance.dto.BalanceDto;
 import pl.edu.agh.kuce.planner.balance.persistence.BalanceRepository;
+import pl.edu.agh.kuce.planner.balance.persistence.SubBalanceRepository;
 
 import javax.transaction.Transactional;
 
@@ -24,6 +25,9 @@ public class BalanceServiceTest {
 
     @Autowired
     private BalanceRepository balanceRepository;
+
+    @Autowired
+    private SubBalanceRepository subBalanceRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -47,7 +51,7 @@ public class BalanceServiceTest {
         userRepository.save(user);
         userRepository.save(user2);
 
-        balanceService = new BalanceService(balanceRepository);
+        balanceService = new BalanceService(balanceRepository, new SubBalanceService(subBalanceRepository));
         assertThatNoException().isThrownBy(
                 () -> {
                     balanceService.create(user, balance);
@@ -60,7 +64,7 @@ public class BalanceServiceTest {
     void testListBalanceByDto() {
         userRepository.save(user);
         userRepository.save(user2);
-        balanceService = new BalanceService(balanceRepository);
+        balanceService = new BalanceService(balanceRepository, new SubBalanceService(subBalanceRepository));
 
         balanceService.create(user, balance);
         balanceService.create(user2, balance2);
@@ -77,7 +81,7 @@ public class BalanceServiceTest {
     void testUpdateByDto() {
         userRepository.save(user);
         userRepository.save(user2);
-        balanceService = new BalanceService(balanceRepository);
+        balanceService = new BalanceService(balanceRepository, new SubBalanceService(subBalanceRepository));
 
         balanceService.create(user, balance);
         balanceService.create(user2, balance2);
@@ -105,7 +109,7 @@ public class BalanceServiceTest {
     @Transactional
     void testRequestEmptyBalance() {
         userRepository.save(user);
-        balanceService = new BalanceService(balanceRepository);
+        balanceService = new BalanceService(balanceRepository, new SubBalanceService(subBalanceRepository));
 
         assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> balanceService.list(user));
 
