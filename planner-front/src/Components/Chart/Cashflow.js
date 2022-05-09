@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { Line } from "react-chartjs-2";
 import { useState, useEffect } from "react";
 import { EventStorge } from "../../services/events-storage";
@@ -210,7 +210,7 @@ export default function Cashflow() {
       Object.keys(optionData).length !== 0
     )
       return (
-        <ThemeProvider theme={theme} >
+        <ThemeProvider theme={theme}>
           <Container>
             <Typography
               component="h1"

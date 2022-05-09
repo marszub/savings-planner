@@ -27,15 +27,15 @@ export default function Home() {
           <div id="main-container">
             <Grid container spacing={2} id="main-grid">
               <Grid item xs={9}>
-                <div className="container" style={{height:"40vw"}}>
+                <div className="container" style={{ height: "40vw" }}>
                   <Cashflow />
                 </div>
               </Grid>
               <Grid item xs={3}>
-                <div className="container"style={{height:"15vw"}}>
+                <div className="container" style={{ height: "15vw" }}>
                   <BalanceField></BalanceField>
                 </div>
-                <div className="container" style={{marginTop:"15px"}}>
+                <div className="container" style={{ marginTop: "15px" }}>
                   <a>cashflow options</a>
                 </div>
               </Grid>
