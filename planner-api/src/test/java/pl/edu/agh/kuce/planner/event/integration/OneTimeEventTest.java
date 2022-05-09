@@ -1,4 +1,5 @@
 package pl.edu.agh.kuce.planner.event.integration;
+import org.assertj.core.api.Fail;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -12,6 +13,7 @@ import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,6 +29,10 @@ public class OneTimeEventTest {
     @Autowired
     private UserRepository userRepository;
 
+    private User user = new User("nick", "123@321.223", "password");
+    private OneTimeEvent event1;
+    private OneTimeEvent event2;
+
     @Test
     void contextLoads() {
         assertThat(mockMvc).isNotNull();
@@ -35,28 +41,51 @@ public class OneTimeEventTest {
     @Test
     @Transactional
     void single_one_time_event_is_properly_saved_in_database() {
-        final User user = new User("TEST", "TEST", "TEST");
-        userRepository.save(user);
-        final OneTimeEvent testEvent = new OneTimeEvent(user, "test", 110,
-                Instant.now());
-        oneTimeEventRepository.save(testEvent);
+        user = userRepository.save(user);
+        event1 = new OneTimeEvent(user, "Title1", 110, Instant.now());
+        oneTimeEventRepository.save(event1);
         final List<OneTimeEvent> result = oneTimeEventRepository.findByUser(user);
-        assertThat(result.get(0)).isEqualTo(testEvent);
+        assertThat(result.get(0)).isEqualTo(event1);
+    }
+
+    @Test
+    void multiple_one_time_events_are_saved_properly_in_database() {
+        user = userRepository.save(user);
+        event1 = new OneTimeEvent(user, "Title1", 110, Instant.now());
+        event2 = new OneTimeEvent(user, "Title2", 120, Instant.now());
+        oneTimeEventRepository.save(event1);
+        oneTimeEventRepository.save(event2);
+        final List<OneTimeEvent> result = oneTimeEventRepository.findByUser(user);
+        assertThat(result.contains(event1)).isTrue();
+        assertThat(result.contains(event2)).isTrue();
     }
 
     @Test
     @Transactional
-    void multiple_one_time_events_are_saved_properly_in_database() {
-        final User user = new User("TEST", "TEST", "TEST");
-        userRepository.save(user);
-        final OneTimeEvent testEvent1 = new OneTimeEvent(user, "test1", 10,
-                Instant.now());
-        final OneTimeEvent testEvent2 = new OneTimeEvent(user, "test2", 120,
-                Instant.now());
-        oneTimeEventRepository.save(testEvent1);
-        oneTimeEventRepository.save(testEvent2);
+    void findByIdAndUser_existingEvent() {
+        user = userRepository.save(user);
+        event1 = new OneTimeEvent(user, "Title1", 110, Instant.now());
+        event2 = new OneTimeEvent(user, "Title2", 120, Instant.now());
+        oneTimeEventRepository.save(event1);
+        oneTimeEventRepository.save(event2);
         final List<OneTimeEvent> result = oneTimeEventRepository.findByUser(user);
-        assertThat(result.get(0)).isEqualTo(testEvent1);
-        assertThat(result.get(1)).isEqualTo(testEvent2);
+        final OneTimeEvent foundEvent2 = result.stream().filter(e -> e == event2).findFirst().orElseGet(() -> {
+            Fail.fail("");
+            return new OneTimeEvent();
+        });
+        final OneTimeEvent foundByIdAndUser = oneTimeEventRepository
+                .findByIdAndUser(foundEvent2.getId(), user).orElseGet(() -> {
+                    Fail.fail("");
+                    return new OneTimeEvent();
+                });
+        assertThat(foundByIdAndUser.getTitle()).isEqualTo(event2.getTitle());
+    }
+
+    @Test
+    @Transactional
+    void findByIdAndUser_notExistingEvent() {
+        user = userRepository.save(user);
+        final Optional<OneTimeEvent> foundByIdAndUser = oneTimeEventRepository.findByIdAndUser(1, user);
+        assertThat(foundByIdAndUser.isEmpty()).isTrue();
     }
 }

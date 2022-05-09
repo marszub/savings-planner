@@ -7,6 +7,9 @@ import pl.edu.agh.kuce.planner.event.dto.OneTimeEventData;
 import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
+import pl.edu.agh.kuce.planner.shared.ResourceNotFoundException;
+
+import java.util.Optional;
 
 @Service
 public class EventService {
@@ -27,5 +30,26 @@ public class EventService {
                         .findByUser(user)
                         .stream()
                         .map(OneTimeEventData::new).toList());
+    }
+
+    public void update(final OneTimeEventDataInput newData,
+                                   final Integer eventId,
+                                   final User user) throws ResourceNotFoundException {
+        final OneTimeEvent eventToUpdate = oneTimeEventRepository
+                .findByIdAndUser(eventId, user).orElseThrow(EventNotFoundException::new);
+
+        eventToUpdate.setTitle(newData.title());
+        eventToUpdate.setAmount(newData.amount());
+        eventToUpdate.setTimestamp(newData.timestamp());
+        oneTimeEventRepository.save(eventToUpdate);
+    }
+
+    public void delete(final Integer eventId, final User user) throws ResourceNotFoundException {
+        final Optional<OneTimeEvent> event = oneTimeEventRepository.findByIdAndUser(eventId, user);
+        if (event.isPresent()) {
+            oneTimeEventRepository.deleteEvent(eventId, user);
+            return;
+        }
+        throw new EventNotFoundException();
     }
 }
