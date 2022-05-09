@@ -80,9 +80,9 @@ export default function Cashflow() {
         setChartData({
           labels: eventData.map(
             (data) =>
-              data.timestamp.getDate() +
-              " " +
               DateService.getMonth(data.timestamp.getMonth()) +
+              " " +
+              data.timestamp.getDate() +
               " " +
               data.timestamp.getFullYear()
           ),
@@ -126,7 +126,7 @@ export default function Cashflow() {
                   return title;
                 },
                 label: function (tooltipItem) {
-                  let label = eventData[tooltipItem.dataIndex].amount + " zł";
+                  let label = eventData[tooltipItem.dataIndex].amount + " PLN";
                   return label;
                 },
               },

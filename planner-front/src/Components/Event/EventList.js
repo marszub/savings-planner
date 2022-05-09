@@ -36,6 +36,7 @@ import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
 import { Collapse, ListItemButton, ListItemIcon, MenuItem } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import "../../styles/Events.css"
 
 const theme = createTheme();
 
@@ -149,11 +150,12 @@ export default function EventList() {
                 component="main"
                 maxWidth="xs"
                 sx={{
-                    marginTop: 8,
+                    marginTop: 3,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                 }}
+                id="event-list"
             >
                 <CssBaseline/>
                 <Avatar sx={{m: 1, bgcolor: 'secondary.main'}}>
@@ -163,9 +165,11 @@ export default function EventList() {
                     Event list
                 </Typography>
 
-                <List sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}>
-                    { eventsItems }
-                </List>
+                <Container class="scrollable-list-events">
+                    <List sx={{width: '100%', maxWidth: 1000, bgcolor: 'background.paper'}}>
+                        { eventsItems }
+                    </List>
+                </Container>
 
                 <Button
                     fullWidth
