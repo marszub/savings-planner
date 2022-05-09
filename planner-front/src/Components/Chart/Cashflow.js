@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Line } from "react-chartjs-2";
 import { useState, useEffect } from "react";
 import { EventStorge } from "../../services/events-storage";
@@ -89,13 +89,13 @@ export default function Cashflow() {
           datasets: [
             {
               data: cash.map((data) => data),
-              borderColor: "#1c54b2",
+              borderColor: "#1976d2",
               responsive: true,
               borderWidth: 2,
               tension: 0.3,
               easing: "linear",
               hoverRadius: 10,
-              hoverBackgroundColor: "#1c54b2",
+              hoverBackgroundColor: "#1976d2",
             },
           ],
         });
@@ -210,7 +210,7 @@ export default function Cashflow() {
       Object.keys(optionData).length !== 0
     )
       return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={theme} >
           <Container>
             <Typography
               component="h1"
