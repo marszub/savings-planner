@@ -2,10 +2,11 @@ import {httpService} from "./http-service";
 import {CreateGoalRequest} from "../requests/create-goal-request";
 import {moneyFormatter} from "../utils/money-formatter";
 import {GoalPriorityUpdateModel} from "../models/goal-priority-update-model";
-import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_OK} from "../utils/http-status";
+import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../utils/http-status";
 import {goalStorage} from "./goal-storage";
 import {goalCompare} from "../utils/goal-compare";
 import {GoalModel} from "../models/goal-model";
+import {navigation} from "../utils/navigation";
 
 export const goalService = {
 
@@ -14,11 +15,16 @@ export const goalService = {
   getList() {
     return httpService.get("/goals")
         .then(res => {
-          if (res.status === HTTP_OK) {
-            this._storage.setGoals(res.body.goals);
+          switch (res.status) {
+            case HTTP_OK:
+              this._storage.setGoals(res.body.goals);
+              break;
+            default:
+              navigation.navigateError();
+              break;
           }
           return res;
-        });
+        })
     },
 
     create(formModel, priority) {
@@ -29,14 +35,21 @@ export const goalService = {
               moneyFormatter.mapStringToPenniesNumber(formModel.amount),
               priority
           )
-      ).then(async res => {
-        if (res.status === HTTP_CREATED) {
-          this._storage.setGoals(prev => [res.body, ...prev].sort(goalCompare));
-        } else if (res.status === HTTP_CONFLICT) {
-          await this.getList();
+      )
+      .then(async res => {
+        switch (res.status) {
+          case HTTP_CREATED:
+            this._storage.setGoals(prev => [res.body, ...prev].sort(goalCompare));
+            break;
+          case HTTP_CONFLICT:
+            await this.getList();
+            break;
+          default:
+            navigation.navigateError();
+            break;
         }
         return res;
-      });
+      })
     },
 
     updatePriority(goalPriorityUpdatesMap) {
@@ -45,13 +58,20 @@ export const goalService = {
 
       return httpService.patch('/goals', {newPriorities})
           .then(async res => {
-            if (res.status === HTTP_NO_CONTENT) {
-              this._storage.setGoals(prev => prev
-                  .map(goal => this._updatePriority(goal, goalPriorityUpdatesMap))
-                  .sort(goalCompare)
-              );
-            } else if (res.status === HTTP_CONFLICT) {
-              await this.getList();
+            switch (res.status) {
+              case HTTP_NO_CONTENT:
+                this._storage.setGoals(prev => prev
+                    .map(goal => this._updatePriority(goal, goalPriorityUpdatesMap))
+                    .sort(goalCompare)
+                );
+                break;
+              case HTTP_CONFLICT:
+              case HTTP_NOT_FOUND:
+                await this.getList();
+                break;
+              default:
+                navigation.navigateError();
+                break;
             }
             return res;
           });
@@ -60,10 +80,17 @@ export const goalService = {
     delete(id) {
       return httpService.delete(`/goals/${id}`)
           .then(async res => {
-            if (res.status === HTTP_NO_CONTENT) {
-              this._storage.setGoals(prev => prev.filter(goal => goal.id !== id));
-            } else if (res.status === HTTP_CONFLICT) {
-              await this.getList();
+            switch (res.status) {
+              case HTTP_NO_CONTENT:
+                this._storage.setGoals(prev => prev.filter(goal => goal.id !== id));
+                break;
+              case HTTP_CONFLICT:
+              case HTTP_NOT_FOUND:
+                await this.getList();
+                break;
+              default:
+                navigation.navigateError();
+                break;
             }
             return res;
           });
@@ -72,13 +99,19 @@ export const goalService = {
     createSubGoal(parentGoalId, subGoalTitle) {
       return httpService.post(`/goals/${goalId}/sub-goals`, {title: subGoalTitle})
           .then(async res => {
-            if (res.status === HTTP_CREATED) {
-              this._storage.setGoals(prev => prev
-                  .map(goal => this._addSubGoal(goal, parentGoalId, res.body))
-              );
-              return res;
-            } else if (res.status === HTTP_CONFLICT) {
-              await this.getList();
+            switch (res.status) {
+              case HTTP_CREATED:
+                this._storage.setGoals(prev => prev
+                    .map(goal => this._addSubGoal(goal, parentGoalId, res.body))
+                );
+                break;
+              case HTTP_CONFLICT:
+              case HTTP_NOT_FOUND:
+                await this.getList();
+                break;
+              default:
+                navigation.navigateError();
+                break;
             }
             return res;
           });
@@ -87,12 +120,19 @@ export const goalService = {
     deleteSubGoal(parentGoalId, subGoalId) {
       return httpService.delete(`/goals/${goalId}/sub-goals/${subGoalId}`)
           .then(async res => {
-            if (res.status === HTTP_NO_CONTENT) {
-              this._storage.setGoals(prev => prev
-                  .map(goal => this._deleteSubGoal(goal, parentGoalId, subGoalId))
-              )
-            } else if (res.status === HTTP_CONFLICT) {
-              await this.getList();
+            switch (res.status) {
+              case HTTP_NO_CONTENT:
+                this._storage.setGoals(prev => prev
+                    .map(goal => this._deleteSubGoal(goal, parentGoalId, subGoalId))
+                );
+                break;
+              case HTTP_CONFLICT:
+              case HTTP_NOT_FOUND:
+                await this.getList();
+                break;
+              default:
+                navigation.navigateError();
+                break;
             }
             return res;
           });

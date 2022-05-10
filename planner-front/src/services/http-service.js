@@ -2,10 +2,10 @@ import {HTTP_BAD_REQUEST, HTTP_NO_CONTENT, HTTP_UNAUTHORIZED, isServerError} fro
 import { BACKEND_URL } from "../config";
 import { tokenStorage } from "./token-storage";
 import { userService } from "./user-service";
-import {useNavigate} from "react-router-dom";
+import {navigation} from "../utils/navigation";
 
 export const httpService = {
-    _navigate: useNavigate(),
+    _navigation: navigation,
 
     get(path, queryParams) {
         return request(`${path}?${new URLSearchParams(queryParams)}`, 'GET');
@@ -39,10 +39,7 @@ function request(path, method, body=null) {
         body: body && JSON.stringify(body, replacer),
     })
         .then(onResponse)
-        .catch(err => {
-            console.log(err);
-            this._navigate("/error");
-        });
+        .catch(() => navigation.navigateError());
 }
 
 function onResponse(res) {

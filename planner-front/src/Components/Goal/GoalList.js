@@ -54,7 +54,6 @@ export default function GoalList() {
   const [alertStatus, setAlertStatus] = useState("");
   const [refreshAlert, setRefreshAlert] = useState(false);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
@@ -78,9 +77,9 @@ export default function GoalList() {
             case HTTP_CONFLICT:
               setAlertStatus(GOAL_409_ALERT);
               setRefreshAlert(prev => !prev);
+              break;
           }
         })
-        .catch(err => console.log(err))
         .finally(() => setLoading(false));
   };
 
@@ -91,22 +90,15 @@ export default function GoalList() {
         .then(res => {
           switch (res.status) {
             case HTTP_NO_CONTENT:
-              setGoals(prev => prev.filter(goal => goal.id !== id));
-
               setAlertStatus(GOAL_DELETED_ALERT);
               setRefreshAlert(prev => !prev);
               break;
             case HTTP_NOT_FOUND:
               setAlertStatus(GOAL_404_ALERT);
               setRefreshAlert(prev => !prev);
-
-              return goalService.getList();
-            default:
-              return Promise.reject(res.status);
+              break;
           }
         })
-        .then(res => res && onGoalList(res))
-        .catch(err => console.log(err))
         .finally(() => setLoading(false));
   };
 
@@ -114,6 +106,8 @@ export default function GoalList() {
     if (dnd.source.index === dnd.destination.index) {
       return;
     }
+
+    setLoading(true);
 
     const sourceGoal = goals[dnd.source.index];
     const destinationGoal = goals[dnd.destination.index];
@@ -132,33 +126,21 @@ export default function GoalList() {
     }
     newPriorities.set(sourceGoal.id, destinationGoalPriority);
 
-    const updatePriority = goal => {
-      if (newPriorities.has(goal.id)) {
-        return new GoalModel(goal.id, goal.title, goal.amount, newPriorities.get(goal.id), goal.subGoals)
-      } else {
-        return goal;
-      }
-    }
-
-    setLoading(true);
     goalService.updatePriority(newPriorities)
         .then(res => {
           switch (res.status) {
             case HTTP_NO_CONTENT:
-              setGoals(prev => prev.map(updatePriority).sort(goalCompare));
               setAlertStatus(GOAL_UPDATED_ALERT);
               setRefreshAlert(prev => !prev);
               break;
             case HTTP_NOT_FOUND:
               setAlertStatus(GOAL_404_ALERT);
               setRefreshAlert(prev => !prev);
-              return goalService.getList();
+              break;
             case HTTP_CONFLICT:
               setAlertStatus(GOAL_409_ALERT);
               setRefreshAlert(prev => !prev);
-              return goalService.getList();
-            default:
-              return Promise.reject(res.status);
+              break;
           }
         })
         .finally(() => setLoading(false));
@@ -271,26 +253,15 @@ function Goal(props) {
         .then(res => {
           switch (res.status) {
             case HTTP_CREATED:
-              props.setGoals(prev => prev.map(goal => {
-                if (goal.id === props.goal.id) {
-                  return new GoalModel(goal.id, goal.title, goal.amount, goal.priority, [...goal.subGoals, res.body]);
-                } else {
-                  return goal;
-                }
-              }));
-
               props.setAlertStatus(SUB_GOAL_CREATED_ALERT);
               props.setRefreshAlert(prev => !prev);
               break;
             case HTTP_NOT_FOUND:
               props.setAlertStatus(GOAL_404_ALERT);
               props.setRefreshAlert(prev => !prev);
-
-              return goalService.getList();
+              break;
           }
         })
-        .then(res => res && props.onGoalList(res))
-        .catch(err => console.log(err))
         .finally(() => props.setLoading(false));
   };
 
@@ -301,29 +272,15 @@ function Goal(props) {
         .then(res => {
           switch (res.status) {
             case HTTP_NO_CONTENT:
-              props.setGoals(prev => prev.map(goal => {
-                if (goal.id === props.goal.id) {
-                  return new GoalModel(goal.id, goal.title, goal.amount, goal.priority,
-                      goal.subGoals.filter(subGoal => subGoal.id !== subGoalId));
-                } else {
-                  return goal;
-                }
-              }));
-
               props.setAlertStatus(SUB_GOAL_DELETED_ALERT);
               props.setRefreshAlert(prev => !prev);
               break;
             case HTTP_NOT_FOUND:
               props.setAlertStatus(GOAL_404_ALERT);
               props.setRefreshAlert(prev => !prev);
-
-              return goalService.getList();
-            default:
-              return Promise.reject(res.status);
+              break;
           }
         })
-        .then(res => res && props.onGoalList(res))
-        .catch(err => console.log(err))
         .finally(() => props.setLoading(false));
   };
 
