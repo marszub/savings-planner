@@ -33,6 +33,7 @@ import {goalCompare} from "../../utils/goal-compare";
 import {CircularProgress} from "@mui/material";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import {GoalModel} from "../../models/goal-model";
+import "../../styles/Goals.css"
 
 const theme = createTheme();
 
@@ -189,11 +190,13 @@ export default function GoalList() {
             component="main"
             maxWidth="xs"
             sx={{
+              marginTop: 3,
               position: 'relative',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
             }}
+            id="goal-list"
         >
           <CssBaseline/>
           <Avatar sx={{m: 1, bgcolor: 'secondary.main'}}>
@@ -220,8 +223,9 @@ export default function GoalList() {
             Goal list
           </Typography>
 
+          <Container class="scrollable-list-goals" >
           <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="droppable-list">
+            <Droppable droppableId="droppable-list" >
               {provided => (
                   <List
                       sx={{
@@ -238,6 +242,7 @@ export default function GoalList() {
               )}
             </Droppable>
           </DragDropContext>
+          </Container>
 
           <Button
               fullWidth
