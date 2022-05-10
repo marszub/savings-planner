@@ -84,7 +84,6 @@ export const goalService = {
               case HTTP_NO_CONTENT:
                 this._storage.setGoals(prev => prev.filter(goal => goal.id !== id));
                 break;
-              case HTTP_CONFLICT:
               case HTTP_NOT_FOUND:
                 await this.getList();
                 break;
@@ -105,7 +104,6 @@ export const goalService = {
                     .map(goal => this._addSubGoal(goal, parentGoalId, res.body))
                 );
                 break;
-              case HTTP_CONFLICT:
               case HTTP_NOT_FOUND:
                 await this.getList();
                 break;
@@ -126,7 +124,6 @@ export const goalService = {
                     .map(goal => this._deleteSubGoal(goal, parentGoalId, subGoalId))
                 );
                 break;
-              case HTTP_CONFLICT:
               case HTTP_NOT_FOUND:
                 await this.getList();
                 break;

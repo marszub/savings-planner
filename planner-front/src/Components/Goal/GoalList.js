@@ -31,12 +31,9 @@ import {MAX_INT32, moneyValidators} from "../../utils/money-validators";
 import {moneyFormatter} from "../../utils/money-formatter";
 import {goalService} from "../../services/goal-service";
 import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
-import {goalCompare} from "../../utils/goal-compare";
 import {CircularProgress, Collapse} from "@mui/material";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
-import {GoalModel} from "../../models/goal-model";
 import "../../styles/Goals.css"
-import {useNavigate} from "react-router-dom";
 
 const theme = createTheme();
 
