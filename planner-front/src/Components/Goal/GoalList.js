@@ -43,6 +43,8 @@ const GOAL_DELETED_ALERT = 'GOAL_DELETED';
 const GOAL_UPDATED_ALERT = 'GOAL_UPDATED';
 const GOAL_404_ALERT = 'GOAL_404';
 const GOAL_409_ALERT = 'GOAL_409';
+const SUB_GOAL_DELETED_ALERT = 'SUB_GOAL_DELETED';
+const SUB_GOAL_CREATED_ALERT = 'SUB_GOAL_CREATED';
 
 export default function GoalList() {
   const [goals, setGoals] = useState([]);
@@ -90,7 +92,7 @@ export default function GoalList() {
               return goalService.getList();
           }
         })
-        .then(onGoalList)
+        .then(res => res && onGoalList(res))
         .catch(err => console.log(err))
         .finally(() => setLoading(false));
   };
@@ -116,7 +118,7 @@ export default function GoalList() {
               return Promise.reject(res.status);
           }
         })
-        .then(onGoalList)
+        .then(res => res && onGoalList(res))
         .catch(err => console.log(err))
         .finally(() => setLoading(false));
   };
@@ -182,6 +184,11 @@ export default function GoalList() {
           isLast={goal.id === goals[goals.length - 1].id}
           handleDelete={deleteGoal}
           index={index}
+          setGoals={setGoals}
+          setLoading={setLoading}
+          setAlertStatus={setAlertStatus}
+          setRefreshAlert={setRefreshAlert}
+          onGoalList={onGoalList}
       />
   );
 
@@ -266,14 +273,87 @@ function Goal(props) {
   const [goalRemovalOpen, setGoalRemovalOpen] = useState(false);
   const [subGoalOpen, setSubGoalOpen] = useState(false);
 
-  const handleCreate = subGoalTitle => {
+  const createSubGoal = title => {
+    props.setLoading(true);
 
-  }
+    goalService.createSubGoal(props.goal.id, title)
+        .then(res => {
+          switch (res.status) {
+            case HTTP_CREATED:
+              props.setGoals(prev => prev.map(goal => {
+                if (goal.id === props.goal.id) {
+                  return new GoalModel(goal.id, goal.title, goal.amount, goal.priority, [...goal.subGoals, res.body]);
+                } else {
+                  return new GoalModel(goal.id, goal.title, goal.amount, goal.priority, goal.subGoals);
+                }
+              }));
 
-  const subGoals = props.goal.subGoals.map(s => (
-      <ListItemText
-          primary={s.title}
-      />
+              props.setAlertStatus(SUB_GOAL_CREATED_ALERT);
+              props.setRefreshAlert(prev => !prev);
+              break;
+            case HTTP_NOT_FOUND:
+              props.setAlertStatus(GOAL_404_ALERT);
+              props.setRefreshAlert(prev => !prev);
+
+              return goalService.getList();
+          }
+        })
+        .then(res => res && props.onGoalList(res))
+        .catch(err => console.log(err))
+        .finally(() => props.setLoading(false));
+  };
+
+  const deleteSubGoal = subGoalId => {
+    props.setLoading(true);
+
+    goalService.deleteSubGoal(props.goal.id, subGoalId)
+        .then(res => {
+          switch (res.status) {
+            case HTTP_NO_CONTENT:
+              props.setGoals(prev => prev.map(goal => {
+                if (goal.id === props.goal.id) {
+                  return new GoalModel(goal.id, goal.title, goal.amount, goal.priority,
+                      goal.subGoals.filter(subGoal => subGoal.id !== subGoalId));
+                } else {
+                  return new GoalModel(goal.id, goal.title, goal.amount, goal.priority, goal.subGoals);
+                }
+              }));
+
+              props.setAlertStatus(SUB_GOAL_DELETED_ALERT);
+              props.setRefreshAlert(prev => !prev);
+              break;
+            case HTTP_NOT_FOUND:
+              props.setAlertStatus(GOAL_404_ALERT);
+              props.setRefreshAlert(prev => !prev);
+
+              return goalService.getList();
+            default:
+              return Promise.reject(res.status);
+          }
+        })
+        .then(res => res && props.onGoalList(res))
+        .catch(err => console.log(err))
+        .finally(() => props.setLoading(false));
+  };
+
+  const subGoals = props.goal.subGoals.map(subGoal => (
+      <ListItem sx={{
+        margin: '0 1em'
+      }}>
+        <Tooltip title="Delete">
+          <IconButton
+              edge="start"
+              aria-label="delete"
+              size="small"
+              onClick={() => deleteSubGoal(subGoal.id)}
+          >
+            <DeleteIcon/>
+          </IconButton>
+        </Tooltip>
+        <ListItemText
+            primary={subGoal.title}
+        />
+      </ListItem>
   ));
 
   return (
@@ -286,7 +366,7 @@ function Goal(props) {
                   {...provided.draggableProps}
                   {...provided.dragHandleProps}
               >
-                <Tooltip title="Delete">
+                <Tooltip title={subGoalOpen ? 'Collapse' : 'Expand'}>
                   <IconButton
                       edge="start"
                       aria-label="expand"
@@ -320,7 +400,7 @@ function Goal(props) {
                   {subGoals}
                 </List>
                 <SubGoalCreationForm
-                  onCreate={handleCreate}
+                  onCreate={createSubGoal}
                 />
               </Collapse>
               </>
@@ -335,10 +415,22 @@ function Goal(props) {
 }
 
 function SubGoalCreationForm(props) {
-  const [subGoalErrorMessage, setSubGoalErrorMessage] = useState("");
+  const [subGoalErrorMessage, setSubGoalErrorMessage] = useState('');
+  const [title, setTitle] = useState('');
 
-  const handleSubmit = () => {
+  const handleSubmit = event => {
+    event.preventDefault();
 
+    const subGoalError = goalValidators.validateTitle(title);
+
+    setSubGoalErrorMessage(subGoalError);
+
+    if (subGoalError) {
+      return;
+    }
+
+    props.onCreate(title);
+    setTitle('');
   };
 
   return (
@@ -348,10 +440,13 @@ function SubGoalCreationForm(props) {
           sx={{
             display: 'flex',
             gap: '1em',
-            alignItems: 'stretch'
+            alignItems: 'stretch',
+            margin: '1em 0'
           }}
       >
         <TextField
+            value={title}
+            onChange={e => setTitle(e.target.value)}
             required
             fullWidth
             size="small"
@@ -528,6 +623,16 @@ function GoalActionSnackbar(props) {
       case GOAL_DELETED_ALERT:
         setAlertSeverity('info');
         setAlertMessage('Goal successfully deleted!');
+        setAlertOpen(true);
+        break;
+      case SUB_GOAL_CREATED_ALERT:
+        setAlertSeverity('success');
+        setAlertMessage('New sub-goal successfully created!');
+        setAlertOpen(true);
+        break;
+      case SUB_GOAL_DELETED_ALERT:
+        setAlertSeverity('info');
+        setAlertMessage('Sub-goal successfully deleted!');
         setAlertOpen(true);
         break;
       case GOAL_UPDATED_ALERT:
