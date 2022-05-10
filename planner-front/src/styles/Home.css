@@ -12,10 +12,6 @@
      box-shadow: 2px 2px 4px rgb(212, 212, 212);
 }
 
-/* .goals{
-     margin-top: 18px;
-} */
-
 .goal-text{
      text-align: center;
      background-color: rgba(26, 122, 173);
@@ -24,14 +20,6 @@
      padding: 10px;
      border-radius: 8px;
 }
-
-/* .event-container{
-     border: solid 1px rgb(218, 218, 218);
-     border-radius: 8px;
-     margin: 4px;
-     background-color: rgb(247, 247, 247);
-
-} */
 
 .label-row{
      background-color: rgba(26, 122, 173);
@@ -49,7 +37,6 @@
 
 .item{
      width: 33vw;
-     /* border: solid 1px black; */
      padding:10px 50px;
      text-align: center;
 }

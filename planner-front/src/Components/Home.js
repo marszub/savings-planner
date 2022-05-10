@@ -22,7 +22,7 @@ export default function Home() {
   const displayHomePage = () => {
     if (!loading) {
       return (
-        <body>
+        <>
           <Header />
           <div id="main-container">
             <Grid container spacing={2} id="main-grid">
@@ -56,7 +56,7 @@ export default function Home() {
               </Grid>
             </Grid>
           </div>
-        </body>
+        </>
       );
     } else return <a>loading data...</a>;
   };
