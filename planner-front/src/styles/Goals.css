@@ -1,0 +1,9 @@
+.scrollable-list-goals{
+    height: 40vh;
+    overflow-y: scroll;
+    width: 20vw;
+}
+
+#goal-list{
+    height: 50vh;
+}
