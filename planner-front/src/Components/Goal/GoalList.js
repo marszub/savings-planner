@@ -78,11 +78,8 @@ export default function GoalList() {
             case HTTP_CONFLICT:
               setAlertStatus(GOAL_409_ALERT);
               setRefreshAlert(prev => !prev);
-
-              return goalService.getList();
           }
         })
-        .then(res => res && onGoalList(res))
         .catch(err => console.log(err))
         .finally(() => setLoading(false));
   };
