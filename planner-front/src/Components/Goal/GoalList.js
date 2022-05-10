@@ -72,8 +72,6 @@ export default function GoalList() {
         .then(res => {
           switch (res.status) {
             case HTTP_CREATED:
-              setGoals(prev => [res.body, ...prev].sort(goalCompare));
-
               setAlertStatus(GOAL_CREATED_ALERT);
               setRefreshAlert(prev => !prev);
               break;
