@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
-import pl.edu.agh.kuce.planner.goal.GoalNotFoundException;
 import pl.edu.agh.kuce.planner.goal.dto.GoalData;
 import pl.edu.agh.kuce.planner.goal.dto.GoalInputData;
 import pl.edu.agh.kuce.planner.goal.dto.GoalPriority;
@@ -18,7 +17,9 @@ import pl.edu.agh.kuce.planner.goal.dto.GoalPriorityUpdate;
 import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
 import pl.edu.agh.kuce.planner.goal.persistence.Goal;
 import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
+import pl.edu.agh.kuce.planner.goal.persistence.SubGoalRepository;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,6 +38,9 @@ class GoalServiceTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Mock
+    private SubGoalRepository subGoalRepository;
 
     @Autowired
     private GoalRepository notMockedGoalRepository;
@@ -65,14 +69,14 @@ class GoalServiceTest {
         when(goalRepository.findByUserOrderByPriorityDesc(user2))
                 .thenReturn(List.of());
         when(goalRepository.save(any())).thenReturn(goal);
+        when(subGoalRepository.getSubGoals(any(), any())).thenReturn(new LinkedList<>());
 
-        goalService = new GoalService(goalRepository);
+        goalService = new GoalService(goalRepository, subGoalRepository);
     }
 
     @Test
     void create_doesNotThrow() {
-        assertThatNoException()
-                .isThrownBy(() -> goalService.create(new GoalInputData(title1, amount1, 1), user1));
+        assertThatNoException().isThrownBy(() -> goalService.create(new GoalInputData(title1, amount1, 1), user1));
     }
 
     @Test
@@ -100,7 +104,7 @@ class GoalServiceTest {
     @Test
     @Transactional
     void delete_GoalIsDeletedSuccessfully() {
-        goalService = new GoalService(notMockedGoalRepository);
+        goalService = new GoalService(notMockedGoalRepository, subGoalRepository);
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         final Goal testGoal = new Goal(user, "test", 11, 2);
@@ -113,7 +117,7 @@ class GoalServiceTest {
     @Test
     @Transactional
     void updatePriority_PrioritiesAreUpdatedSuccessfully() {
-        goalService = new GoalService(notMockedGoalRepository);
+        goalService = new GoalService(notMockedGoalRepository, subGoalRepository);
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         final var testGoals = List.of(
@@ -144,7 +148,7 @@ class GoalServiceTest {
     @Test
     @Transactional
     void swapPriorities_PrioritiesAreUpdatedSuccessfully() {
-        goalService = new GoalService(notMockedGoalRepository);
+        goalService = new GoalService(notMockedGoalRepository, subGoalRepository);
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         final var testGoals = List.of(

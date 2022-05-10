@@ -30,10 +30,10 @@ public class BalanceServiceTest {
 
     private BalanceService balanceService;
 
-    private final Integer balance = 10000;
+    private final BalanceDto balance = new BalanceDto(10000);
     private final User user = new User("nick", "mail@mail.mail", "password");
 
-    private final Integer balance2 = 12345;
+    private final BalanceDto balance2 = new BalanceDto(12345);
     private final User user2 = new User("nick2", "mail2@mail.mail", "password2");
 
     @Test
@@ -68,8 +68,8 @@ public class BalanceServiceTest {
         final BalanceDto response = balanceService.list(user);
         final BalanceDto response2 = balanceService.list(user2);
 
-        assertThat(response.balance()).isEqualTo(balance);
-        assertThat(response2.balance()).isEqualTo(balance2);
+        assertThat(response).isEqualTo(new BalanceDto(balance.balance()));
+        assertThat(response2).isEqualTo(new BalanceDto(balance2.balance()));
     }
 
     @Test
@@ -85,11 +85,11 @@ public class BalanceServiceTest {
         BalanceDto response = balanceService.list(user);
         BalanceDto response2 = balanceService.list(user2);
 
-        assertThat(response.balance()).isEqualTo(balance);
-        assertThat(response2.balance()).isEqualTo(balance2);
+        assertThat(response).isEqualTo(new BalanceDto(balance.balance()));
+        assertThat(response2).isEqualTo(new BalanceDto(balance2.balance()));
 
-        final BalanceDto request = new BalanceDto(balance + 123);
-        final BalanceDto request2 = new BalanceDto(balance2 + 234);
+        final BalanceDto request = new BalanceDto(balance.balance() + 123);
+        final BalanceDto request2 = new BalanceDto(balance2.balance() + 234);
 
         balanceService.update(user, request);
         balanceService.update(user2, request2);
@@ -97,8 +97,8 @@ public class BalanceServiceTest {
         response = balanceService.list(user);
         response2 = balanceService.list(user2);
 
-        assertThat(response.balance()).isEqualTo(10123);
-        assertThat(response2.balance()).isEqualTo(12579);
+        assertThat(response).isEqualTo(new BalanceDto(10123));
+        assertThat(response2).isEqualTo(new BalanceDto(12579));
     }
 
     @Test
@@ -109,7 +109,7 @@ public class BalanceServiceTest {
 
         assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> balanceService.list(user));
 
-        final BalanceDto request = new BalanceDto(balance);
+        final BalanceDto request = new BalanceDto(balance.balance());
 
         balanceService.update(user, request);
 

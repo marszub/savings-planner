@@ -3,14 +3,17 @@ package pl.edu.agh.kuce.planner.goal.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
-import pl.edu.agh.kuce.planner.goal.GoalNotFoundException;
+import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
 import pl.edu.agh.kuce.planner.goal.dto.GoalData;
+import pl.edu.agh.kuce.planner.goal.dto.SubGoalData;
 import pl.edu.agh.kuce.planner.goal.dto.GoalInputData;
+import pl.edu.agh.kuce.planner.goal.dto.SubGoalInputData;
 import pl.edu.agh.kuce.planner.goal.dto.GoalPriority;
 import pl.edu.agh.kuce.planner.goal.dto.GoalPriorityUpdate;
-import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
 import pl.edu.agh.kuce.planner.goal.persistence.Goal;
 import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
+import pl.edu.agh.kuce.planner.goal.persistence.SubGoal;
+import pl.edu.agh.kuce.planner.goal.persistence.SubGoalRepository;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,13 +22,29 @@ import java.util.stream.Collectors;
 public class GoalService {
     private final GoalRepository goalRepository;
 
-    public GoalService(final GoalRepository goalRepository) {
+    private final SubGoalRepository subGoalRepository;
+
+    private final String goalNotFoundText = "Goal with that id does not exist";
+
+    public GoalService(final GoalRepository goalRepository, final SubGoalRepository subGoalRepository) {
+        this.subGoalRepository = subGoalRepository;
         this.goalRepository = goalRepository;
     }
 
     public GoalData create(final GoalInputData data, final User user) {
         final Goal goal = goalRepository.save(new Goal(user, data));
-        return new GoalData(goal);
+        return new GoalData(goal, subGoalRepository.getSubGoals(goal, user).stream()
+                                                                        .map(SubGoalData::new)
+                                                                        .toList());
+    }
+
+    public SubGoalData createSubGoal(final Integer goalId, final SubGoalInputData data, final User user) {
+        final Optional<Goal> goal = goalRepository.getGoalById(goalId, user);
+        if (goal.isPresent()) {
+            final SubGoal subGoal = subGoalRepository.save(new SubGoal(goal.get(), data));
+            return new SubGoalData(subGoal);
+        }
+        throw new GoalNotFoundException(goalNotFoundText);
     }
 
     public ListResponse list(final User user) {
@@ -33,7 +52,10 @@ public class GoalService {
                 goalRepository
                         .findByUserOrderByPriorityDesc(user)
                         .stream()
-                        .map(GoalData::new)
+                        .map(goal -> new GoalData(goal,
+                                subGoalRepository.getSubGoals(goal, user).stream()
+                                                                         .map(SubGoalData::new)
+                                                                         .toList()))
                         .toList()
         );
     }
@@ -47,7 +69,7 @@ public class GoalService {
                 .anyMatch(goal -> !savedGoals.containsKey(goal.id()));
 
         if (goalNotPresent) {
-            throw new GoalNotFoundException("Some of the goals to update do not exist");
+            throw new GoalNotFoundException();
         }
 
         final var newPriorities = dto.newPriorities().stream()
@@ -77,9 +99,26 @@ public class GoalService {
     public void destroy(final Integer id, final User user) {
         final Optional<Goal> goal = goalRepository.getGoalById(id, user);
         if (goal.isPresent()) {
+            subGoalRepository.getSubGoals(goal.get(), user).forEach(subGoal -> {
+                subGoalRepository.deleteSubGoal(subGoal.getId(), goal.get());
+            });
             goalRepository.deleteGoal(id, user);
             return;
         }
-        throw new GoalNotFoundException("Goal with that id does not exist");
+
+        throw new GoalNotFoundException(goalNotFoundText);
+    }
+
+    @Transactional
+    public void destroySubGoal(final Integer subGoalId, final Integer goalId, final User user) {
+        final Optional<Goal> goal = goalRepository.getGoalById(goalId, user);
+        if (goal.isPresent()) {
+            final Optional<SubGoal> subGoal = subGoalRepository.getSubGoalById(subGoalId, user);
+            if (subGoal.isPresent()) {
+                subGoalRepository.deleteSubGoal(subGoalId, goal.get());
+                return;
+            }
+        }
+        throw new GoalNotFoundException(goalNotFoundText);
     }
 }

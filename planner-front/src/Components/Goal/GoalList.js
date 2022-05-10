@@ -25,87 +25,161 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import {GoalCreateForm} from '../../models/goal-create-form';
 import {goalValidators} from '../../utils/goal-validators';
-import {moneyValidators} from "../../utils/money-validators";
+import {MAX_INT32, moneyValidators} from "../../utils/money-validators";
 import {moneyFormatter} from "../../utils/money-formatter";
 import {goalService} from "../../services/goal-service";
-import {HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
+import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
+import {goalCompare} from "../../utils/goal-compare";
+import {CircularProgress} from "@mui/material";
+import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
+import {GoalModel} from "../../models/goal-model";
 
 const theme = createTheme();
 
 const GOAL_CREATED_ALERT = 'GOAL_CREATED';
 const GOAL_DELETED_ALERT = 'GOAL_DELETED';
+const GOAL_UPDATED_ALERT = 'GOAL_UPDATED';
 const GOAL_404_ALERT = 'GOAL_404';
+const GOAL_409_ALERT = 'GOAL_409';
 
 export default function GoalList() {
   const [goals, setGoals] = useState([]);
   const [goalCreationOpen, setGoalCreationOpen] = useState(false);
   const [alertStatus, setAlertStatus] = useState("");
   const [refreshAlert, setRefreshAlert] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const updateGoalList = () => {
-      goalService.getList()
-          .then(res => {
-              if (res.status !== HTTP_OK) {
-                  return;
-              }
+  const onGoalList = res => {
+    if (res.status !== HTTP_OK) {
+      return Promise.reject(res.status);
+    }
 
-              setGoals(res.body.goals);
-          })
-          .catch(err => console.log(err));
+    setGoals(res.body.goals);
   }
 
   useEffect(() => {
-    goalService.getList()
-        .then(res => {
-          if (res.status !== HTTP_OK) {
-            return;
-          }
+    setLoading(true);
 
-          setGoals(res.body.goals);
-        })
-        .catch(err => console.log(err));
-    }, []);
+    goalService.getList()
+        .then(onGoalList)
+        .catch(err => console.log(err))
+        .finally(() => setLoading(false));
+  }, []);
 
   const createGoal = model => {
-    goalService.create(model)
-        .then(res => {
-          if (res.status !== HTTP_CREATED) {
-            return;
-          }
+    setLoading(true);
 
-            updateGoalList();
-            setAlertStatus(GOAL_CREATED_ALERT);
-            setRefreshAlert(prev => !prev);
+    const lastGoal = goals[goals.length - 1];
+    const newPriority = lastGoal ? lastGoal.priority - 1 : MAX_INT32;
+
+    goalService.create(model, newPriority)
+        .then(res => {
+          switch (res.status) {
+            case HTTP_CREATED:
+              setGoals(prev => [res.body, ...prev].sort(goalCompare));
+
+              setAlertStatus(GOAL_CREATED_ALERT);
+              setRefreshAlert(prev => !prev);
+              break;
+            case HTTP_CONFLICT:
+              setAlertStatus(GOAL_409_ALERT);
+              setRefreshAlert(prev => !prev);
+
+              return goalService.getList();
+          }
         })
-        .catch(err => console.log(err));
+        .then(onGoalList)
+        .catch(err => console.log(err))
+        .finally(() => setLoading(false));
   };
 
   const deleteGoal = id => {
+    setLoading(true);
+
     goalService.delete(id)
         .then(res => {
           switch (res.status) {
             case HTTP_NO_CONTENT:
-              updateGoalList();
-                setAlertStatus(GOAL_DELETED_ALERT);
-                setRefreshAlert(prev => !prev);
+              setGoals(prev => prev.filter(goal => goal.id !== id));
+
+              setAlertStatus(GOAL_DELETED_ALERT);
+              setRefreshAlert(prev => !prev);
               break;
             case HTTP_NOT_FOUND:
               setAlertStatus(GOAL_404_ALERT);
               setRefreshAlert(prev => !prev);
-              break;
+
+              return goalService.getList();
             default:
-              console.log("Unexpected error");
+              return Promise.reject(res.status);
           }
         })
-        .catch(err => console.log(err));
+        .then(onGoalList)
+        .catch(err => console.log(err))
+        .finally(() => setLoading(false));
   };
 
-  const goalsItems = goals.map(goal =>
+  const onDragEnd = dnd => {
+    if (dnd.source.index === dnd.destination.index) {
+      return;
+    }
+
+    const sourceGoal = goals[dnd.source.index];
+    const destinationGoal = goals[dnd.destination.index];
+    const destinationGoalPriority = destinationGoal.priority;
+
+    const newPriorities = new Map();
+
+    if (dnd.source.index < dnd.destination.index) {
+      for (let i = dnd.destination.index; i > dnd.source.index; i--) {
+        newPriorities.set(goals[i].id, goals[i - 1].priority);
+      }
+    } else {
+      for (let i = dnd.destination.index; i < dnd.source.index; i++) {
+        newPriorities.set(goals[i].id, goals[i + 1].priority);
+      }
+    }
+    newPriorities.set(sourceGoal.id, destinationGoalPriority);
+
+    const updatePriority = goal => {
+      if (newPriorities.has(goal.id)) {
+        return new GoalModel(goal.id, goal.title, goal.amount, newPriorities.get(goal.id))
+      } else {
+        return goal;
+      }
+    }
+
+    setLoading(true);
+    goalService.updatePriority(newPriorities)
+        .then(res => {
+          switch (res.status) {
+            case HTTP_NO_CONTENT:
+              setGoals(prev => prev.map(updatePriority).sort(goalCompare));
+              setAlertStatus(GOAL_UPDATED_ALERT);
+              setRefreshAlert(prev => !prev);
+              break;
+            case HTTP_NOT_FOUND:
+              setAlertStatus(GOAL_404_ALERT);
+              setRefreshAlert(prev => !prev);
+              return goalService.getList();
+            case HTTP_CONFLICT:
+              setAlertStatus(GOAL_409_ALERT);
+              setRefreshAlert(prev => !prev);
+              return goalService.getList();
+            default:
+              return Promise.reject(res.status);
+          }
+        })
+        .finally(() => setLoading(false));
+  }
+
+  const goalsItems = goals.map((goal, index) =>
       <Goal
           key={goal.id}
           goal={goal}
           isLast={goal.id === goals[goals.length - 1].id}
           handleDelete={deleteGoal}
+          index={index}
       />
   );
 
@@ -115,7 +189,7 @@ export default function GoalList() {
             component="main"
             maxWidth="xs"
             sx={{
-              marginTop: 8,
+              position: 'relative',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -125,13 +199,45 @@ export default function GoalList() {
           <Avatar sx={{m: 1, bgcolor: 'secondary.main'}}>
             <SportsScoreOutlinedIcon/>
           </Avatar>
+
+          {loading &&
+              <Box sx={{
+                backgroundColor: '#fff',
+                opacity: 0.9,
+                position: 'absolute',
+                zIndex: 10,
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <CircularProgress/>
+              </Box>
+          }
+
           <Typography component="h1" variant="h5">
             Goal list
           </Typography>
 
-          <List sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}>
-            {goalsItems}
-          </List>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="droppable-list">
+              {provided => (
+                  <List
+                      sx={{
+                        width: '100%',
+                        maxWidth: 360,
+                        bgcolor: 'background.paper'
+                      }}
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                  >
+                    {goalsItems}
+                    {provided.placeholder}
+                  </List>
+              )}
+            </Droppable>
+          </DragDropContext>
 
           <Button
               fullWidth
@@ -159,27 +265,35 @@ function Goal(props) {
 
   return (
       <>
-        <ListItem>
-          <ListItemText
-              primary={props.goal.title}
-              secondary={moneyFormatter.mapPenniesNumberToString(props.goal.amount) + ' PLN'}
-          />
-          <Tooltip title="Delete">
-            <IconButton
-                edge="end"
-                aria-label="delete"
-                onClick={() => setGoalRemovalOpen(true)}
-            >
-              <DeleteIcon/>
-            </IconButton>
-          </Tooltip>
-          <GoalRemovalConfirmationDialog
-              open={goalRemovalOpen}
-              onClose={() => setGoalRemovalOpen(false)}
-              delete={() => props.handleDelete(props.goal.id)}
-              goal={props.goal}
-          />
-        </ListItem>
+        <Draggable key={props.goal.id.toString()} draggableId={props.goal.id.toString()} index={props.index}>
+          {(provided) => (
+              <ListItem
+                  ref={provided.innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+              >
+                <ListItemText
+                    primary={props.goal.title}
+                    secondary={moneyFormatter.mapPenniesNumberToString(props.goal.amount) + ' PLN'}
+                />
+                <Tooltip title="Delete">
+                  <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => setGoalRemovalOpen(true)}
+                  >
+                    <DeleteIcon/>
+                  </IconButton>
+                </Tooltip>
+                <GoalRemovalConfirmationDialog
+                    open={goalRemovalOpen}
+                    onClose={() => setGoalRemovalOpen(false)}
+                    delete={() => props.handleDelete(props.goal.id)}
+                    goal={props.goal}
+                />
+              </ListItem>
+          )}
+        </Draggable>
 
         {!props.isLast &&
             <Divider/>
@@ -345,9 +459,19 @@ function GoalActionSnackbar(props) {
         setAlertMessage('Goal successfully deleted!');
         setAlertOpen(true);
         break;
+      case GOAL_UPDATED_ALERT:
+        setAlertSeverity('info');
+        setAlertMessage('Goals successfully updated!');
+        setAlertOpen(true);
+        break;
       case GOAL_404_ALERT:
         setAlertSeverity("error");
         setAlertMessage("This goal does not exist!");
+        setAlertOpen(true);
+        break;
+      case GOAL_409_ALERT:
+        setAlertSeverity("error");
+        setAlertMessage("Goal conflict!");
         setAlertOpen(true);
         break;
       default:
