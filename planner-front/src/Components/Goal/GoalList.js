@@ -21,6 +21,8 @@ import SportsScoreOutlinedIcon from '@mui/icons-material/SportsScoreOutlined';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import {GoalCreateForm} from '../../models/goal-create-form';
@@ -30,7 +32,7 @@ import {moneyFormatter} from "../../utils/money-formatter";
 import {goalService} from "../../services/goal-service";
 import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
 import {goalCompare} from "../../utils/goal-compare";
-import {CircularProgress} from "@mui/material";
+import {CircularProgress, Collapse} from "@mui/material";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import {GoalModel} from "../../models/goal-model";
 
@@ -262,16 +264,37 @@ export default function GoalList() {
 
 function Goal(props) {
   const [goalRemovalOpen, setGoalRemovalOpen] = useState(false);
+  const [subGoalOpen, setSubGoalOpen] = useState(false);
+
+  const handleCreate = subGoalTitle => {
+
+  }
+
+  const subGoals = props.goal.subGoals.map(s => (
+      <ListItemText
+          primary={s.title}
+      />
+  ));
 
   return (
       <>
         <Draggable key={props.goal.id.toString()} draggableId={props.goal.id.toString()} index={props.index}>
           {(provided) => (
+              <>
               <ListItem
                   ref={provided.innerRef}
                   {...provided.draggableProps}
                   {...provided.dragHandleProps}
               >
+                <Tooltip title="Delete">
+                  <IconButton
+                      edge="start"
+                      aria-label="expand"
+                      onClick={() => setSubGoalOpen(prev => !prev)}
+                  >
+                    {subGoalOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  </IconButton>
+                </Tooltip>
                 <ListItemText
                     primary={props.goal.title}
                     secondary={moneyFormatter.mapPenniesNumberToString(props.goal.amount) + ' PLN'}
@@ -292,6 +315,15 @@ function Goal(props) {
                     goal={props.goal}
                 />
               </ListItem>
+              <Collapse in={subGoalOpen} timeout="auto" unmountOnExit>
+                <List>
+                  {subGoals}
+                </List>
+                <SubGoalCreationForm
+                  onCreate={handleCreate}
+                />
+              </Collapse>
+              </>
           )}
         </Draggable>
 
@@ -299,6 +331,45 @@ function Goal(props) {
             <Divider/>
         }
       </>
+  );
+}
+
+function SubGoalCreationForm(props) {
+  const [subGoalErrorMessage, setSubGoalErrorMessage] = useState("");
+
+  const handleSubmit = () => {
+
+  };
+
+  return (
+      <Container
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{
+            display: 'flex',
+            gap: '1em',
+            alignItems: 'stretch'
+          }}
+      >
+        <TextField
+            required
+            fullWidth
+            size="small"
+            id="sub-goal"
+            label="Subgoal title"
+            name="sub-goal"
+            autoFocus
+            error={!!subGoalErrorMessage}
+            helperText={subGoalErrorMessage}
+        >
+        </TextField>
+        <Button
+            type="submit"
+            variant="contained"
+        >
+          Add
+        </Button>
+      </Container>
   );
 }
 
