@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
+import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 
@@ -21,38 +21,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureMockMvc
 public class OneTimeEventTest {
     @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
     private OneTimeEventRepository oneTimeEventRepository;
 
     @Autowired
     private UserRepository userRepository;
 
     private User user = new User("nick", "123@321.223", "password");
+    private final OneTimeEventDataInput eventData1 =
+            new OneTimeEventDataInput("Title1", 201, Instant.now().getEpochSecond());
+    private final OneTimeEventDataInput eventData2 =
+            new OneTimeEventDataInput("Title2", 301, Instant.now().getEpochSecond());
     private OneTimeEvent event1;
     private OneTimeEvent event2;
-
-    @Test
-    void contextLoads() {
-        assertThat(mockMvc).isNotNull();
-    }
 
     @Test
     @Transactional
     void single_one_time_event_is_properly_saved_in_database() {
         user = userRepository.save(user);
-        event1 = new OneTimeEvent(user, "Title1", 110, Instant.now());
+        event1 = new OneTimeEvent(eventData1, user);
         oneTimeEventRepository.save(event1);
         final List<OneTimeEvent> result = oneTimeEventRepository.findByUser(user);
         assertThat(result.get(0)).isEqualTo(event1);
     }
 
     @Test
+    @Transactional
     void multiple_one_time_events_are_saved_properly_in_database() {
         user = userRepository.save(user);
-        event1 = new OneTimeEvent(user, "Title1", 110, Instant.now());
-        event2 = new OneTimeEvent(user, "Title2", 120, Instant.now());
+        event1 = new OneTimeEvent(eventData1, user);
+        event2 = new OneTimeEvent(eventData2, user);
         oneTimeEventRepository.save(event1);
         oneTimeEventRepository.save(event2);
         final List<OneTimeEvent> result = oneTimeEventRepository.findByUser(user);
@@ -64,8 +61,8 @@ public class OneTimeEventTest {
     @Transactional
     void findByIdAndUser_existingEvent() {
         user = userRepository.save(user);
-        event1 = new OneTimeEvent(user, "Title1", 110, Instant.now());
-        event2 = new OneTimeEvent(user, "Title2", 120, Instant.now());
+        event1 = new OneTimeEvent(eventData1, user);
+        event2 = new OneTimeEvent(eventData2, user);
         oneTimeEventRepository.save(event1);
         oneTimeEventRepository.save(event2);
         final List<OneTimeEvent> result = oneTimeEventRepository.findByUser(user);

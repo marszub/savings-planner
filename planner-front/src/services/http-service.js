@@ -43,7 +43,7 @@ function onResponse(res) {
         return new ResponseShort(res.status, res.body);
     }
     if (res.status === HTTP_UNAUTHORIZED && res.url !== `${BACKEND_URL}/auth/access-token`) {
-        console.log("User is unauthorized");
+        console.log("User unauthorized");
         userService.signOut();
     }
     return new Promise((resolve, reject) => res.json()
