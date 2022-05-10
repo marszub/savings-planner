@@ -147,7 +147,7 @@ export default function GoalList() {
 
     const updatePriority = goal => {
       if (newPriorities.has(goal.id)) {
-        return new GoalModel(goal.id, goal.title, goal.amount, newPriorities.get(goal.id))
+        return new GoalModel(goal.id, goal.title, goal.amount, newPriorities.get(goal.id), goal.subGoals)
       } else {
         return goal;
       }
@@ -284,7 +284,7 @@ function Goal(props) {
                 if (goal.id === props.goal.id) {
                   return new GoalModel(goal.id, goal.title, goal.amount, goal.priority, [...goal.subGoals, res.body]);
                 } else {
-                  return new GoalModel(goal.id, goal.title, goal.amount, goal.priority, goal.subGoals);
+                  return goal;
                 }
               }));
 
@@ -315,7 +315,7 @@ function Goal(props) {
                   return new GoalModel(goal.id, goal.title, goal.amount, goal.priority,
                       goal.subGoals.filter(subGoal => subGoal.id !== subGoalId));
                 } else {
-                  return new GoalModel(goal.id, goal.title, goal.amount, goal.priority, goal.subGoals);
+                  return goal;
                 }
               }));
 
