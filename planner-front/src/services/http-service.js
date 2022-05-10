@@ -46,7 +46,7 @@ function onResponse(res) {
     if (res.status === HTTP_NO_CONTENT) {
         return new ResponseShort(res.status, res.body);
     } else if (res.status === HTTP_BAD_REQUEST || isServerError(res.status)) {
-        this._navigate("/error");
+        this._navigation.navigateError();
     } else if (res.status === HTTP_UNAUTHORIZED && res.url !== `${BACKEND_URL}/auth/access-token`) {
         console.log("User unauthorized");
         userService.signOut();
