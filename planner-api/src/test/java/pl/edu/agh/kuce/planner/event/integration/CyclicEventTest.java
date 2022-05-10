@@ -54,6 +54,7 @@ public class CyclicEventTest {
     }
 
     @Test
+    @Transactional
     void singleEventsAreSaved() {
         user = userRepository.save(user);
         event1 = new CyclicEvent(eventData1, user);

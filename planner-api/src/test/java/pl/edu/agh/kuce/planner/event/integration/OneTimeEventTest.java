@@ -45,6 +45,7 @@ public class OneTimeEventTest {
     }
 
     @Test
+    @Transactional
     void multiple_one_time_events_are_saved_properly_in_database() {
         user = userRepository.save(user);
         event1 = new OneTimeEvent(eventData1, user);
