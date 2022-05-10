@@ -36,6 +36,7 @@ import {CircularProgress, Collapse} from "@mui/material";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import {GoalModel} from "../../models/goal-model";
 import "../../styles/Goals.css"
+import {useNavigate} from "react-router-dom";
 
 const theme = createTheme();
 
@@ -53,21 +54,11 @@ export default function GoalList() {
   const [alertStatus, setAlertStatus] = useState("");
   const [refreshAlert, setRefreshAlert] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const onGoalList = res => {
-    if (res.status !== HTTP_OK) {
-      return Promise.reject(res.status);
-    }
-
-    setGoals(res.body.goals);
-  }
+  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
-
     goalService.getList()
-        .then(onGoalList)
-        .catch(err => console.log(err))
         .finally(() => setLoading(false));
   }, []);
 

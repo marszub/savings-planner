@@ -2,8 +2,11 @@ import { HTTP_NO_CONTENT, HTTP_UNAUTHORIZED } from "../utils/http-status";
 import { BACKEND_URL } from "../config";
 import { tokenStorage } from "./token-storage";
 import { userService } from "./user-service";
+import {useNavigate} from "react-router-dom";
 
 export const httpService = {
+    _navigate: useNavigate(),
+
     get(path, queryParams) {
         return request(`${path}?${new URLSearchParams(queryParams)}`, 'GET');
     },
@@ -35,7 +38,11 @@ function request(path, method, body=null) {
         credentials: 'include',
         body: body && JSON.stringify(body, replacer),
     })
-        .then(onResponse);
+        .then(onResponse)
+        .catch(err => {
+            console.log(err);
+            this._navigate("/error");
+        });
 }
 
 function onResponse(res) {
