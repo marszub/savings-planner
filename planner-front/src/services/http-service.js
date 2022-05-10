@@ -39,7 +39,7 @@ function request(path, method, body=null) {
         body: body && JSON.stringify(body, replacer),
     })
         .then(onResponse)
-        .catch(() => navigation.navigateError());
+        .catch(() => this._navigation.navigateError());
 }
 
 function onResponse(res) {
