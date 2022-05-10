@@ -27,20 +27,26 @@ public class CyclicEventTest {
     @Autowired
     private UserRepository userRepository;
 
-    private final Long data1 = Instant.parse("2022-03-23T00:00:01.00Z").getEpochSecond();
-    private final Long data2 = Instant.parse("2022-05-11T00:00:01.00Z").getEpochSecond();
+    private final Long date1 = Instant.parse("2022-03-23T00:00:01.00Z").getEpochSecond();
+    private final Long date2 = Instant.parse("2022-05-11T00:00:01.00Z").getEpochSecond();
 
     private User user = new User("nick", "123@321.223", "password");
     private final CyclicEventDataInput eventData1 =
-            new CyclicEventDataInput("Title1", 210, data1, Calendar.WEEK_OF_YEAR, 1);
-    private final CyclicEventDataInput eventData2 = new CyclicEventDataInput("Title2", 310, data2, Calendar.MONTH, 2);
+            new CyclicEventDataInput("Title1", 210, date1, Calendar.WEEK_OF_YEAR, 1);
+    private final CyclicEventDataInput eventData2 = new CyclicEventDataInput("Title2", 310, date2, Calendar.MONTH, 2);
     private CyclicEvent event1;
     private CyclicEvent event2;
 
     @Test
-    void cyclicEventFromInterval() {
+    void cyclicEventFromInterval_returnsStartDate() {
         event1 = new CyclicEvent(eventData1, user);
-        assertThat(event1.getFromInterval(data1, data2).get(0).timestamp()).isEqualTo(data1);
+        assertThat(event1.getFromInterval(date1, date2).get(0).timestamp()).isEqualTo(date1);
+    }
+
+    @Test
+    void cyclicEventFromInterval_returnsCorrectAmount() {
+        event1 = new CyclicEvent(eventData1, user);
+        assertThat(event1.getFromInterval(date1, date2).size()).isEqualTo(8);
     }
 
     @Test
