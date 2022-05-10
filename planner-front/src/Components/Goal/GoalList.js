@@ -451,7 +451,7 @@ function SubGoalCreationForm(props) {
             fullWidth
             size="small"
             id="sub-goal"
-            label="Subgoal title"
+            label="Sub-goal title"
             name="sub-goal"
             autoFocus
             error={!!subGoalErrorMessage}
