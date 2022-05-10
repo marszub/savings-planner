@@ -9,7 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.event.dto.ListResponse;
-import pl.edu.agh.kuce.planner.event.dto.OneTimeEventData;
+import pl.edu.agh.kuce.planner.event.dto.EventData;
 import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
@@ -69,7 +69,7 @@ class EventServiceTest {
     void list_returnsCorrespondingData() {
         final ListResponse response = eventService.list(user1);
         assertThat(response.events().size()).isEqualTo(1);
-        final OneTimeEventData foundEvent = response.events().get(0);
+        final EventData foundEvent = response.events().get(0);
         assertThat(foundEvent.title()).isEqualTo(title1);
         assertThat(foundEvent.amount()).isEqualTo(amount1);
         assertThat(foundEvent.timestamp()).isEqualTo(timestampSpr1);

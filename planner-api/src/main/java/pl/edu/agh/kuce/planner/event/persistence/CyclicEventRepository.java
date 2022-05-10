@@ -8,13 +8,13 @@ import pl.edu.agh.kuce.planner.auth.persistence.User;
 import java.util.List;
 import java.util.Optional;
 
-public interface OneTimeEventRepository extends JpaRepository<OneTimeEvent, Integer> {
+public interface CyclicEventRepository extends JpaRepository<CyclicEvent, Integer> {
 
-    List<OneTimeEvent> findByUser(User user);
+    List<CyclicEvent> findByUser(User user);
 
-    Optional<OneTimeEvent> findByIdAndUser(Integer id, User user);
+    Optional<CyclicEvent> findByIdAndUser(Integer id, User user);
 
     @Modifying
-    @Query("DELETE FROM OneTimeEvent event WHERE event.id = ?1 AND event.user = ?2")
+    @Query("DELETE FROM CyclicEvent event WHERE event.id = ?1 AND event.user = ?2")
     void deleteEvent(Integer id, User user);
 }
