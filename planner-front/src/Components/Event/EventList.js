@@ -37,7 +37,7 @@ import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
 import { Collapse, ListItemButton, ListItemIcon, MenuItem } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import "../../styles/Events.css";
-import {HTTP_BAD_REQUEST, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
+import { HTTP_BAD_REQUEST, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK } from "../../utils/http-status";
 import { eventService } from "../../services/event-service";
 import { INCOME_EVENT_TYPE, OUTGO_EVENT_TYPE } from "../../utils/event-types";
 import { dateFormatter } from "../../utils/date-formatter";
@@ -47,7 +47,7 @@ const theme = createTheme();
 
 const EVENT_CREATED_ALERT = 'EVENT_CREATED';
 const EVENT_DELETED_ALERT = 'EVENT_DELETED';
-const EVENT_EDITED_ALERT = 'EVENT_EDITED';
+const EVENT_UPDATED_ALERT = 'EVENT_UPDATED';
 const EVENT_404_ALERT = 'EVENT_404';
 
 const eventTypes = [
@@ -126,7 +126,7 @@ export default function EventList() {
             .catch(err => console.log(err));
     };
 
-    const editEvent = (model) => {
+    const updateEvent = (model) => {
         eventService.update(model)
             .then(res => {
                 if (res.status !== HTTP_NO_CONTENT) {
@@ -135,7 +135,7 @@ export default function EventList() {
                 }
 
                 updateEventList();
-                setAlertStatus(EVENT_EDITED_ALERT);
+                setAlertStatus(EVENT_UPDATED_ALERT);
                 setRefreshAlert(prev => !prev);
             })
             .catch(err => console.log(err));
@@ -147,7 +147,7 @@ export default function EventList() {
             event={event}
             isLast={event.id === events[events.length - 1].id}
             handleDelete={deleteEvent}
-            handleEdit={editEvent}
+            handleUpdate={updateEvent}
         />
     );
 
@@ -201,7 +201,7 @@ export default function EventList() {
 
 function Event(props) {
     const [eventRemovalOpen, setEventRemovalOpen] = useState(false);
-    const [eventEditOpen, setEventEditOpen] = useState(false);
+    const [eventUpdateOpen, setEventUpdateOpen] = useState(false);
     const [nestedListOpen, setNestedListOpen] = useState(false);
 
     const handleClick = () => {
@@ -217,7 +217,7 @@ function Event(props) {
                     <IconButton
                         edge="end"
                         aria-label="edit"
-                        onClick={() => setEventEditOpen(true)}
+                        onClick={() => setEventUpdateOpen(true)}
                     >
                         <EditIcon/>
                     </IconButton>
@@ -231,10 +231,10 @@ function Event(props) {
                         <DeleteIcon/>
                     </IconButton>
                 </Tooltip>
-                <EventEditDialog
-                    open={eventEditOpen}
-                    onClose={() => setEventEditOpen(false)}
-                    edit={(model) => props.handleEdit(model)}
+                <EventUpdateDialog
+                    open={eventUpdateOpen}
+                    onClose={() => setEventUpdateOpen(false)}
+                    update={(model) => props.handleUpdate(model)}
                     event={props.event}
                 />
                 <EventRemovalConfirmationDialog
@@ -416,7 +416,7 @@ function BasicDatePicker() {
     );
 }
 
-function EventEditDialog(props) {
+function EventUpdateDialog(props) {
     const [titleErrorMessage, setTitleErrorMessage] = useState("");
     const [amountErrorMessage, setAmountErrorMessage] = useState("");
     const [eventType, setEventType] = useState(props.event.amount < 0 ? OUTGO_EVENT_TYPE : INCOME_EVENT_TYPE);
@@ -454,7 +454,7 @@ function EventEditDialog(props) {
             return;
         }
 
-        props.edit(formModel);
+        props.update(formModel);
         handleClose();
     };
 
@@ -629,9 +629,9 @@ function EventActionSnackbar(props) {
                 setAlertMessage('Event successfully deleted!');
                 setAlertOpen(true);
                 break;
-            case EVENT_EDITED_ALERT:
+            case EVENT_UPDATED_ALERT:
                 setAlertSeverity('info');
-                setAlertMessage('Event successfully edited!');
+                setAlertMessage('Event successfully updated!');
                 setAlertOpen(true);
                 break;
             default:
