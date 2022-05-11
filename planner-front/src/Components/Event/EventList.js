@@ -127,17 +127,18 @@ export default function EventList() {
     };
 
     const editEvent = (model) => {
-        setEvents(prev => [
-            ...prev.filter(event => event.id !== model.id),
-            {
-                id: model.id,
-                title: model.title,
-                amount: model.eventType == INCOME_EVENT_TYPE ? moneyFormatter.mapStringToPenniesNumber(model.amount) : (-1) * moneyFormatter.mapStringToPenniesNumber(model.amount),
-                date: model.date
-            }
-        ]);
-        setAlertStatus(EVENT_EDITED_ALERT);
-        setRefreshAlert(prev => !prev);
+        eventService.update(model)
+            .then(res => {
+                if (res.status !== HTTP_NO_CONTENT) {
+                    if (res.status === HTTP_BAD_REQUEST) console.log("Invalid request body");
+                    return;
+                }
+
+                updateEventList();
+                setAlertStatus(EVENT_EDITED_ALERT);
+                setRefreshAlert(prev => !prev);
+            })
+            .catch(err => console.log(err));
     }
 
     const eventsItems = events.map(event =>
