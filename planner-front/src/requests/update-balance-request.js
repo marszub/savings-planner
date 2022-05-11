@@ -1,4 +1,4 @@
-export class BalanceForm {
+export class UpdateBalanceRequest {
     constructor(balance) {
         this.balance = balance;
     }
