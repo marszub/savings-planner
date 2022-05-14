@@ -6,33 +6,14 @@ import pl.edu.agh.kuce.planner.event.dto.EventData;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "cyclicEvents")
-public class CyclicEvent {
-    @Id
-    @GeneratedValue
-    private Integer id;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false)
-    private Integer amount;
-
+public class CyclicEvent extends Event {
     @Column(nullable = false)
     private Calendar begin;
 
@@ -51,9 +32,7 @@ public class CyclicEvent {
             final Calendar begin,
             final Integer cycleBase,
             final Integer cycleLength) {
-        this.user = user;
-        this.title = title;
-        this.amount = amount;
+        super(user, title, amount);
         this.begin = begin;
         this.cycleBase = cycleBase;
         this.cycleLength = cycleLength;
@@ -69,38 +48,6 @@ public class CyclicEvent {
                 cyclicEventData.cycleLength()
         );
         setBegin(cyclicEventData.begin());
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(final Integer id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(final User user) {
-        this.user = user;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(final String title) {
-        this.title = title;
-    }
-
-    public Integer getAmount() {
-        return amount;
-    }
-
-    public void setAmount(final Integer amount) {
-        this.amount = amount;
     }
 
     public Long getBegin() {
@@ -138,28 +85,11 @@ public class CyclicEvent {
 
         while (!iterator.after(endCalendar)) {
             if (!iterator.before(startCalendar)) {
-                events.add(new EventData(id, title, amount, iterator.getTimeInMillis() / 1000));
+                events.add(new EventData(getId(), getTitle(), getAmount(), iterator.getTimeInMillis() / 1000));
             }
             iterator.add(cycleBase, cycleLength);
         }
 
         return events;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final CyclicEvent event = (CyclicEvent) o;
-        return Objects.equals(id, event.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }
