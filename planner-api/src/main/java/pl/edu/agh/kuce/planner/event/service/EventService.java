@@ -9,6 +9,7 @@ import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 import pl.edu.agh.kuce.planner.shared.ResourceNotFoundException;
 
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
@@ -44,6 +45,7 @@ public class EventService {
         oneTimeEventRepository.save(eventToUpdate);
     }
 
+    @Transactional
     public void delete(final Integer eventId, final User user) throws ResourceNotFoundException {
         final Optional<OneTimeEvent> event = oneTimeEventRepository.findByIdAndUser(eventId, user);
         if (event.isPresent()) {
