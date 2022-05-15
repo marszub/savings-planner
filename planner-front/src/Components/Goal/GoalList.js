@@ -295,9 +295,12 @@ function Goal(props) {
   };
 
   const subGoals = props.goal.subGoals.map(subGoal => (
-      <ListItem sx={{
-        margin: '0 1em'
-      }}>
+      <ListItem
+          key={subGoal.id.toString()}
+          sx={{
+            margin: '0 1em'
+          }}
+      >
         <Tooltip title="Delete">
           <IconButton
               edge="start"
