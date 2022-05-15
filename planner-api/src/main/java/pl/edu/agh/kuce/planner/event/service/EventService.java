@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -44,7 +45,8 @@ public class EventService {
     }
 
     public EventList list(final User user) {
-        final List<EventData> events = oneTimeEventRepository.findByUser(user).stream().map(EventData::new).toList();
+        final List<EventData> events =
+                oneTimeEventRepository.findByUser(user).stream().map(EventData::new).collect(Collectors.toList());
         events.addAll(cyclicEventRepository.findByUser(user).stream().map(EventData::new).toList());
         return new EventList(events);
     }
