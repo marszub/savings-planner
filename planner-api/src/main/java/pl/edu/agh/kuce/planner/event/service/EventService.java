@@ -5,7 +5,12 @@ import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.event.dto.CyclicEventDataInput;
 import pl.edu.agh.kuce.planner.event.dto.EventData;
 import pl.edu.agh.kuce.planner.event.dto.EventList;
+import pl.edu.agh.kuce.planner.event.dto.EventTimestamp;
+import pl.edu.agh.kuce.planner.event.dto.EventTimestampList;
 import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
+import pl.edu.agh.kuce.planner.event.dto.TimestampListRequest;
+import pl.edu.agh.kuce.planner.event.persistence.CyclicEvent;
+import pl.edu.agh.kuce.planner.event.persistence.CyclicEventRepository;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 import pl.edu.agh.kuce.planner.shared.ResourceNotFoundException;
@@ -20,9 +25,12 @@ import java.util.Optional;
 @Service
 public class EventService {
     private final OneTimeEventRepository oneTimeEventRepository;
+    private final CyclicEventRepository cyclicEventRepository;
 
-    public EventService(final OneTimeEventRepository oneTimeEventRepository) {
+    public EventService(final OneTimeEventRepository oneTimeEventRepository,
+                        final CyclicEventRepository cyclicEventRepository) {
         this.oneTimeEventRepository = oneTimeEventRepository;
+        this.cyclicEventRepository = cyclicEventRepository;
     }
 
     public EventData create(final OneTimeEventDataInput request, final User user) {
@@ -39,6 +47,11 @@ public class EventService {
         final List<EventData> events = oneTimeEventRepository.findByUser(user).stream().map(EventData::new).toList();
         events.addAll(cyclicEventRepository.findByUser(user).stream().map(EventData::new).toList());
         return new EventList(events);
+    }
+
+    public EventTimestampList getFollowingEventTimestamps(final TimestampListRequest request, final User user) {
+        final List<EventTimestamp> eventTimestamps = getFollowingOneTimeEventTimestamps(request, user);
+        return new EventTimestampList(eventTimestamps);
     }
 
     public void update(final OneTimeEventDataInput newData,
@@ -61,5 +74,33 @@ public class EventService {
             return;
         }
         throw new EventNotFoundException();
+    }
+
+    private List<EventTimestamp> pickFirstNDistinct(final List<EventTimestamp> original, final Integer n) {
+        final List<EventTimestamp> followingNEvents = new LinkedList<>();
+
+        Integer distinctEventsToTake = n;
+        Long lastTimestamp = null;
+        for (EventTimestamp event : original) {
+            if (!Objects.equals(lastTimestamp, event.timestamp())) {
+                lastTimestamp = event.timestamp();
+                distinctEventsToTake -= 1;
+            }
+            if (distinctEventsToTake < 0) {
+                break;
+            }
+            followingNEvents.add(event);
+        }
+        return followingNEvents;
+    }
+
+    private List<EventTimestamp> getFollowingOneTimeEventTimestamps(final TimestampListRequest request, final User user) {
+        final List<EventTimestamp> followingEvents = oneTimeEventRepository
+                .findByUser(user).stream()
+                .filter(event -> event.getTimestamp() > request.start())
+                .map(EventTimestamp::new)
+                .sorted(Comparator.comparingLong(EventTimestamp::timestamp))
+                .toList();
+        return pickFirstNDistinct(followingEvents, request.eventsNum());
     }
 }
