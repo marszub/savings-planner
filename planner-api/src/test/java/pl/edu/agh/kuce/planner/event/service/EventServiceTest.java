@@ -205,4 +205,29 @@ class EventServiceTest {
                 .anyMatch(eventTimestamp -> Objects.equals(eventTimestamp.title(), "Title3"));
         assertThat(result.eventTimestamps().get(2).timestamp()).isEqualTo(timestampSpr4);
     }
+
+    @Test
+    @Transactional
+    void getFollowingOneTimeEventTimestamps_duplicatesAtEnd() {
+        user1 = userRepository.save(user1);
+        final OneTimeEventDataInput oneTimeEventDataInput4duplicate =
+                new OneTimeEventDataInput("Title4Duplicate", 2000, timestampSpr4);
+        eventService.create(oneTimeEventDataInput1, user1);
+        eventService.create(oneTimeEventDataInput2, user1);
+        eventService.create(oneTimeEventDataInput3, user1);
+        eventService.create(oneTimeEventDataInput4duplicate, user1);
+        eventService.create(oneTimeEventDataInput4, user1);
+        final EventTimestampList result =
+                eventService.getFollowingEventTimestamps(new TimestampListRequest(timestampSpr2, 2), user1);
+        assertThat(result.eventTimestamps().size()).isEqualTo(3);
+        assertThat(result.eventTimestamps().get(0).timestamp()).isEqualTo(timestampSpr3);
+        assertThat(result.eventTimestamps().get(1).timestamp()).isEqualTo(timestampSpr4);
+        assertThat(result.eventTimestamps().get(2).timestamp()).isEqualTo(timestampSpr4);
+        assertThat(result.eventTimestamps())
+                .anyMatch(eventTimestamp -> Objects.equals(eventTimestamp.title(), "Title3"));
+        assertThat(result.eventTimestamps())
+                .anyMatch(eventTimestamp -> Objects.equals(eventTimestamp.title(), "Title4Duplicate"));
+        assertThat(result.eventTimestamps())
+                .anyMatch(eventTimestamp -> Objects.equals(eventTimestamp.title(), "Title4"));
+    }
 }
