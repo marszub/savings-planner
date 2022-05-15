@@ -38,15 +38,15 @@ public class CyclicEventTest {
     private CyclicEvent event2;
 
     @Test
-    void cyclicEventFromInterval_returnsStartDate() {
+    void getFollowingN_NotReturnsStartDate() {
         event1 = new CyclicEvent(eventData1, user);
-        assertThat(event1.getFromInterval(date1, date2).get(0).timestamp()).isEqualTo(date1);
+        assertThat(event1.getFollowingN(date1, 1).get(0).timestamp()).isGreaterThan(date1);
     }
 
     @Test
     void cyclicEventFromInterval_returnsCorrectAmount() {
         event1 = new CyclicEvent(eventData1, user);
-        assertThat(event1.getFromInterval(date1, date2).size()).isEqualTo(8);
+        assertThat(event1.getFollowingN(date1, 8).size()).isEqualTo(8);
     }
 
     @Test
