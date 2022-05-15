@@ -62,10 +62,10 @@ class GoalServiceTest {
         user2.setId(2);
         MockitoAnnotations.openMocks(this);
 
-        final Goal goal = new Goal(user1, title1, amount1, 1);
+        final Goal goal = new Goal(user1, title1, 1);
         goal.setId(1);
         when(goalRepository.findByUserOrderByPriorityDesc(user1))
-                .thenReturn(List.of(new Goal(user1, title1, amount1, 1)));
+                .thenReturn(List.of(new Goal(user1, title1, 1)));
         when(goalRepository.findByUserOrderByPriorityDesc(user2))
                 .thenReturn(List.of());
         when(goalRepository.save(any())).thenReturn(goal);
@@ -76,7 +76,7 @@ class GoalServiceTest {
 
     @Test
     void create_doesNotThrow() {
-        assertThatNoException().isThrownBy(() -> goalService.create(new GoalInputData(title1, amount1, 1), user1));
+        assertThatNoException().isThrownBy(() -> goalService.create(new GoalInputData(title1, 1), user1));
     }
 
     @Test
@@ -85,7 +85,7 @@ class GoalServiceTest {
         assertThat(response.goals().size()).isEqualTo(1);
         final GoalData foundGoal = response.goals().get(0);
         assertThat(foundGoal.title()).isEqualTo(title1);
-        assertThat(foundGoal.amount()).isEqualTo(amount1);
+        assertThat(foundGoal.amount()).isEqualTo(0);
         assertThat(foundGoal.priority()).isEqualTo(1);
     }
 
@@ -107,7 +107,7 @@ class GoalServiceTest {
         goalService = new GoalService(notMockedGoalRepository, subGoalRepository);
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        final Goal testGoal = new Goal(user, "test", 11, 2);
+        final Goal testGoal = new Goal(user, "test", 2);
         notMockedGoalRepository.save(testGoal);
         assertThat(goalService.list(user).goals().size()).isEqualTo(1);
         goalService.destroy(goalService.list(user).goals().get(0).id(), user);
@@ -121,11 +121,11 @@ class GoalServiceTest {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         final var testGoals = List.of(
-                new Goal(user, "test1", 11, 1),
-                new Goal(user, "test2", 22, 2),
-                new Goal(user, "test3", 33, 3),
-                new Goal(user, "test4", 44, 4),
-                new Goal(user, "test5", 55, 5)
+                new Goal(user, "test1", 1),
+                new Goal(user, "test2", 2),
+                new Goal(user, "test3", 3),
+                new Goal(user, "test4", 4),
+                new Goal(user, "test5", 5)
         );
         final var savedGoals = notMockedGoalRepository.saveAll(testGoals);
 
@@ -152,8 +152,8 @@ class GoalServiceTest {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         final var testGoals = List.of(
-                new Goal(user, "test1", 11, 1),
-                new Goal(user, "test2", 22, 2)
+                new Goal(user, "test1", 1),
+                new Goal(user, "test2", 2)
         );
         final var savedGoals = notMockedGoalRepository.saveAll(testGoals);
 

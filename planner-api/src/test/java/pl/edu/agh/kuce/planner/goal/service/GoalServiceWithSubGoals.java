@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
+import pl.edu.agh.kuce.planner.goal.dto.GoalData;
 import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
 import pl.edu.agh.kuce.planner.goal.dto.SubGoalInputData;
 import pl.edu.agh.kuce.planner.goal.persistence.Goal;
@@ -34,23 +35,24 @@ public class GoalServiceWithSubGoals {
     @Test
     void checkIfSubGoalsAddsProperly() {
         final User user = userRepository.save(new User("TEST21", "TEST21", "TEST21"));
-        final Goal goal = goalRepository.save(new Goal(user, "TEST1", 1, 21));
+        final Goal goal = goalRepository.save(new Goal(user, "TEST1", 21));
         assertThat(subGoalRepository.getSubGoals(goal, user).size()).isEqualTo(0);
-        goalService.createSubGoal(goal.getId(), new SubGoalInputData("TitleTest"), user);
-        goalService.createSubGoal(goal.getId(), new SubGoalInputData("TitleTest2"), user);
+        goalService.createSubGoal(goal.getId(), new SubGoalInputData("TitleTest", 100), user);
+        goalService.createSubGoal(goal.getId(), new SubGoalInputData("TitleTest2", 100), user);
         assertThat(subGoalRepository.getSubGoals(goal, user).size()).isEqualTo(2);
     }
 
     @Test
     void checkIfServiceReturnsProperGoalsList() {
         final User user = userRepository.save(new User("TEST22", "TEST22", "TEST22"));
-        final Goal goal = goalRepository.save(new Goal(user, "TEST22", 1, 22));
-        final SubGoal subGoal1 = subGoalRepository.save(new SubGoal(goal, "TEST1"));
-        final SubGoal subGoal2 = subGoalRepository.save(new SubGoal(goal, "TEST2"));
+        final Goal goal = goalRepository.save(new Goal(user, "TEST22", 22));
+        final SubGoal subGoal1 = subGoalRepository.save(new SubGoal(goal, "TEST1", 200));
+        final SubGoal subGoal2 = subGoalRepository.save(new SubGoal(goal, "TEST2", 100));
         final ListResponse listResponse = goalService.list(user);
         assertThat(listResponse.goals().size()).isEqualTo(1);
         assertThat(listResponse.goals().get(0).subGoals().size()).isEqualTo(2);
         assertThat(listResponse.goals().get(0).subGoals().get(0).id()).isEqualTo(subGoal1.getId());
+        assertThat(listResponse.goals().get(0).amount()).isEqualTo(300);
         assertThat(listResponse.goals().get(0).subGoals().get(0).title()).isEqualTo(subGoal1.getTitle());
         assertThat(listResponse.goals().get(0).subGoals().get(1).id()).isEqualTo(subGoal2.getId());
         assertThat(listResponse.goals().get(0).subGoals().get(1).title()).isEqualTo(subGoal2.getTitle());
@@ -59,8 +61,8 @@ public class GoalServiceWithSubGoals {
     @Test
     void checkIfSubGoalsDeletesWhenGoalIsDeleted() {
         final User user = userRepository.save(new User("TEST23", "TEST23", "TEST23"));
-        final Goal goal = goalRepository.save(new Goal(user, "TEST3", 1, 23));
-        final SubGoal subGoal = subGoalRepository.save(new SubGoal(goal, "TEST"));
+        final Goal goal = goalRepository.save(new Goal(user, "TEST3", 23));
+        final SubGoal subGoal = subGoalRepository.save(new SubGoal(goal, "TEST", 100));
         assertThat(subGoalRepository.getSubGoalById(subGoal.getId(), user).get()).isEqualTo(subGoal);
         goalService.destroy(goal.getId(), user);
         assertThat(subGoalRepository.getSubGoalById(subGoal.getId(), user).isEmpty()).isTrue();
@@ -69,12 +71,54 @@ public class GoalServiceWithSubGoals {
     @Test
     void checkIfDeletingSubGoalWorksProperly() {
         final User user = userRepository.save(new User("TEST24", "TEST24", "TEST24"));
-        final Goal goal = goalRepository.save(new Goal(user, "TEST4", 1, 24));
-        final SubGoal subGoal = subGoalRepository.save(new SubGoal(goal, "TEST"));
-        final SubGoal subGoal2 = subGoalRepository.save(new SubGoal(goal, "TEST2"));
+        final Goal goal = goalRepository.save(new Goal(user, "TEST4", 24));
+        final SubGoal subGoal = subGoalRepository.save(new SubGoal(goal, "TEST", 100));
+        final SubGoal subGoal2 = subGoalRepository.save(new SubGoal(goal, "TEST2", 100));
         assertThat(subGoalRepository.getSubGoals(goal, user).size()).isEqualTo(2);
         goalService.destroySubGoal(subGoal.getId(), goal.getId(), user);
         assertThat(subGoalRepository.getSubGoals(goal, user).size()).isEqualTo(1);
         assertThat(subGoalRepository.getSubGoals(goal, user).get(0)).isEqualTo(subGoal2);
+    }
+
+    @Test
+    void checkIfGoalAmountCountsCorrectly() {
+        final User user = userRepository.save(new User("TEST25", "TEST25", "TEST25"));
+        final Goal goal = goalRepository.save(new Goal(user, "TEST4", 25));
+        subGoalRepository.save(new SubGoal(goal, "TEST", 222));
+        subGoalRepository.save(new SubGoal(goal, "TEST2",  111));
+        ListResponse goalList = goalService.list(user);
+        assertThat(goalList.goals().get(0).amount()).isEqualTo(333);
+        subGoalRepository.save(new SubGoal(goal, "TEST3", 444));
+        goalList = goalService.list(user);
+        assertThat(goalList.goals().get(0).amount()).isEqualTo(777);
+    }
+
+    @Test
+    void checkIfProperGoalIsReturnedAfterSubGoalDeletion() {
+        final User user = userRepository.save(new User("TEST26", "TEST26", "TEST26"));
+        final Goal goal = goalRepository.save(new Goal(user, "TEST4", 26));
+        subGoalRepository.save(new SubGoal(goal, "TEST", 222));
+        final SubGoal subGoalToBeDeleted = subGoalRepository.save(new SubGoal(goal, "TEST2",  111));
+        ListResponse goalList = goalService.list(user);
+        assertThat(goalList.goals().get(0).amount()).isEqualTo(333);
+        final GoalData data = goalService.destroySubGoal(subGoalToBeDeleted.getId(), goal.getId(), user);
+        assertThat(data.amount()).isEqualTo(222);
+        goalList = goalService.list(user);
+        assertThat(goalList.goals().get(0).amount()).isEqualTo(222);
+    }
+
+    @Test
+    void checkIfProperGoalIsReturnedAfterSubGoalCreation() {
+        final User user = userRepository.save(new User("TEST27", "TEST27", "TEST27"));
+        final Goal goal = goalRepository.save(new Goal(user, "TEST4", 27));
+        subGoalRepository.save(new SubGoal(goal, "TEST", 222));
+        subGoalRepository.save(new SubGoal(goal, "TEST2",  111));
+        final SubGoalInputData subGoalToBeCreated = new SubGoalInputData("TEST2", 444);
+        ListResponse goalList = goalService.list(user);
+        assertThat(goalList.goals().get(0).amount()).isEqualTo(333);
+        final GoalData data = goalService.createSubGoal(goal.getId(), subGoalToBeCreated, user);
+        assertThat(data.amount()).isEqualTo(777);
+        goalList = goalService.list(user);
+        assertThat(goalList.goals().get(0).amount()).isEqualTo(777);
     }
 }

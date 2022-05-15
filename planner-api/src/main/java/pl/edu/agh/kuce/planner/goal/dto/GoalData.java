@@ -22,6 +22,7 @@ public record GoalData(
         List<SubGoalData> subGoals
 ) {
     public GoalData(final Goal goal, final List<SubGoalData> subGoals) {
-        this(goal.getId(), goal.getTitle(), goal.getAmount(), goal.getPriority(), subGoals);
+        this(goal.getId(), goal.getTitle(), subGoals.stream().map(SubGoalData::amount).reduce(0, Integer::sum),
+                goal.getPriority(), subGoals);
     }
 }

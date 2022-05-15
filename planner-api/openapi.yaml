@@ -291,7 +291,7 @@ paths:
           content:
             "application/json":
               schema:
-                "$ref": "#/components/schemas/SubGoalData"
+                "$ref": "#/components/schemas/GoalData"
         "401":
           description: "User unauthorized"
 
@@ -299,8 +299,12 @@ paths:
     delete:
       summary: "Deletes SubGoal"
       responses:
-        "204":
+        "200":
           description: "SubGoal successfully deleted"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/GoalData"
         "401":
           description: "User unauthorized"
         "404":
@@ -567,7 +571,7 @@ components:
                     format: "subGoal name"
                     minLength: 1
                     maxLength: 200
-                    example: "Car"
+                    example: "Winter tyres"
 
     GoalCreateRequest:
       type: "object"
@@ -582,10 +586,6 @@ components:
                 minLength: 1
                 maxLength: 200
                 example: "Car"
-              amount:
-                type: "integer"
-                format: "cost of fulfilling the goal"
-                example: 201
 
     GoalPriorityUpdate:
       type: "object"
@@ -628,16 +628,22 @@ components:
               type: "string"
               minLength: 1
               maxLength: 200
-              example: "Car"
+              example: "Winter tyres"
+            amount:
+              type: "integer"
+              example: 10000
 
     SubGoalCreateRequest:
       type: "object"
       properties:
         title:
           type: "string"
-          example: "Bricks"
+          example: "Winter tyres"
           minLength: 1
           maxLength: 200
+        amount:
+          type: "integer"
+          example: 10000
 
     SubGoalData:
       type: "object"
@@ -650,4 +656,7 @@ components:
           type: "string"
           minLength: 1
           maxLength: 200
-          example: "Bricks"
+          example: "Winter tyres"
+        amount:
+          type: "integer"
+          example: 10000
