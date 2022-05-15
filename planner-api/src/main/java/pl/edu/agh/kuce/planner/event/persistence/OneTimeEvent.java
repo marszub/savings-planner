@@ -1,7 +1,7 @@
 package pl.edu.agh.kuce.planner.event.persistence;
 
 import pl.edu.agh.kuce.planner.auth.persistence.User;
-import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
+import pl.edu.agh.kuce.planner.event.dto.EventDataInput;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,12 +21,12 @@ public class OneTimeEvent extends Event {
         this.timestamp = timestamp;
     }
 
-    public OneTimeEvent(final OneTimeEventDataInput oneTimeEventData, final User user) {
+    public OneTimeEvent(final EventDataInput eventDataInput, final User user) {
         this(
                 user,
-                oneTimeEventData.title(),
-                oneTimeEventData.amount(),
-                Instant.ofEpochSecond(oneTimeEventData.timestamp())
+                eventDataInput.title(),
+                eventDataInput.amount(),
+                Instant.ofEpochSecond(eventDataInput.timestamp())
         );
     }
 
