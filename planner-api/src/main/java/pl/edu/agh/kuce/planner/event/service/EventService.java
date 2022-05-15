@@ -14,13 +14,13 @@ import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 import pl.edu.agh.kuce.planner.shared.InvalidDataException;
 
-import javax.transaction.Transactional;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class EventService {
