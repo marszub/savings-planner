@@ -46,4 +46,11 @@ public record EventData(
                 null,
                 null);
     }
+
+    public boolean idValid() {
+        if (isCyclic()) {
+            return begin != null && cycleBase != null && cycleLength != null;
+        }
+        return timestamp != null;
+    }
 }
