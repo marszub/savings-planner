@@ -117,7 +117,7 @@ paths:
             schema:
               "$ref": "#/components/schemas/SubBalanceInfo"
       responses:
-        "200":
+        "201":
           description: "Get user subBalance"
           content:
             "application/json":
