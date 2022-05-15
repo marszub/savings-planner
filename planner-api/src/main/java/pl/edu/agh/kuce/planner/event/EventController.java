@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import pl.edu.agh.kuce.planner.auth.Current;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
-import pl.edu.agh.kuce.planner.event.dto.ListResponse;
 import pl.edu.agh.kuce.planner.event.dto.EventData;
+import pl.edu.agh.kuce.planner.event.dto.EventList;
 import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.service.EventService;
 import pl.edu.agh.kuce.planner.shared.ResourceNotFoundException;
@@ -37,7 +37,7 @@ public class EventController {
     }
 
     @GetMapping("")
-    public ListResponse list(@Current final User user) {
+    public EventList list(@Current final User user) {
         return eventService.list(user);
     }
 
