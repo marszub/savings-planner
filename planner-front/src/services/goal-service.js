@@ -12,6 +12,11 @@ export const goalService = {
 
   addChangeListener(onGoalsChange) {
     this._changeListeners.push(onGoalsChange);
+    onGoalsChange([...this._goals]);
+  },
+
+  removeChangeListener(onGoalsChange) {
+    this._changeListeners = this._changeListeners.filter(listener => listener !== onGoalsChange);
   },
 
   getList() {

@@ -55,12 +55,15 @@ export default function GoalList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    goalService.addChangeListener(updatedGoals => setGoals(updatedGoals));
+    const changeListener = updatedGoals => setGoals(updatedGoals);
+    goalService.addChangeListener(changeListener);
 
     setLoading(true);
     goalService.getList()
         .catch(() => navigate("/error"))
         .finally(() => setLoading(false));
+
+    return () => goalService.removeChangeListener(changeListener);
   }, []);
 
   const createGoal = model => {
