@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
-import pl.edu.agh.kuce.planner.event.dto.CyclicEventDataInput;
+import pl.edu.agh.kuce.planner.event.utils.CyclicEventDataInput;
 import pl.edu.agh.kuce.planner.event.persistence.CyclicEvent;
 import pl.edu.agh.kuce.planner.event.persistence.CyclicEventRepository;
 
@@ -39,13 +39,13 @@ public class CyclicEventTest {
 
     @Test
     void getFollowingN_NotReturnsStartDate() {
-        event1 = new CyclicEvent(eventData1, user);
+        event1 = new CyclicEvent(eventData1.getEventDataInput(), user);
         assertThat(event1.getFollowingN(date1, 1).get(0).timestamp()).isGreaterThan(date1);
     }
 
     @Test
     void cyclicEventFromInterval_returnsCorrectAmount() {
-        event1 = new CyclicEvent(eventData1, user);
+        event1 = new CyclicEvent(eventData1.getEventDataInput(), user);
         assertThat(event1.getFollowingN(date1, 8).size()).isEqualTo(8);
     }
 
@@ -53,7 +53,7 @@ public class CyclicEventTest {
     @Transactional
     void singleEventIsSaved() {
         user = userRepository.save(user);
-        event1 = new CyclicEvent(eventData1, user);
+        event1 = new CyclicEvent(eventData1.getEventDataInput(), user);
         cyclicEventRepository.save(event1);
         final List<CyclicEvent> result = cyclicEventRepository.findByUser(user);
         assertThat(result.get(0)).isEqualTo(event1);
@@ -63,8 +63,8 @@ public class CyclicEventTest {
     @Transactional
     void singleEventsAreSaved() {
         user = userRepository.save(user);
-        event1 = new CyclicEvent(eventData1, user);
-        event2 = new CyclicEvent(eventData2, user);
+        event1 = new CyclicEvent(eventData1.getEventDataInput(), user);
+        event2 = new CyclicEvent(eventData2.getEventDataInput(), user);
         cyclicEventRepository.save(event1);
         cyclicEventRepository.save(event2);
         final List<CyclicEvent> result = cyclicEventRepository.findByUser(user);
@@ -76,8 +76,8 @@ public class CyclicEventTest {
     @Transactional
     void findByIdAndUser_existingEvent() {
         user = userRepository.save(user);
-        event1 = new CyclicEvent(eventData1, user);
-        event2 = new CyclicEvent(eventData2, user);
+        event1 = new CyclicEvent(eventData1.getEventDataInput(), user);
+        event2 = new CyclicEvent(eventData2.getEventDataInput(), user);
         cyclicEventRepository.save(event1);
         cyclicEventRepository.save(event2);
         final List<CyclicEvent> result = cyclicEventRepository.findByUser(user);

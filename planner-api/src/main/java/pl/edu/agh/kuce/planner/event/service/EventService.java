@@ -2,17 +2,17 @@ package pl.edu.agh.kuce.planner.event.service;
 
 import org.springframework.stereotype.Service;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
-import pl.edu.agh.kuce.planner.event.dto.CyclicEventDataInput;
 import pl.edu.agh.kuce.planner.event.dto.EventData;
+import pl.edu.agh.kuce.planner.event.dto.EventDataInput;
 import pl.edu.agh.kuce.planner.event.dto.EventList;
 import pl.edu.agh.kuce.planner.event.dto.EventTimestamp;
 import pl.edu.agh.kuce.planner.event.dto.EventTimestampList;
-import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.dto.TimestampListRequest;
 import pl.edu.agh.kuce.planner.event.persistence.CyclicEvent;
 import pl.edu.agh.kuce.planner.event.persistence.CyclicEventRepository;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
+import pl.edu.agh.kuce.planner.shared.InvalidDataException;
 
 import javax.transaction.Transactional;
 import java.util.Comparator;
@@ -33,13 +33,15 @@ public class EventService {
         this.cyclicEventRepository = cyclicEventRepository;
     }
 
-    public EventData create(final OneTimeEventDataInput request, final User user) {
-        final OneTimeEvent event = oneTimeEventRepository.save(new OneTimeEvent(request, user));
-        return new EventData(event);
-    }
-
-    public EventData create(final CyclicEventDataInput request, final User user) {
-        final CyclicEvent event = cyclicEventRepository.save(new CyclicEvent(request, user));
+    public EventData create(final EventDataInput eventData, final User user) {
+        if (!eventData.isValid()) {
+            throw new InvalidDataException("Create event request with wrong data");
+        }
+        if (eventData.isCyclic()) {
+            final CyclicEvent event = cyclicEventRepository.save(new CyclicEvent(eventData, user));
+            return new EventData(event);
+        }
+        final OneTimeEvent event = oneTimeEventRepository.save(new OneTimeEvent(eventData, user));
         return new EventData(event);
     }
 

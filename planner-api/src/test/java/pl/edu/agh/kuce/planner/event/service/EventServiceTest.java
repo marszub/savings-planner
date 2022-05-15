@@ -8,12 +8,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
-import pl.edu.agh.kuce.planner.event.dto.CyclicEventDataInput;
 import pl.edu.agh.kuce.planner.event.dto.EventData;
+import pl.edu.agh.kuce.planner.event.dto.EventDataInput;
 import pl.edu.agh.kuce.planner.event.dto.EventList;
 import pl.edu.agh.kuce.planner.event.dto.EventTimestampList;
-import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.dto.TimestampListRequest;
+import pl.edu.agh.kuce.planner.event.utils.CyclicEventDataInput;
+import pl.edu.agh.kuce.planner.event.utils.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.persistence.CyclicEventRepository;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
@@ -69,23 +70,23 @@ class EventServiceTest {
     private User user1 = new User(nick1, email1, password1);
     private User user2 = new User(nick2, email2, password2);
 
-    private final OneTimeEventDataInput oneTimeEventDataInput1 =
-            new OneTimeEventDataInput(title1, amount1, timestampSpr1);
-    private final OneTimeEventDataInput oneTimeEventDataInput2 =
-            new OneTimeEventDataInput(title2, amount2, timestampSpr2);
-    private final OneTimeEventDataInput oneTimeEventDataInput3 =
-            new OneTimeEventDataInput(title3, amount3, timestampSpr3);
-    private final OneTimeEventDataInput oneTimeEventDataInput4 =
-            new OneTimeEventDataInput(title4, amount4, timestampSpr4);
+    private final EventDataInput oneTimeEventDataInput1 =
+            new OneTimeEventDataInput(title1, amount1, timestampSpr1).getEventDataInput();
+    private final EventDataInput oneTimeEventDataInput2 =
+            new OneTimeEventDataInput(title2, amount2, timestampSpr2).getEventDataInput();
+    private final EventDataInput oneTimeEventDataInput3 =
+            new OneTimeEventDataInput(title3, amount3, timestampSpr3).getEventDataInput();
+    private final EventDataInput oneTimeEventDataInput4 =
+            new OneTimeEventDataInput(title4, amount4, timestampSpr4).getEventDataInput();
 
-    private final CyclicEventDataInput cyclicEventDataInput1 =
-            new CyclicEventDataInput(title1, amount1, timestampSpr1, cycleBase1, cycleLength1);
-    private final CyclicEventDataInput cyclicEventDataInput2 =
-            new CyclicEventDataInput(title2, amount2, timestampSpr2, cycleBase2, cycleLength2);
-    private final CyclicEventDataInput cyclicEventDataInput3 =
-            new CyclicEventDataInput(title3, amount3, timestampSpr3, cycleBase3, cycleLength3);
-    private final CyclicEventDataInput cyclicEventDataInput4 =
-            new CyclicEventDataInput(title4, amount4, timestampSpr4, cycleBase4, cycleLength4);
+    private final EventDataInput cyclicEventDataInput1 =
+            new CyclicEventDataInput(title1, amount1, timestampSpr1, cycleBase1, cycleLength1).getEventDataInput();
+    private final EventDataInput cyclicEventDataInput2 =
+            new CyclicEventDataInput(title2, amount2, timestampSpr2, cycleBase2, cycleLength2).getEventDataInput();
+    private final EventDataInput cyclicEventDataInput3 =
+            new CyclicEventDataInput(title3, amount3, timestampSpr3, cycleBase3, cycleLength3).getEventDataInput();
+    private final EventDataInput cyclicEventDataInput4 =
+            new CyclicEventDataInput(title4, amount4, timestampSpr4, cycleBase4, cycleLength4).getEventDataInput();
 
     @BeforeEach
     void setUp() {
@@ -198,8 +199,8 @@ class EventServiceTest {
     @Transactional
     void getFollowingOneTimeEventTimestamps_duplicates() {
         user1 = userRepository.save(user1);
-        final OneTimeEventDataInput oneTimeEventDataInput3duplicate =
-                new OneTimeEventDataInput("Title3Duplicate", 2000, timestampSpr3);
+        final EventDataInput oneTimeEventDataInput3duplicate =
+                new OneTimeEventDataInput("Title3Duplicate", 2000, timestampSpr3).getEventDataInput();
         eventService.create(oneTimeEventDataInput1, user1);
         eventService.create(oneTimeEventDataInput2, user1);
         eventService.create(oneTimeEventDataInput3, user1);
@@ -221,8 +222,8 @@ class EventServiceTest {
     @Transactional
     void getFollowingOneTimeEventTimestamps_duplicatesAtEnd() {
         user1 = userRepository.save(user1);
-        final OneTimeEventDataInput oneTimeEventDataInput4duplicate =
-                new OneTimeEventDataInput("Title4Duplicate", 2000, timestampSpr4);
+        final EventDataInput oneTimeEventDataInput4duplicate =
+                new OneTimeEventDataInput("Title4Duplicate", 2000, timestampSpr4).getEventDataInput();
         eventService.create(oneTimeEventDataInput1, user1);
         eventService.create(oneTimeEventDataInput2, user1);
         eventService.create(oneTimeEventDataInput3, user1);

@@ -1,7 +1,7 @@
 package pl.edu.agh.kuce.planner.event.persistence;
 
 import pl.edu.agh.kuce.planner.auth.persistence.User;
-import pl.edu.agh.kuce.planner.event.dto.CyclicEventDataInput;
+import pl.edu.agh.kuce.planner.event.dto.EventDataInput;
 import pl.edu.agh.kuce.planner.event.dto.EventTimestamp;
 
 import javax.persistence.Column;
@@ -38,16 +38,16 @@ public class CyclicEvent extends Event {
         this.cycleLength = cycleLength;
     }
 
-    public CyclicEvent(final CyclicEventDataInput cyclicEventData, final User user) {
+    public CyclicEvent(final EventDataInput eventDataInput, final User user) {
         this(
                 user,
-                cyclicEventData.title(),
-                cyclicEventData.amount(),
+                eventDataInput.title(),
+                eventDataInput.amount(),
                 Calendar.getInstance(),
-                cyclicEventData.cycleBase(),
-                cyclicEventData.cycleLength()
+                eventDataInput.cycleBase(),
+                eventDataInput.cycleLength()
         );
-        setBegin(cyclicEventData.begin());
+        setBegin(eventDataInput.begin());
     }
 
     public Long getBegin() {

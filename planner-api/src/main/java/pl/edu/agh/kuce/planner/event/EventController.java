@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.edu.agh.kuce.planner.auth.Current;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.event.dto.EventData;
+import pl.edu.agh.kuce.planner.event.dto.EventDataInput;
 import pl.edu.agh.kuce.planner.event.dto.EventList;
-import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.service.EventService;
 
 import javax.validation.Valid;
@@ -31,8 +31,8 @@ public class EventController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public EventData create(@Valid @RequestBody final OneTimeEventDataInput data, @Current final User user) {
-        return eventService.create(data, user);
+    public EventData create(@Valid @RequestBody final EventDataInput eventData, @Current final User user) {
+        return eventService.create(eventData, user);
     }
 
     @GetMapping("")
