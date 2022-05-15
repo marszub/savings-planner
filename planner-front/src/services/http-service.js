@@ -2,11 +2,8 @@ import {HTTP_BAD_REQUEST, HTTP_NO_CONTENT, HTTP_UNAUTHORIZED, isServerError} fro
 import { BACKEND_URL } from "../config";
 import { tokenStorage } from "./token-storage";
 import { userService } from "./user-service";
-import {navigation} from "../utils/navigation";
 
 export const httpService = {
-    _navigation: navigation,
-
     get(path, queryParams) {
         return request(`${path}?${new URLSearchParams(queryParams)}`, 'GET');
     },
@@ -42,15 +39,16 @@ function request(path, method, body=null) {
         credentials: 'include',
         body: body && JSON.stringify(body, replacer),
     })
-        .then(onResponse)
-        .catch(() => this._navigation.navigateError());
+        .then(onResponse);
 }
 
 function onResponse(res) {
     if (res.status === HTTP_NO_CONTENT) {
         return new ResponseShort(res.status, res.body);
-    } else if (res.status === HTTP_BAD_REQUEST || isServerError(res.status)) {
-        this._navigation.navigateError();
+    } else if (res.status === HTTP_BAD_REQUEST) {
+        return Promise.reject("Bad request");
+    } else if (isServerError(res.status)) {
+        return Promise.reject("Server error");
     } else if (res.status === HTTP_UNAUTHORIZED && res.url !== `${BACKEND_URL}/auth/access-token`) {
         console.log("User unauthorized");
         userService.signOut();

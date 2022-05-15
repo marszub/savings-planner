@@ -34,6 +34,7 @@ import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} f
 import {CircularProgress, Collapse} from "@mui/material";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import "../../styles/Goals.css"
+import {useNavigate} from "react-router-dom";
 
 const theme = createTheme();
 
@@ -51,12 +52,14 @@ export default function GoalList() {
   const [alertStatus, setAlertStatus] = useState("");
   const [refreshAlert, setRefreshAlert] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     goalService.addChangeListener(updatedGoals => setGoals(updatedGoals));
 
     setLoading(true);
     goalService.getList()
+        .catch(() => navigate("/error"))
         .finally(() => setLoading(false));
   }, []);
 
@@ -79,6 +82,7 @@ export default function GoalList() {
               break;
           }
         })
+        .catch(() => navigate("/error"))
         .finally(() => setLoading(false));
   };
 
@@ -98,6 +102,7 @@ export default function GoalList() {
               break;
           }
         })
+        .catch(() => navigate("/error"))
         .finally(() => setLoading(false));
   };
 
@@ -142,6 +147,7 @@ export default function GoalList() {
               break;
           }
         })
+        .catch(() => navigate("/error"))
         .finally(() => setLoading(false));
   }
 
@@ -156,6 +162,7 @@ export default function GoalList() {
           setLoading={setLoading}
           setAlertStatus={setAlertStatus}
           setRefreshAlert={setRefreshAlert}
+          navigate={navigate}
       />
   );
 
@@ -260,6 +267,7 @@ function Goal(props) {
               break;
           }
         })
+        .catch(() => props.navigate("/error"))
         .finally(() => props.setLoading(false));
   };
 
@@ -279,6 +287,7 @@ function Goal(props) {
               break;
           }
         })
+        .catch(() => props.navigate("/error"))
         .finally(() => props.setLoading(false));
   };
 

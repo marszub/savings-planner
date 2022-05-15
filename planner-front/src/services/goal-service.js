@@ -4,7 +4,6 @@ import {moneyFormatter} from "../utils/money-formatter";
 import {GoalPriorityUpdateModel} from "../models/goal-priority-update-model";
 import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../utils/http-status";
 import {goalCompare} from "../utils/goal-compare";
-import {navigation} from "../utils/navigation";
 
 export const goalService = {
 
