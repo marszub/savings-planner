@@ -1,7 +1,6 @@
 package pl.edu.agh.kuce.planner.goal.dto;
 
 import pl.edu.agh.kuce.planner.goal.persistence.SubGoal;
-
 import javax.validation.constraints.NotNull;
 
 public record SubGoalData(
@@ -9,9 +8,12 @@ public record SubGoalData(
         Integer id,
 
         @NotNull
-        String title
+        String title,
+
+        @NotNull
+        Integer amount
 ) {
     public SubGoalData(final SubGoal subGoal) {
-        this(subGoal.getId(), subGoal.getTitle());
+        this(subGoal.getId(), subGoal.getTitle(), subGoal.getAmount());
     }
 }

@@ -9,13 +9,10 @@ public record GoalInputData(
         String title,
 
         @NotNull
-        Integer amount,
-
-        @NotNull
         Integer priority
 ) {
     public GoalInputData(final Goal goal) {
-        this(goal.getTitle(), goal.getAmount(), goal.getPriority());
+        this(goal.getTitle(), goal.getPriority());
     }
 }
 

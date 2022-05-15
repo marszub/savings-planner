@@ -34,18 +34,14 @@ public class Goal {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
-    private Integer amount;
-
     @Column(name = "priority", nullable = false)
     private Integer priority;
 
     public Goal() { }
 
-    public Goal(final User user, final String title, final Integer amount, final Integer priority) {
+    public Goal(final User user, final String title, final Integer priority) {
         this.user = user;
         this.title = title;
-        this.amount = amount;
         this.priority = priority;
     }
 
@@ -53,7 +49,6 @@ public class Goal {
         this(
                 user,
                 data.title(),
-                data.amount(),
                 data.priority()
         );
     }
@@ -80,14 +75,6 @@ public class Goal {
 
     public void setTitle(final String title) {
         this.title = title;
-    }
-
-    public Integer getAmount() {
-        return amount;
-    }
-
-    public void setAmount(final Integer amount) {
-        this.amount = amount;
     }
 
     public Integer getPriority() {

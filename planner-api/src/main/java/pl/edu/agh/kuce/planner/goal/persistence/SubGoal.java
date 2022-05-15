@@ -28,19 +28,32 @@ public class SubGoal {
     @Column(nullable = false)
     private String title;
 
+    @Column(nullable = false)
+    private Integer amount;
+
     public SubGoal() {
     }
 
-    public SubGoal(final Goal goal, final String title) {
+    public SubGoal(final Goal goal, final String title, final Integer amount) {
         this.goal = goal;
         this.title = title;
+        this.amount = amount;
     }
 
     public SubGoal(final Goal goal, final SubGoalInputData data) {
         this(
                 goal,
-                data.title()
+                data.title(),
+                data.amount()
         );
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(final Integer amount) {
+        this.amount = amount;
     }
 
     public Integer getId() {

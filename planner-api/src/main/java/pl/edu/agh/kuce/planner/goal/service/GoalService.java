@@ -5,8 +5,8 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.goal.dto.ListResponse;
 import pl.edu.agh.kuce.planner.goal.dto.GoalData;
-import pl.edu.agh.kuce.planner.goal.dto.SubGoalData;
 import pl.edu.agh.kuce.planner.goal.dto.GoalInputData;
+import pl.edu.agh.kuce.planner.goal.dto.SubGoalData;
 import pl.edu.agh.kuce.planner.goal.dto.SubGoalInputData;
 import pl.edu.agh.kuce.planner.goal.dto.GoalPriority;
 import pl.edu.agh.kuce.planner.goal.dto.GoalPriorityUpdate;
@@ -15,6 +15,7 @@ import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
 import pl.edu.agh.kuce.planner.goal.persistence.SubGoal;
 import pl.edu.agh.kuce.planner.goal.persistence.SubGoalRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -38,11 +39,12 @@ public class GoalService {
                                                                         .toList());
     }
 
-    public SubGoalData createSubGoal(final Integer goalId, final SubGoalInputData data, final User user) {
+    public GoalData createSubGoal(final Integer goalId, final SubGoalInputData data, final User user) {
         final Optional<Goal> goal = goalRepository.getGoalById(goalId, user);
         if (goal.isPresent()) {
-            final SubGoal subGoal = subGoalRepository.save(new SubGoal(goal.get(), data));
-            return new SubGoalData(subGoal);
+            subGoalRepository.save(new SubGoal(goal.get(), data));
+            return new GoalData(goal.get(),
+                    transformSubGoals(subGoalRepository.getSubGoals(goal.get(), user)));
         }
         throw new GoalNotFoundException(goalNotFoundText);
     }
@@ -52,10 +54,7 @@ public class GoalService {
                 goalRepository
                         .findByUserOrderByPriorityDesc(user)
                         .stream()
-                        .map(goal -> new GoalData(goal,
-                                subGoalRepository.getSubGoals(goal, user).stream()
-                                                                         .map(SubGoalData::new)
-                                                                         .toList()))
+                        .map(goal -> new GoalData(goal, transformSubGoals(subGoalRepository.getSubGoals(goal, user))))
                         .toList()
         );
     }
@@ -110,15 +109,22 @@ public class GoalService {
     }
 
     @Transactional
-    public void destroySubGoal(final Integer subGoalId, final Integer goalId, final User user) {
+    public GoalData destroySubGoal(final Integer subGoalId, final Integer goalId, final User user) {
         final Optional<Goal> goal = goalRepository.getGoalById(goalId, user);
         if (goal.isPresent()) {
             final Optional<SubGoal> subGoal = subGoalRepository.getSubGoalById(subGoalId, user);
             if (subGoal.isPresent()) {
                 subGoalRepository.deleteSubGoal(subGoalId, goal.get());
-                return;
+                return new GoalData(goal.get(),
+                        transformSubGoals(subGoalRepository.getSubGoals(goal.get(), user)));
             }
         }
         throw new GoalNotFoundException(goalNotFoundText);
+    }
+
+    private List<SubGoalData> transformSubGoals(final List<SubGoal> subGoalList) {
+        return subGoalList.stream()
+                          .map(SubGoalData::new)
+                          .toList();
     }
 }
