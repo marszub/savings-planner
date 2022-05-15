@@ -24,8 +24,7 @@ export const goalService = {
               this._notifyChangeListeners();
               break;
             default:
-              navigation.navigateError();
-              break;
+              return httpService.onUnexpectedHttpStatus(res.status);
           }
           return res;
         })
@@ -51,8 +50,7 @@ export const goalService = {
               await this.getList();
               break;
             default:
-              navigation.navigateError();
-              break;
+              return httpService.onUnexpectedHttpStatus(res.status);
           }
           return res;
         })
@@ -77,8 +75,7 @@ export const goalService = {
               await this.getList();
               break;
             default:
-              navigation.navigateError();
-              break;
+              return httpService.onUnexpectedHttpStatus(res.status);
           }
           return res;
         });
@@ -96,8 +93,7 @@ export const goalService = {
               await this.getList();
               break;
             default:
-              navigation.navigateError();
-              break;
+              return httpService.onUnexpectedHttpStatus(res.status);
           }
           return res;
         });
@@ -118,8 +114,7 @@ export const goalService = {
               await this.getList();
               break;
             default:
-              navigation.navigateError();
-              break;
+              return httpService.onUnexpectedHttpStatus(res.status);
           }
           return res;
         });
@@ -140,8 +135,7 @@ export const goalService = {
               await this.getList();
               break;
             default:
-              navigation.navigateError();
-              break;
+              return httpService.onUnexpectedHttpStatus(res.status);
           }
           return res;
         });

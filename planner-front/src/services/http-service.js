@@ -25,6 +25,10 @@ export const httpService = {
 
     delete(path, body) {
         return request(path, 'DELETE', body);
+    },
+
+    onUnexpectedHttpStatus(status) {
+        return Promise.reject(`Unexpected HTTP status ${status}`);
     }
 }
 
