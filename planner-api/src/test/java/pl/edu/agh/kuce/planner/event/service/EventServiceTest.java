@@ -15,6 +15,7 @@ import pl.edu.agh.kuce.planner.event.dto.EventTimestampList;
 import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.dto.TimestampListRequest;
 import pl.edu.agh.kuce.planner.event.persistence.CyclicEventRepository;
+import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 
 import java.util.Objects;
@@ -147,7 +148,7 @@ class EventServiceTest {
     void updateOneTimeEvent() {
         user1 = userRepository.save(user1);
         final EventData eventData = eventService.create(oneTimeEventDataInput1, user1);
-        eventService.update(oneTimeEventDataInput2, eventData.id(), user1);
+        eventService.update(new EventData(new OneTimeEvent(oneTimeEventDataInput2, user1)), eventData.id(), user1);
         final EventData updated = eventService.list(user1).events().get(0);
         assertThat(updated.id()).isEqualTo(eventData.id());
         assertThat(updated.amount()).isEqualTo(amount2);

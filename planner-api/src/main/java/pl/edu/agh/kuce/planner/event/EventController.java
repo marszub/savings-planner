@@ -16,7 +16,6 @@ import pl.edu.agh.kuce.planner.event.dto.EventData;
 import pl.edu.agh.kuce.planner.event.dto.EventList;
 import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.service.EventService;
-import pl.edu.agh.kuce.planner.shared.ResourceNotFoundException;
 
 import javax.validation.Valid;
 
@@ -44,15 +43,15 @@ public class EventController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void update(@PathVariable("id") final Integer eventId,
-                                   @Valid @RequestBody final OneTimeEventDataInput data,
-                                   @Current final User user) throws ResourceNotFoundException {
-        eventService.update(data, eventId, user);
+                                   @Valid @RequestBody final EventData eventData,
+                                   @Current final User user) {
+        eventService.update(eventData, eventId, user);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") final Integer eventId,
-                       @Current final User user) throws ResourceNotFoundException {
+                       @Current final User user) {
         eventService.delete(eventId, user);
     }
 }

@@ -13,7 +13,6 @@ import pl.edu.agh.kuce.planner.event.persistence.CyclicEvent;
 import pl.edu.agh.kuce.planner.event.persistence.CyclicEventRepository;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
-import pl.edu.agh.kuce.planner.shared.ResourceNotFoundException;
 
 import javax.transaction.Transactional;
 import java.util.Comparator;
@@ -57,26 +56,27 @@ public class EventService {
         return new EventTimestampList(pickFirstNDistinct(eventTimestamps, request.eventsNum()));
     }
 
-    public void update(final OneTimeEventDataInput newData,
-                                   final Integer eventId,
-                                   final User user) throws ResourceNotFoundException {
-        final OneTimeEvent eventToUpdate = oneTimeEventRepository
-                .findByIdAndUser(eventId, user).orElseThrow(EventNotFoundException::new);
-
-        eventToUpdate.setTitle(newData.title());
-        eventToUpdate.setAmount(newData.amount());
-        eventToUpdate.setTimestamp(newData.timestamp());
-        oneTimeEventRepository.save(eventToUpdate);
+    public void update(final EventData eventData, final Integer eventId, final User user) {
+        if (eventData.isCyclic()) {
+            updateCyclic(eventData, eventId, user);
+        } else {
+            updateOneTime(eventData, eventId, user);
+        }
     }
 
     @Transactional
-    public void delete(final Integer eventId, final User user) throws ResourceNotFoundException {
-        final Optional<OneTimeEvent> event = oneTimeEventRepository.findByIdAndUser(eventId, user);
-        if (event.isPresent()) {
-            oneTimeEventRepository.deleteEvent(eventId, user);
-            return;
+    public void delete(final Integer eventId, final User user) {
+        final Optional<OneTimeEvent> oneTimeEvent = oneTimeEventRepository.findByIdAndUser(eventId, user);
+        final Optional<CyclicEvent> cyclicEvent = cyclicEventRepository.findByIdAndUser(eventId, user);
+        if (cyclicEvent.isEmpty() && oneTimeEvent.isEmpty()) {
+            throw new EventNotFoundException();
         }
-        throw new EventNotFoundException();
+        if (oneTimeEvent.isPresent()) {
+            oneTimeEventRepository.deleteEvent(eventId, user);
+        }
+        if (cyclicEvent.isPresent()) {
+            cyclicEventRepository.deleteEvent(eventId, user);
+        }
     }
 
     private List<EventTimestamp> pickFirstNDistinct(final List<EventTimestamp> original, final Integer n) {
@@ -118,5 +118,27 @@ public class EventService {
             timestamps = pickFirstNDistinct(timestamps, request.eventsNum());
         }
         return timestamps;
+    }
+
+    private void updateCyclic(final EventData eventData, final Integer eventId, final User user) {
+        final CyclicEvent eventToUpdate = cyclicEventRepository
+                .findByIdAndUser(eventId, user).orElseThrow(EventNotFoundException::new);
+
+        eventToUpdate.setTitle(eventData.title());
+        eventToUpdate.setAmount(eventData.amount());
+        eventToUpdate.setBegin(eventData.begin());
+        eventToUpdate.setCycleBase(eventData.cycleBase());
+        eventToUpdate.setCycleLength(eventData.cycleLength());
+        cyclicEventRepository.save(eventToUpdate);
+    }
+
+    private void updateOneTime(final EventData eventData, final Integer eventId, final User user) {
+        final OneTimeEvent eventToUpdate = oneTimeEventRepository
+                .findByIdAndUser(eventId, user).orElseThrow(EventNotFoundException::new);
+
+        eventToUpdate.setTitle(eventData.title());
+        eventToUpdate.setAmount(eventData.amount());
+        eventToUpdate.setTimestamp(eventData.timestamp());
+        oneTimeEventRepository.save(eventToUpdate);
     }
 }
