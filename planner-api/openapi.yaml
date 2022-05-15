@@ -151,7 +151,7 @@ paths:
               "$ref": "#/components/schemas/TimestampListRequest"
       responses:
         "201":
-          description: "List following timestamps"
+          description: "Lists up to eventsNum unique events that are directly after given date. If there is more than one timestamp at a time, all are returned, but are counted as one. In this case, list can contain more than eventsNum timestamps. If there are less than eventNum timestamps after start, returned list can be smaller than eventsNum."
           content:
             "application/json":
               schema:
