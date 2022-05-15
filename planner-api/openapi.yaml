@@ -480,7 +480,7 @@ components:
       properties:
         title:
           type: "string"
-          example: "Bricks"
+          example: "Winter tyres"
           minLength: 1
           maxLength: 200
         amount:
@@ -498,7 +498,7 @@ components:
           type: "string"
           minLength: 1
           maxLength: 200
-          example: "Bricks"
+          example: "Winter tyres"
         amount:
           type: "integer"
           example: 10000
