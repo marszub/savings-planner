@@ -15,6 +15,8 @@ import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.event.dto.EventData;
 import pl.edu.agh.kuce.planner.event.dto.EventDataInput;
 import pl.edu.agh.kuce.planner.event.dto.EventList;
+import pl.edu.agh.kuce.planner.event.dto.EventTimestampList;
+import pl.edu.agh.kuce.planner.event.dto.TimestampListRequest;
 import pl.edu.agh.kuce.planner.event.service.EventService;
 
 import javax.validation.Valid;
@@ -38,6 +40,12 @@ public class EventController {
     @GetMapping("")
     public EventList list(@Current final User user) {
         return eventService.list(user);
+    }
+
+    @GetMapping("following-n")
+    public EventTimestampList followingN(@Valid @RequestBody final TimestampListRequest request,
+                                         @Current final User user) {
+        return eventService.getFollowingEventTimestamps(request, user);
     }
 
     @PutMapping("/{id}")

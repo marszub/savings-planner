@@ -111,7 +111,6 @@ paths:
         "401":
           description: "User unauthorized"
 
-
   "/api/events/{id}":
     put:
       summary: "Updates event"
@@ -139,6 +138,28 @@ paths:
           description: "User unauthorized"
         "404":
           description: "Event with that ID does not exist"
+
+  "/api/events/following-n":
+    get:
+      summary: "Lists up to eventsNum unique events that are directly after given date"
+      requestBody:
+        description: "Requested interval description"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/TimestampListRequest"
+      responses:
+        "201":
+          description: "List following timestamps"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/EventTimestampList"
+        "400":
+          description: "Invalid request body"
+        "401":
+          description: "User unauthorized"
 
   "/api/goals":
     post:
@@ -392,6 +413,49 @@ components:
           type: "integer"
           description: "How many cycle bases are between consecutive events. For example: cycleBase=7, cycleLength=2 means that event takes place every 2 weeks"
           example: 2
+
+
+    TimestampListRequest:
+      type: "object"
+      properties:
+        start:
+          type: "integer"
+          description: "Time before the first timestamp to return"
+          example: 10000
+        eventsNum:
+          type: "integer"
+          description: "How many unique events are requested"
+          example: 5
+
+    EventTimestampList:
+      type: "object"
+      properties:
+        timestamps:
+          type: "array"
+          items:
+            $ref: '#/components/schemas/EventTimestamp'
+
+    EventTimestamp:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "id of an object"
+          example: 1
+        title:
+          type: "string"
+          format: "event name"
+          minLength: 1
+          maxLength: 200
+          example: "Repayment"
+        amount:
+          type: "integer"
+          format: "positive or negative money gain"
+          example: -205
+        timestamp:
+          type: "integer"
+          description: "Time of one-time event in epoch seconds"
+          example: 100000
 
     GoalListResponse:
       type: "object"
