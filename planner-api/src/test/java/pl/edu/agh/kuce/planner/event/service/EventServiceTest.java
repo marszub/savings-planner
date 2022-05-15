@@ -59,8 +59,12 @@ class EventServiceTest {
     private final Long timestampSpr4 = 1650980564L;
     private final Integer cycleBase1 = DAY_OF_MONTH;
     private final Integer cycleBase2 = DAY_OF_WEEK;
+    private final Integer cycleBase3 = DAY_OF_WEEK;
+    private final Integer cycleBase4 = DAY_OF_WEEK;
     private final Integer cycleLength1 = 3;
     private final Integer cycleLength2 = 1;
+    private final Integer cycleLength3 = 2;
+    private final Integer cycleLength4 = 1;
     private User user1 = new User(nick1, email1, password1);
     private User user2 = new User(nick2, email2, password2);
 
@@ -75,6 +79,12 @@ class EventServiceTest {
 
     private final CyclicEventDataInput cyclicEventDataInput1 =
             new CyclicEventDataInput(title1, amount1, timestampSpr1, cycleBase1, cycleLength1);
+    private final CyclicEventDataInput cyclicEventDataInput2 =
+            new CyclicEventDataInput(title2, amount2, timestampSpr2, cycleBase2, cycleLength2);
+    private final CyclicEventDataInput cyclicEventDataInput3 =
+            new CyclicEventDataInput(title3, amount3, timestampSpr3, cycleBase3, cycleLength3);
+    private final CyclicEventDataInput cyclicEventDataInput4 =
+            new CyclicEventDataInput(title4, amount4, timestampSpr4, cycleBase4, cycleLength4);
 
     @BeforeEach
     void setUp() {
@@ -229,5 +239,58 @@ class EventServiceTest {
                 .anyMatch(eventTimestamp -> Objects.equals(eventTimestamp.title(), "Title4Duplicate"));
         assertThat(result.eventTimestamps())
                 .anyMatch(eventTimestamp -> Objects.equals(eventTimestamp.title(), "Title4"));
+    }
+
+
+    @Test
+    @Transactional
+    void getFollowingCyclicEventTimestamps_oneEvent_StartBeforeBegin() {
+        user1 = userRepository.save(user1);
+        eventService.create(cyclicEventDataInput1, user1);
+        final EventTimestampList result =
+                eventService.getFollowingEventTimestamps(new TimestampListRequest(timestampSpr2, 2), user1);
+        assertThat(result.eventTimestamps().size()).isEqualTo(2);
+        assertThat(result.eventTimestamps().get(0).title()).isEqualTo(title1);
+        assertThat(result.eventTimestamps().get(1).title()).isEqualTo(title1);
+    }
+
+    @Test
+    @Transactional
+    void getFollowingCyclicEventTimestamps_oneEvent_StartAfterBegin() {
+        user1 = userRepository.save(user1);
+        eventService.create(cyclicEventDataInput2, user1);
+        final EventTimestampList result =
+                eventService.getFollowingEventTimestamps(new TimestampListRequest(timestampSpr1, 2), user1);
+        assertThat(result.eventTimestamps().size()).isEqualTo(2);
+        assertThat(result.eventTimestamps().get(0).timestamp()).isGreaterThan(timestampSpr1);
+        assertThat(result.eventTimestamps().get(1).timestamp()).isGreaterThan(timestampSpr1);
+    }
+
+    @Test
+    @Transactional
+    void getFollowingCyclicAndOneTimeEventTimestamps_noDuplicates() {
+        user1 = userRepository.save(user1);
+        eventService.create(cyclicEventDataInput3, user1);
+        eventService.create(cyclicEventDataInput2, user1);
+        eventService.create(oneTimeEventDataInput1, user1);
+        eventService.create(oneTimeEventDataInput4, user1);
+        final EventTimestampList result =
+                eventService.getFollowingEventTimestamps(new TimestampListRequest(timestampSpr2, 4), user1);
+        assertThat(result.eventTimestamps().size()).isEqualTo(4);
+        assertThat(result.eventTimestamps()).allMatch(eventTimestamp -> eventTimestamp.timestamp() > timestampSpr2);
+    }
+
+    @Test
+    @Transactional
+    void getFollowingCyclicAndOneTimeEventTimestamps_duplicates() {
+        user1 = userRepository.save(user1);
+        eventService.create(cyclicEventDataInput3, user1);
+        eventService.create(cyclicEventDataInput2, user1);
+        eventService.create(oneTimeEventDataInput3, user1);
+        eventService.create(oneTimeEventDataInput4, user1);
+        final EventTimestampList result =
+                eventService.getFollowingEventTimestamps(new TimestampListRequest(timestampSpr2, 4), user1);
+        assertThat(result.eventTimestamps().size()).isEqualTo(5);
+        assertThat(result.eventTimestamps()).allMatch(eventTimestamp -> eventTimestamp.timestamp() > timestampSpr2);
     }
 }

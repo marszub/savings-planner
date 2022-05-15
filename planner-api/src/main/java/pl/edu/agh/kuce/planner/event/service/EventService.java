@@ -53,7 +53,8 @@ public class EventService {
 
     public EventTimestampList getFollowingEventTimestamps(final TimestampListRequest request, final User user) {
         final List<EventTimestamp> eventTimestamps = getFollowingOneTimeEventTimestamps(request, user);
-        return new EventTimestampList(eventTimestamps);
+        eventTimestamps.addAll(getFollowingCyclicEventTimestamps(request, user));
+        return new EventTimestampList(pickFirstNDistinct(eventTimestamps, request.eventsNum()));
     }
 
     public void update(final OneTimeEventDataInput newData,
@@ -80,10 +81,11 @@ public class EventService {
 
     private List<EventTimestamp> pickFirstNDistinct(final List<EventTimestamp> original, final Integer n) {
         final List<EventTimestamp> followingNEvents = new LinkedList<>();
-
         Integer distinctEventsToTake = n;
         Long lastTimestamp = null;
-        for (EventTimestamp event : original) {
+
+        for (EventTimestamp event
+                : original.stream().sorted(Comparator.comparingLong(EventTimestamp::timestamp)).toList()) {
             if (!Objects.equals(lastTimestamp, event.timestamp())) {
                 lastTimestamp = event.timestamp();
                 distinctEventsToTake -= 1;
@@ -96,13 +98,25 @@ public class EventService {
         return followingNEvents;
     }
 
-    private List<EventTimestamp> getFollowingOneTimeEventTimestamps(final TimestampListRequest request, final User user) {
+    private List<EventTimestamp> getFollowingOneTimeEventTimestamps(final TimestampListRequest request,
+                                                                    final User user) {
         final List<EventTimestamp> followingEvents = oneTimeEventRepository
                 .findByUser(user).stream()
                 .filter(event -> event.getTimestamp() > request.start())
                 .map(EventTimestamp::new)
-                .sorted(Comparator.comparingLong(EventTimestamp::timestamp))
                 .toList();
         return pickFirstNDistinct(followingEvents, request.eventsNum());
+    }
+
+    private List<EventTimestamp> getFollowingCyclicEventTimestamps(final TimestampListRequest request,
+                                                                   final User user) {
+
+        final List<CyclicEvent> cyclicEvents = cyclicEventRepository.findByUser(user);
+        List<EventTimestamp> timestamps = new LinkedList<>();
+        for (CyclicEvent event : cyclicEvents) {
+            timestamps.addAll(event.getFollowingN(request.start(), request.eventsNum()));
+            timestamps = pickFirstNDistinct(timestamps, request.eventsNum());
+        }
+        return timestamps;
     }
 }
