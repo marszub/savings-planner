@@ -2,14 +2,19 @@ package pl.edu.agh.kuce.planner.event.service;
 
 import org.springframework.stereotype.Service;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
-import pl.edu.agh.kuce.planner.event.dto.ListResponse;
+import pl.edu.agh.kuce.planner.event.dto.CyclicEventDataInput;
 import pl.edu.agh.kuce.planner.event.dto.EventData;
+import pl.edu.agh.kuce.planner.event.dto.EventList;
 import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 import pl.edu.agh.kuce.planner.shared.ResourceNotFoundException;
 
 import javax.transaction.Transactional;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -25,12 +30,15 @@ public class EventService {
         return new EventData(event);
     }
 
-    public ListResponse list(final User user) {
-        return new ListResponse(
-                oneTimeEventRepository
-                        .findByUser(user)
-                        .stream()
-                        .map(EventData::new).toList());
+    public EventData create(final CyclicEventDataInput request, final User user) {
+        final CyclicEvent event = cyclicEventRepository.save(new CyclicEvent(request, user));
+        return new EventData(event);
+    }
+
+    public EventList list(final User user) {
+        final List<EventData> events = oneTimeEventRepository.findByUser(user).stream().map(EventData::new).toList();
+        events.addAll(cyclicEventRepository.findByUser(user).stream().map(EventData::new).toList());
+        return new EventList(events);
     }
 
     public void update(final OneTimeEventDataInput newData,
