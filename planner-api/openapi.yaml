@@ -80,14 +80,14 @@ paths:
 
   "/api/events":
     post:
-      summary: "Creates new one-time event"
+      summary: "Creates new event"
       requestBody:
         description: "Event description"
         required: true
         content:
           "application/json":
             schema:
-              "$ref": "#/components/schemas/EventInfo"
+              "$ref": "#/components/schemas/EventDataInput"
       responses:
         "201":
           description: "Event has been created"
@@ -100,7 +100,7 @@ paths:
         "401":
           description: "User unauthorized"
     get:
-      summary: "Gets list of user's one-time events"
+      summary: "Gets list of user's events"
       responses:
         "200":
           description: "Got list of events"
@@ -114,14 +114,14 @@ paths:
 
   "/api/events/{id}":
     put:
-      summary: "Updates one-time event"
+      summary: "Updates event"
       requestBody:
         description: "Event description"
         required: true
         content:
           "application/json":
             schema:
-              "$ref": "#/components/schemas/EventInfo"
+              "$ref": "#/components/schemas/EventDataInput"
       responses:
         "204":
           description: "Event has been updated"
@@ -131,7 +131,7 @@ paths:
           description: "User unauthorized"
 
     delete:
-      summary: "Deletes one-time event"
+      summary: "Deletes event"
       responses:
         "204":
           description: "Event successfully deleted"
@@ -311,7 +311,7 @@ components:
           format: "positive or zero account balance"
           example: 0
 
-    EventInfo:
+    EventDataInput:
       type: "object"
       properties:
         title:
@@ -324,9 +324,27 @@ components:
           type: "integer"
           format: "positive or negative money gain"
           example: -205
+        isCyclic:
+          type: "boolean"
+          description: "If set to true: fields begin, cycleBase and cycleLength must be set. If set to false: field timestamp must be set."
+          example: true
         timestamp:
           type: "integer"
-          example: "100000"
+          description: "Time of one-time event in epoch seconds"
+          example: 100000
+        begin:
+          type: "integer"
+          description: "Time of the begin of cyclic event in epoch seconds"
+          example: 100000
+        cycleBase:
+          type: "integer"
+          description: "Base of event cycle. 7 - day of week, 5 - day of month, 6 - day of year"
+          format: "[756]"
+          example: 7
+        cycleLength:
+          type: "integer"
+          description: "How many cycle bases are between consecutive events. For example: cycleBase=7, cycleLength=2 means that event takes place every 2 weeks"
+          example: 2
 
     EventListResponse:
       type: "object"
@@ -334,25 +352,7 @@ components:
         events:
           type: "array"
           items:
-            type: "object"
-            properties:
-              id:
-                type: "integer"
-                format: "id of an object"
-                example: 1
-              title:
-                type: "string"
-                format: "event name"
-                minLength: 1
-                maxLength: 200
-                example: "Repayment"
-              amount:
-                type: "integer"
-                format: "positive or negative money gain"
-                example: 201
-              timestamp:
-                type: "integer"
-                example: "100000"
+            $ref: '#/components/schemas/EventData'
 
     EventData:
       type: "object"
@@ -370,10 +370,28 @@ components:
         amount:
           type: "integer"
           format: "positive or negative money gain"
-          example: 201
+          example: -205
+        isCyclic:
+          type: "boolean"
+          description: "If set to true: fields begin, cycleBase and cycleLength must be set. If set to false: field timestamp must be set."
+          example: true
         timestamp:
           type: "integer"
-          example: "100000"
+          description: "Time of one-time event in epoch seconds"
+          example: 100000
+        begin:
+          type: "integer"
+          description: "Time of the begin of cyclic event in epoch seconds"
+          example: 100000
+        cycleBase:
+          type: "integer"
+          description: "Base of event cycle. 7 - day of week, 5 - day of month, 6 - day of year"
+          format: "[756]"
+          example: 7
+        cycleLength:
+          type: "integer"
+          description: "How many cycle bases are between consecutive events. For example: cycleBase=7, cycleLength=2 means that event takes place every 2 weeks"
+          example: 2
 
     GoalListResponse:
       type: "object"
