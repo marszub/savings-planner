@@ -48,6 +48,10 @@ public class SubBalance {
         return this.subBalance;
     }
 
+    public Integer getId() {
+        return this.id;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {

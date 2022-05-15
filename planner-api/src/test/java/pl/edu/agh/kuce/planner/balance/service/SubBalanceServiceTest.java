@@ -5,19 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
-import pl.edu.agh.kuce.planner.balance.dto.BalanceDto;
-import pl.edu.agh.kuce.planner.balance.dto.SingleSubBalanceDto;
-import pl.edu.agh.kuce.planner.balance.dto.SubBalanceDto;
+import pl.edu.agh.kuce.planner.balance.dto.SubBalanceData;
+import pl.edu.agh.kuce.planner.balance.dto.SubBalanceInputData;
 import pl.edu.agh.kuce.planner.balance.persistence.BalanceRepository;
 import pl.edu.agh.kuce.planner.balance.persistence.SubBalanceRepository;
 
-import javax.transaction.Transactional;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
 @SpringBootTest
@@ -27,27 +24,21 @@ public class SubBalanceServiceTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private BalanceRepository balanceRepository;
 
     @Autowired
     private SubBalanceRepository subBalanceRepository;
 
-    private BalanceService balanceService;
-    private SubBalanceService subBalanceService;
+    @Autowired
+    private UserRepository userRepository;
 
-    private final BalanceDto balance = new BalanceDto(10000);
-    private final SingleSubBalanceDto singleSubBalanceDto = new SingleSubBalanceDto(10000);
-    private final List<SingleSubBalanceDto> subBalanceList = List.of(singleSubBalanceDto);
-    private final SubBalanceDto subBalanceDto = new SubBalanceDto(subBalanceList);
+    private BalanceService balanceService;
+
+    private final SubBalanceInputData subBalance11 = new SubBalanceInputData(5000);
+    private final SubBalanceInputData subBalance12 = new SubBalanceInputData(5000);
     private final User user = new User("nick", "mail@mail.mail", "password");
 
-    private final BalanceDto balance2 = new BalanceDto(12345);
-    private final SingleSubBalanceDto singleSubBalanceDto2 = new SingleSubBalanceDto(12345);
-    private final List<SingleSubBalanceDto> subBalanceList2 = List.of(singleSubBalanceDto2);
-    private final SubBalanceDto subBalanceDto2 = new SubBalanceDto(subBalanceList2);
+    private final SubBalanceInputData subBalance22 = new SubBalanceInputData(12345);
     private final User user2 = new User("nick2", "mail2@mail.mail", "password2");
 
     @Test
@@ -57,19 +48,17 @@ public class SubBalanceServiceTest {
 
     @Test
     @Transactional
-    void testCreateSubBalnanceWhileCreatingBalance() {
+    void testCreateSubBalanceByDto() {
         userRepository.save(user);
         userRepository.save(user2);
-
-        balanceService = new BalanceService(balanceRepository, new SubBalanceService(subBalanceRepository));
-        subBalanceService = new SubBalanceService(subBalanceRepository);
+        balanceService = new BalanceService(balanceRepository, subBalanceRepository);
 
         assertThatNoException().isThrownBy(
                 () -> {
-                    balanceService.create(user, balance);
-                    balanceService.create(user2, balance2);
-                    assertThat(subBalanceService.countSubBalances(user)).isEqualTo(1);
-                    assertThat(subBalanceService.countSubBalances(user2)).isEqualTo(1);
+                    balanceService.createSub(user, subBalance11);
+                    balanceService.createSub(user, subBalance12);
+
+                    balanceService.createSub(user2, subBalance22);
                 });
     }
 
@@ -78,95 +67,81 @@ public class SubBalanceServiceTest {
     void testListSubBalanceByDto() {
         userRepository.save(user);
         userRepository.save(user2);
-        balanceService = new BalanceService(balanceRepository, new SubBalanceService(subBalanceRepository));
-        subBalanceService = new SubBalanceService(subBalanceRepository);
+        balanceService = new BalanceService(balanceRepository, subBalanceRepository);
 
-        balanceService.create(user, balance);
-        balanceService.create(user2, balance2);
+        final SubBalanceData response = balanceService.createSub(user, subBalance11);
+        final SubBalanceData response2 = balanceService.createSub(user, subBalance12);
+        final SubBalanceData response3 = balanceService.createSub(user2, subBalance22);
 
-        final SubBalanceDto response = subBalanceService.list(user);
-        final SubBalanceDto response2 = subBalanceService.list(user2);
+        final SubBalanceData data = balanceService.listSub(user, response.id());
+        final SubBalanceData data2 = balanceService.listSub(user, response2.id());
+        final SubBalanceData data3 = balanceService.listSub(user2, response3.id());
 
-        assertThat(response).isEqualTo(subBalanceDto);
-        assertThat(response2).isEqualTo(subBalanceDto2);
+        assertThat(data.subBalance()).isEqualTo(subBalance11.subBalance());
+        assertThat(data2.subBalance()).isEqualTo(subBalance12.subBalance());
+        assertThat(data3.subBalance()).isEqualTo(subBalance22.subBalance());
     }
 
     @Test
     @Transactional
-    void testSingleClearByDto() {
+    void testUpdateSubBalanceByDto() {
         userRepository.save(user);
         userRepository.save(user2);
-        balanceService = new BalanceService(balanceRepository, new SubBalanceService(subBalanceRepository));
-        subBalanceService = new SubBalanceService(subBalanceRepository);
+        balanceService = new BalanceService(balanceRepository, subBalanceRepository);
 
-        balanceService.create(user, balance);
+        final SubBalanceData response = balanceService.createSub(user, subBalance11);
+        final SubBalanceData response2 = balanceService.createSub(user, subBalance12);
+        final SubBalanceData response3 = balanceService.createSub(user2, subBalance22);
 
-        final SubBalanceDto response = subBalanceService.list(user);
+        assertThat(response.subBalance()).isEqualTo(subBalance11.subBalance());
+        assertThat(response2.subBalance()).isEqualTo(subBalance12.subBalance());
+        assertThat(response3.subBalance()).isEqualTo(subBalance22.subBalance());
 
-        assertThat(response).isEqualTo(subBalanceDto);
+        balanceService.updateSub(user, response.id(), subBalance22);
+        balanceService.updateSub(user, response2.id(), subBalance22);
+        balanceService.updateSub(user2, response3.id(), subBalance11);
 
-        subBalanceService.clear(user);
+        final SubBalanceData data = balanceService.listSub(user, response.id());
+        final SubBalanceData data2 = balanceService.listSub(user, response2.id());
+        final SubBalanceData data3 = balanceService.listSub(user2, response3.id());
 
-        assertThat(subBalanceService.countSubBalances(user)).isEqualTo(0);
+        assertThat(data.subBalance()).isEqualTo(subBalance22.subBalance());
+        assertThat(data2.subBalance()).isEqualTo(subBalance22.subBalance());
+        assertThat(data3.subBalance()).isEqualTo(subBalance11.subBalance());
     }
 
     @Test
     @Transactional
-    void testUpdateByDto() {
+    void testRequestEmptySubBalance() {
         userRepository.save(user);
-        userRepository.save(user2);
-        balanceService = new BalanceService(balanceRepository, new SubBalanceService(subBalanceRepository));
-        subBalanceService = new SubBalanceService(subBalanceRepository);
+        balanceService = new BalanceService(balanceRepository, subBalanceRepository);
 
-        balanceService.create(user, balance);
-
-        SubBalanceDto response = subBalanceService.list(user);
-
-        assertThat(response).isEqualTo(subBalanceDto);
-
-        subBalanceService.clear(user);
-        subBalanceService.create(user, subBalanceDto2);
-
-        response = subBalanceService.list(user);
-
-        assertThat(response).isEqualTo(subBalanceDto2);
+        assertThatExceptionOfType(BalanceNotFoundException.class).isThrownBy(() -> balanceService.listSub(user, 0));
     }
 
     @Test
     @Transactional
-    void testSingleCreateAndUpdateByDto() {
+    void testDeleteAllSubBalances() {
         userRepository.save(user);
         userRepository.save(user2);
-        balanceService = new BalanceService(balanceRepository, new SubBalanceService(subBalanceRepository));
-        subBalanceService = new SubBalanceService(subBalanceRepository);
+        balanceService = new BalanceService(balanceRepository, subBalanceRepository);
 
-        balanceService.create(user, balance);
+        final SubBalanceData response = balanceService.createSub(user, subBalance11);
+        final SubBalanceData response2 = balanceService.createSub(user, subBalance12);
+        final SubBalanceData response3 = balanceService.createSub(user2, subBalance22);
 
-        SubBalanceDto response = subBalanceService.list(user);
+        assertThat(response.subBalance()).isEqualTo(subBalance11.subBalance());
+        assertThat(response2.subBalance()).isEqualTo(subBalance12.subBalance());
+        assertThat(response3.subBalance()).isEqualTo(subBalance22.subBalance());
 
-        assertThat(response).isEqualTo(subBalanceDto);
+        balanceService.deleteSub(user);
 
-        subBalanceService.createSingle(user, singleSubBalanceDto2);
+        assertThatExceptionOfType(BalanceNotFoundException.class).isThrownBy(() ->
+                balanceService.listSub(user, response.id()));
+        assertThatExceptionOfType(BalanceNotFoundException.class).isThrownBy(() ->
+                balanceService.listSub(user, response2.id()));
 
-        final Integer indexesCount = subBalanceService.countSubBalances(user);
-
-        assertThat(indexesCount).isEqualTo(2);
-
-        response = subBalanceService.list(user);
-
-        final List<SingleSubBalanceDto> tmpSubBalanceList = List.of(singleSubBalanceDto, singleSubBalanceDto2);
-        final SubBalanceDto tmpSubBalanceDto = new SubBalanceDto(tmpSubBalanceList);
-
-        assertThat(response).isEqualTo(tmpSubBalanceDto);
-
-        final SingleSubBalanceDto tmpSingleSubBalance = new SingleSubBalanceDto(0);
-
-        subBalanceService.updateSingle(user, indexesCount - 1, tmpSingleSubBalance);
-
-        response = subBalanceService.list(user);
-
-        assertThat(response).isNotEqualTo(tmpSubBalanceDto);
-        assertThat(response.subBalanceDtoList().get(indexesCount - 1)).isNotEqualTo(singleSubBalanceDto2);
-        assertThat(response.subBalanceDtoList().get(indexesCount - 1)).isEqualTo(tmpSingleSubBalance);
+        final SubBalanceData data3 = balanceService.listSub(user2, response3.id());
+        assertThat(response3.subBalance()).isEqualTo(data3.subBalance());
     }
 }
