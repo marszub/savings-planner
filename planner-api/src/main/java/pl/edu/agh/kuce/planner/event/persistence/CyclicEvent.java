@@ -2,7 +2,7 @@ package pl.edu.agh.kuce.planner.event.persistence;
 
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.event.dto.CyclicEventDataInput;
-import pl.edu.agh.kuce.planner.event.dto.EventData;
+import pl.edu.agh.kuce.planner.event.dto.EventTimestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -74,8 +74,8 @@ public class CyclicEvent extends Event {
         this.cycleLength = cycleLength;
     }
 
-    public List<EventData> getFromInterval(final Long start, final Long end) {
-        final List<EventData> events = new LinkedList<>();
+    public List<EventTimestamp> getFromInterval(final Long start, final Long end) {
+        final List<EventTimestamp> events = new LinkedList<>();
         final Calendar iterator = (Calendar) begin.clone();
 
         final Calendar startCalendar = Calendar.getInstance();
@@ -85,7 +85,7 @@ public class CyclicEvent extends Event {
 
         while (!iterator.after(endCalendar)) {
             if (!iterator.before(startCalendar)) {
-                events.add(new EventData(getId(), getTitle(), getAmount(), iterator.getTimeInMillis() / 1000));
+                events.add(new EventTimestamp(getId(), getTitle(), getAmount(), iterator.getTimeInMillis() / 1000));
             }
             iterator.add(cycleBase, cycleLength);
         }
