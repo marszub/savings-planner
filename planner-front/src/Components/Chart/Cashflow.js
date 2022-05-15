@@ -80,22 +80,22 @@ export default function Cashflow() {
         setChartData({
           labels: eventData.map(
             (data) =>
-              data.timestamp.getDate() +
-              " " +
               DateService.getMonth(data.timestamp.getMonth()) +
+              " " +
+              data.timestamp.getDate() +
               " " +
               data.timestamp.getFullYear()
           ),
           datasets: [
             {
               data: cash.map((data) => data),
-              borderColor: "#1c54b2",
+              borderColor: "#1976d2",
               responsive: true,
               borderWidth: 2,
               tension: 0.3,
               easing: "linear",
               hoverRadius: 10,
-              hoverBackgroundColor: "#1c54b2",
+              hoverBackgroundColor: "#1976d2",
             },
           ],
         });
@@ -126,7 +126,7 @@ export default function Cashflow() {
                   return title;
                 },
                 label: function (tooltipItem) {
-                  let label = eventData[tooltipItem.dataIndex].amount + " zł";
+                  let label = eventData[tooltipItem.dataIndex].amount + " PLN";
                   return label;
                 },
               },

@@ -3,12 +3,13 @@ package pl.edu.agh.kuce.planner.event.service;
 import org.springframework.stereotype.Service;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.event.dto.ListResponse;
-import pl.edu.agh.kuce.planner.event.dto.OneTimeEventData;
+import pl.edu.agh.kuce.planner.event.dto.EventData;
 import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 import pl.edu.agh.kuce.planner.shared.ResourceNotFoundException;
 
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
@@ -19,9 +20,9 @@ public class EventService {
         this.oneTimeEventRepository = oneTimeEventRepository;
     }
 
-    public OneTimeEventData create(final OneTimeEventDataInput request, final User user) {
+    public EventData create(final OneTimeEventDataInput request, final User user) {
         final OneTimeEvent event = oneTimeEventRepository.save(new OneTimeEvent(request, user));
-        return new OneTimeEventData(event);
+        return new EventData(event);
     }
 
     public ListResponse list(final User user) {
@@ -29,7 +30,7 @@ public class EventService {
                 oneTimeEventRepository
                         .findByUser(user)
                         .stream()
-                        .map(OneTimeEventData::new).toList());
+                        .map(EventData::new).toList());
     }
 
     public void update(final OneTimeEventDataInput newData,
@@ -44,6 +45,7 @@ public class EventService {
         oneTimeEventRepository.save(eventToUpdate);
     }
 
+    @Transactional
     public void delete(final Integer eventId, final User user) throws ResourceNotFoundException {
         final Optional<OneTimeEvent> event = oneTimeEventRepository.findByIdAndUser(eventId, user);
         if (event.isPresent()) {

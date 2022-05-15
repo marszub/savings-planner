@@ -10,7 +10,7 @@ export const goalService = {
 
     create(formModel, priority) {
         return httpService.post(
-            "/goals",
+            '/goals',
             new CreateGoalRequest(
                 formModel.title,
                 moneyFormatter.mapStringToPenniesNumber(formModel.amount),
@@ -27,5 +27,18 @@ export const goalService = {
 
     delete(id) {
         return httpService.delete(`/goals/${id}`);
+    },
+
+    createSubGoal(goalId, subGoalTitle) {
+        return httpService.post(
+            `/goals/${goalId}/sub-goals`,
+            {title: subGoalTitle}
+        );
+    },
+
+    deleteSubGoal(goalId, subGoalId) {
+        return httpService.delete(
+            `/goals/${goalId}/sub-goals/${subGoalId}`
+        );
     }
 }

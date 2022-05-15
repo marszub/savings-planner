@@ -1,0 +1,9 @@
+.scrollable-list-events{
+    height: 40vh;
+    overflow-y: scroll;
+    width: 55vw;
+}
+
+#event-list{
+    height: 50vh;
+}
