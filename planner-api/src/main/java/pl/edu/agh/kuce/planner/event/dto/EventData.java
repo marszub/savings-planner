@@ -47,7 +47,7 @@ public record EventData(
                 null);
     }
 
-    public boolean idValid() {
+    public boolean isValid() {
         if (isCyclic()) {
             return begin != null && cycleBase != null && cycleLength != null;
         }
