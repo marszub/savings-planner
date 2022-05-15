@@ -17,6 +17,8 @@ import pl.edu.agh.kuce.planner.event.dto.TimestampListRequest;
 import pl.edu.agh.kuce.planner.event.persistence.CyclicEventRepository;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 
+import java.util.Objects;
+
 import static java.util.Calendar.DAY_OF_MONTH;
 import static java.util.Calendar.DAY_OF_WEEK;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,7 +74,7 @@ class EventServiceTest {
             new OneTimeEventDataInput(title4, amount4, timestampSpr4);
 
     private final CyclicEventDataInput cyclicEventDataInput1 =
-            new CyclicEventDataInput(title3, amount3, timestampSpr3, cycleBase1, cycleLength1);
+            new CyclicEventDataInput(title1, amount1, timestampSpr1, cycleBase1, cycleLength1);
 
     @BeforeEach
     void setUp() {
@@ -103,6 +105,7 @@ class EventServiceTest {
         final EventData foundEvent = response.events().get(0);
         assertThat(foundEvent.title()).isEqualTo(title1);
         assertThat(foundEvent.amount()).isEqualTo(amount1);
+        assertThat(foundEvent.isCyclic()).isFalse();
         assertThat(foundEvent.timestamp()).isEqualTo(timestampSpr1);
     }
 
@@ -116,7 +119,8 @@ class EventServiceTest {
         final EventData foundEvent = response.events().get(0);
         assertThat(foundEvent.title()).isEqualTo(title1);
         assertThat(foundEvent.amount()).isEqualTo(amount1);
-        assertThat(foundEvent.timestamp()).isEqualTo(timestampSpr1);
+        assertThat(foundEvent.isCyclic()).isTrue();
+        assertThat(foundEvent.begin()).isEqualTo(timestampSpr1);
     }
 
     @Test
@@ -138,6 +142,7 @@ class EventServiceTest {
         assertThat(updated.id()).isEqualTo(eventData.id());
         assertThat(updated.amount()).isEqualTo(amount2);
         assertThat(updated.title()).isEqualTo(title2);
+        assertThat(updated.isCyclic()).isFalse();
         assertThat(updated.timestamp()).isEqualTo(timestampSpr2);
     }
 
@@ -176,5 +181,28 @@ class EventServiceTest {
                 eventService.getFollowingEventTimestamps(new TimestampListRequest(timestampSpr2, 2), user1);
         assertThat(result.eventTimestamps().size()).isEqualTo(1);
         assertThat(result.eventTimestamps().get(0).timestamp()).isEqualTo(timestampSpr3);
+    }
+
+    @Test
+    @Transactional
+    void getFollowingOneTimeEventTimestamps_duplicates() {
+        user1 = userRepository.save(user1);
+        final OneTimeEventDataInput oneTimeEventDataInput3duplicate =
+                new OneTimeEventDataInput("Title3Duplicate", 2000, timestampSpr3);
+        eventService.create(oneTimeEventDataInput1, user1);
+        eventService.create(oneTimeEventDataInput2, user1);
+        eventService.create(oneTimeEventDataInput3, user1);
+        eventService.create(oneTimeEventDataInput3duplicate, user1);
+        eventService.create(oneTimeEventDataInput4, user1);
+        final EventTimestampList result =
+                eventService.getFollowingEventTimestamps(new TimestampListRequest(timestampSpr2, 2), user1);
+        assertThat(result.eventTimestamps().size()).isEqualTo(3);
+        assertThat(result.eventTimestamps().get(0).timestamp()).isEqualTo(timestampSpr3);
+        assertThat(result.eventTimestamps().get(1).timestamp()).isEqualTo(timestampSpr3);
+        assertThat(result.eventTimestamps())
+                .anyMatch(eventTimestamp -> Objects.equals(eventTimestamp.title(), "Title3Duplicate"));
+        assertThat(result.eventTimestamps())
+                .anyMatch(eventTimestamp -> Objects.equals(eventTimestamp.title(), "Title3"));
+        assertThat(result.eventTimestamps().get(2).timestamp()).isEqualTo(timestampSpr4);
     }
 }
