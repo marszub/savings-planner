@@ -413,7 +413,7 @@ components:
                     format: "subGoal name"
                     minLength: 1
                     maxLength: 200
-                    example: "Car"
+                    example: "Winter tyres"
 
     GoalCreateRequest:
       type: "object"
@@ -470,7 +470,7 @@ components:
               type: "string"
               minLength: 1
               maxLength: 200
-              example: "Car"
+              example: "Winter tyres"
             amount:
               type: "integer"
               example: 10000
