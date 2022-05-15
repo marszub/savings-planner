@@ -132,7 +132,7 @@ export const goalService = {
               const parentGoal = this._goals
                   .filter(goal => goal.id === parentGoalId)
                   .at(0);
-              parentGoal.subGoals = parentGoal.filter(subGoal => subGoal.id === subGoalId);
+              parentGoal.subGoals = parentGoal.subGoals.filter(subGoal => subGoal.id !== subGoalId);
               this._notifyChangeListeners();
               break;
             case HTTP_NOT_FOUND:
