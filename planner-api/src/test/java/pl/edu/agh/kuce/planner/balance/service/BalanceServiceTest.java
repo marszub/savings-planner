@@ -5,12 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
 import pl.edu.agh.kuce.planner.balance.dto.BalanceDto;
 import pl.edu.agh.kuce.planner.balance.persistence.BalanceRepository;
-
-import javax.transaction.Transactional;
+import pl.edu.agh.kuce.planner.balance.persistence.SubBalanceRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -24,6 +24,9 @@ public class BalanceServiceTest {
 
     @Autowired
     private BalanceRepository balanceRepository;
+
+    @Autowired
+    private SubBalanceRepository subBalanceRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -47,7 +50,7 @@ public class BalanceServiceTest {
         userRepository.save(user);
         userRepository.save(user2);
 
-        balanceService = new BalanceService(balanceRepository);
+        balanceService = new BalanceService(balanceRepository, subBalanceRepository);
         assertThatNoException().isThrownBy(
                 () -> {
                     balanceService.create(user, balance);
@@ -60,7 +63,7 @@ public class BalanceServiceTest {
     void testListBalanceByDto() {
         userRepository.save(user);
         userRepository.save(user2);
-        balanceService = new BalanceService(balanceRepository);
+        balanceService = new BalanceService(balanceRepository, subBalanceRepository);
 
         balanceService.create(user, balance);
         balanceService.create(user2, balance2);
@@ -77,7 +80,7 @@ public class BalanceServiceTest {
     void testUpdateByDto() {
         userRepository.save(user);
         userRepository.save(user2);
-        balanceService = new BalanceService(balanceRepository);
+        balanceService = new BalanceService(balanceRepository, subBalanceRepository);
 
         balanceService.create(user, balance);
         balanceService.create(user2, balance2);
@@ -105,7 +108,7 @@ public class BalanceServiceTest {
     @Transactional
     void testRequestEmptyBalance() {
         userRepository.save(user);
-        balanceService = new BalanceService(balanceRepository);
+        balanceService = new BalanceService(balanceRepository, subBalanceRepository);
 
         assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> balanceService.list(user));
 

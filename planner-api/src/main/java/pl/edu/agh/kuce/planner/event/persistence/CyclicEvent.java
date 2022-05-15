@@ -1,8 +1,8 @@
 package pl.edu.agh.kuce.planner.event.persistence;
 
 import pl.edu.agh.kuce.planner.auth.persistence.User;
-import pl.edu.agh.kuce.planner.event.dto.CyclicEventDataInput;
-import pl.edu.agh.kuce.planner.event.dto.EventData;
+import pl.edu.agh.kuce.planner.event.dto.EventDataInput;
+import pl.edu.agh.kuce.planner.event.dto.EventTimestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -38,16 +38,16 @@ public class CyclicEvent extends Event {
         this.cycleLength = cycleLength;
     }
 
-    public CyclicEvent(final CyclicEventDataInput cyclicEventData, final User user) {
+    public CyclicEvent(final EventDataInput eventDataInput, final User user) {
         this(
                 user,
-                cyclicEventData.title(),
-                cyclicEventData.amount(),
+                eventDataInput.title(),
+                eventDataInput.amount(),
                 Calendar.getInstance(),
-                cyclicEventData.cycleBase(),
-                cyclicEventData.cycleLength()
+                eventDataInput.cycleBase(),
+                eventDataInput.cycleLength()
         );
-        setBegin(cyclicEventData.begin());
+        setBegin(eventDataInput.begin());
     }
 
     public Long getBegin() {
@@ -74,22 +74,20 @@ public class CyclicEvent extends Event {
         this.cycleLength = cycleLength;
     }
 
-    public List<EventData> getFromInterval(final Long start, final Long end) {
-        final List<EventData> events = new LinkedList<>();
+    public List<EventTimestamp> getFollowingN(final Long start, final Integer distinctEventsNum) {
+        final List<EventTimestamp> events = new LinkedList<>();
         final Calendar iterator = (Calendar) begin.clone();
 
         final Calendar startCalendar = Calendar.getInstance();
         startCalendar.setTimeInMillis(start * 1000);
-        final Calendar endCalendar = Calendar.getInstance();
-        endCalendar.setTimeInMillis(end * 1000);
 
-        while (!iterator.after(endCalendar)) {
-            if (!iterator.before(startCalendar)) {
-                events.add(new EventData(getId(), getTitle(), getAmount(), iterator.getTimeInMillis() / 1000));
-            }
+        while (!iterator.after(startCalendar)) {
             iterator.add(cycleBase, cycleLength);
         }
-
+        for (int i = 0; i < distinctEventsNum; i++) {
+            events.add(new EventTimestamp(getId(), getTitle(), getAmount(), iterator.getTimeInMillis() / 1000));
+            iterator.add(cycleBase, cycleLength);
+        }
         return events;
     }
 }

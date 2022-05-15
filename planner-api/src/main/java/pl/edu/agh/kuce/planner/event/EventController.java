@@ -12,11 +12,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import pl.edu.agh.kuce.planner.auth.Current;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
-import pl.edu.agh.kuce.planner.event.dto.ListResponse;
 import pl.edu.agh.kuce.planner.event.dto.EventData;
-import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
+import pl.edu.agh.kuce.planner.event.dto.EventDataInput;
+import pl.edu.agh.kuce.planner.event.dto.EventList;
+import pl.edu.agh.kuce.planner.event.dto.EventTimestampList;
+import pl.edu.agh.kuce.planner.event.dto.TimestampListRequest;
 import pl.edu.agh.kuce.planner.event.service.EventService;
-import pl.edu.agh.kuce.planner.shared.ResourceNotFoundException;
 
 import javax.validation.Valid;
 
@@ -32,27 +33,33 @@ public class EventController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public EventData create(@Valid @RequestBody final OneTimeEventDataInput data, @Current final User user) {
-        return eventService.create(data, user);
+    public EventData create(@Valid @RequestBody final EventDataInput eventData, @Current final User user) {
+        return eventService.create(eventData, user);
     }
 
     @GetMapping("")
-    public ListResponse list(@Current final User user) {
+    public EventList list(@Current final User user) {
         return eventService.list(user);
+    }
+
+    @GetMapping("following-n")
+    public EventTimestampList followingN(@Valid @RequestBody final TimestampListRequest request,
+                                         @Current final User user) {
+        return eventService.getFollowingEventTimestamps(request, user);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void update(@PathVariable("id") final Integer eventId,
-                                   @Valid @RequestBody final OneTimeEventDataInput data,
-                                   @Current final User user) throws ResourceNotFoundException {
-        eventService.update(data, eventId, user);
+                                   @Valid @RequestBody final EventData eventData,
+                                   @Current final User user) {
+        eventService.update(eventData, eventId, user);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") final Integer eventId,
-                       @Current final User user) throws ResourceNotFoundException {
+                       @Current final User user) {
         eventService.delete(eventId, user);
     }
 }
