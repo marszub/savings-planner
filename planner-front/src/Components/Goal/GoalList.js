@@ -60,7 +60,7 @@ export default function GoalList() {
 
     setLoading(true);
     goalService.getList()
-        .catch(() => navigate("/error"))
+        .catch(err => navigate(`/error?text=${err}`))
         .finally(() => setLoading(false));
 
     return () => goalService.removeChangeListener(changeListener);
@@ -85,7 +85,7 @@ export default function GoalList() {
               break;
           }
         })
-        .catch(() => navigate("/error"))
+        .catch(err => navigate(`/error?text=${err}`))
         .finally(() => setLoading(false));
   };
 
@@ -105,7 +105,7 @@ export default function GoalList() {
               break;
           }
         })
-        .catch(() => navigate("/error"))
+        .catch(err => navigate(`/error?text=${err}`))
         .finally(() => setLoading(false));
   };
 
@@ -150,7 +150,7 @@ export default function GoalList() {
               break;
           }
         })
-        .catch(() => navigate("/error"))
+        .catch(err => navigate(`/error?text=${err}`))
         .finally(() => setLoading(false));
   }
 
@@ -270,7 +270,7 @@ function Goal(props) {
               break;
           }
         })
-        .catch(() => props.navigate("/error"))
+        .catch(err => props.navigate(`/error?text=${err}`))
         .finally(() => props.setLoading(false));
   };
 
@@ -290,7 +290,7 @@ function Goal(props) {
               break;
           }
         })
-        .catch(() => props.navigate("/error"))
+        .catch(err => props.navigate(`/error?text=${err}`))
         .finally(() => props.setLoading(false));
   };
 
