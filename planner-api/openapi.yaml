@@ -109,15 +109,8 @@ paths:
   "/api/balance/sub/{id}":
     get:
       summary: "Get single subBalance"
-      requestBody:
-        description: "SubBalance Data"
-        required: true
-        content:
-          "application/json":
-            schema:
-              "$ref": "#/components/schemas/SubBalanceInfo"
       responses:
-        "201":
+        "200":
           description: "Get user subBalance"
           content:
             "application/json":
