@@ -53,6 +53,8 @@ export default function GoalList() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    goalService.addChangeListener(updatedGoals => setGoals(updatedGoals));
+
     setLoading(true);
     goalService.getList()
         .finally(() => setLoading(false));
@@ -154,7 +156,6 @@ export default function GoalList() {
           setLoading={setLoading}
           setAlertStatus={setAlertStatus}
           setRefreshAlert={setRefreshAlert}
-          onGoalList={onGoalList}
       />
   );
 

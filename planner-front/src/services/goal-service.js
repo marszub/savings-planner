@@ -104,7 +104,7 @@ export const goalService = {
   },
 
   createSubGoal(parentGoalId, subGoalTitle) {
-    return httpService.post(`/goals/${goalId}/sub-goals`, {title: subGoalTitle})
+    return httpService.post(`/goals/${parentGoalId}/sub-goals`, {title: subGoalTitle})
         .then(async res => {
           switch (res.status) {
             case HTTP_CREATED:
@@ -126,7 +126,7 @@ export const goalService = {
   },
 
   deleteSubGoal(parentGoalId, subGoalId) {
-    return httpService.delete(`/goals/${goalId}/sub-goals/${subGoalId}`)
+    return httpService.delete(`/goals/${parentGoalId}/sub-goals/${subGoalId}`)
         .then(async res => {
           switch (res.status) {
             case HTTP_NO_CONTENT:
