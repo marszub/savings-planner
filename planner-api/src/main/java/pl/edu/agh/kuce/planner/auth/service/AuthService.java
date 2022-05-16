@@ -9,7 +9,7 @@ import pl.edu.agh.kuce.planner.auth.dto.LoginRequestDto;
 import pl.edu.agh.kuce.planner.auth.dto.RegistrationRequestDto;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
-import pl.edu.agh.kuce.planner.balance.dto.BalanceDto;
+import pl.edu.agh.kuce.planner.balance.dto.BalanceData;
 import pl.edu.agh.kuce.planner.balance.service.BalanceService;
 
 
@@ -38,7 +38,7 @@ public class AuthService {
                 new User(request.nick(), request.email(), passwordEncoder.encode(request.password()))
         );
 
-        balanceService.create(user, new BalanceDto(0));
+        balanceService.create(user, new BalanceData(0));
 
         return new AuthResponseDto(jwtUtils.createAccessToken(user));
     }

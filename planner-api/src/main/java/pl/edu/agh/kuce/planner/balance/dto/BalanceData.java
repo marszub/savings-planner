@@ -4,10 +4,10 @@ import pl.edu.agh.kuce.planner.balance.persistence.Balance;
 
 import javax.validation.constraints.NotNull;
 
-public record BalanceDto(
+public record BalanceData(
         @NotNull
         Integer balance) {
-    public BalanceDto(final Balance balance) {
+    public BalanceData(final Balance balance) {
         this(balance.getBalance());
     }
 }
