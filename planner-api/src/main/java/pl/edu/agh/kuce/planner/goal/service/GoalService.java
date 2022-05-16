@@ -115,8 +115,7 @@ public class GoalService {
             final Optional<SubGoal> subGoal = subGoalRepository.getSubGoalById(subGoalId, user);
             if (subGoal.isPresent()) {
                 subGoalRepository.deleteSubGoal(subGoalId, goal.get());
-                return new GoalData(goal.get(),
-                        transformSubGoals(subGoalRepository.getSubGoals(goal.get(), user)));
+                return new GoalData(goal.get(), transformSubGoals(subGoalRepository.getSubGoals(goal.get(), user)));
             }
         }
         throw new GoalNotFoundException(goalNotFoundText);
@@ -126,5 +125,18 @@ public class GoalService {
         return subGoalList.stream()
                           .map(SubGoalData::new)
                           .toList();
+    }
+
+    @Transactional
+    public GoalData completeSubGoal(final Integer subGoalId, final Integer goalId, final User user) {
+        final Optional<Goal> goal = goalRepository.getGoalById(goalId, user);
+        if (goal.isPresent()) {
+            final Optional<SubGoal> subGoal = subGoalRepository.getSubGoalById(subGoalId, user);
+            if (subGoal.isPresent()) {
+                subGoalRepository.completeSubGoal(subGoalId, goal.get());
+                return new GoalData(goal.get(), transformSubGoals(subGoalRepository.getSubGoals(goal.get(), user)));
+            }
+        }
+        throw new GoalNotFoundException(goalNotFoundText);
     }
 }

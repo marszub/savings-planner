@@ -31,20 +31,32 @@ public class SubGoal {
     @Column(nullable = false)
     private Integer amount;
 
+    @Column(nullable = false)
+    private Boolean completed;
+
     public SubGoal() {
+    }
+
+    public SubGoal(final Goal goal, final String title, final Integer amount, final Boolean completed) {
+        this.goal = goal;
+        this.title = title;
+        this.amount = amount;
+        this.completed = completed;
     }
 
     public SubGoal(final Goal goal, final String title, final Integer amount) {
         this.goal = goal;
         this.title = title;
         this.amount = amount;
+        this.completed = Boolean.FALSE;
     }
 
     public SubGoal(final Goal goal, final SubGoalInputData data) {
         this(
                 goal,
                 data.title(),
-                data.amount()
+                data.amount(),
+                Boolean.FALSE
         );
     }
 
@@ -78,6 +90,14 @@ public class SubGoal {
 
     public void setTitle(final String title) {
         this.title = title;
+    }
+
+    public Boolean getCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(final Boolean completed) {
+        this.completed = completed;
     }
 
     @Override

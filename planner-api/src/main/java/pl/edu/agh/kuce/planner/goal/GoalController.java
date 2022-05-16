@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -67,5 +68,12 @@ public class GoalController {
                         @Current final User user,
                         @PathVariable("subGoalId") final Integer subGoalId) {
         return goalService.destroySubGoal(subGoalId, goalId, user);
+    }
+
+    @PutMapping("/{id}/sub-goals/{subGoalId}")
+    public GoalData completeSubGoal(@PathVariable("id") final Integer goalId,
+                            @Current final User user,
+                            @PathVariable("subGoalId") final Integer subGoalId) {
+        return goalService.completeSubGoal(subGoalId, goalId, user);
     }
 }

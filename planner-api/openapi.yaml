@@ -309,6 +309,19 @@ paths:
           description: "User unauthorized"
         "404":
           description: "SubGoal with that ID does not exist"
+    put:
+      summary: "completes the SubGoal"
+      responses:
+        "200":
+          description: "SubGoal successfully completed"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/GoalData"
+        "401":
+          description: "User unauthorized"
+        "404":
+          description: "SubGoal with that ID does not exist"
 
 components:
   schemas:
@@ -572,6 +585,12 @@ components:
                     minLength: 1
                     maxLength: 200
                     example: "Winter tyres"
+                  amount:
+                    type: "integer"
+                    example: 10000
+                  completed:
+                    type: "boolean"
+                    example: true
 
     GoalCreateRequest:
       type: "object"
@@ -632,6 +651,9 @@ components:
             amount:
               type: "integer"
               example: 10000
+            completed:
+              type: "boolean"
+              example: true
 
     SubGoalCreateRequest:
       type: "object"
@@ -660,3 +682,6 @@ components:
         amount:
           type: "integer"
           example: 10000
+        completed:
+          type: "boolean"
+          example: true

@@ -14,7 +14,7 @@ import pl.edu.agh.kuce.planner.goal.persistence.GoalRepository;
 import pl.edu.agh.kuce.planner.goal.persistence.SubGoal;
 import pl.edu.agh.kuce.planner.goal.persistence.SubGoalRepository;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -120,5 +120,61 @@ public class GoalServiceWithSubGoals {
         assertThat(data.amount()).isEqualTo(777);
         goalList = goalService.list(user);
         assertThat(goalList.goals().get(0).amount()).isEqualTo(777);
+    }
+
+    @Test
+    void checkIfSubGoalsAreInCompleteOnTheResponseList() {
+        final User user = userRepository.save(new User("TEST28", "TEST28", "TEST28"));
+        final Goal goal = goalRepository.save(new Goal(user, "TEST4", 28));
+        subGoalRepository.save(new SubGoal(goal, "TEST", 322));
+        final SubGoalInputData subGoalToBeCreated = new SubGoalInputData("TEST2", 444);
+        final GoalData data = goalService.createSubGoal(goal.getId(), subGoalToBeCreated, user);
+        assertThat(data.subGoals().get(0).completed()).isEqualTo(Boolean.FALSE);
+        assertThat(data.subGoals().get(1).completed()).isEqualTo(Boolean.FALSE);
+    }
+
+    @Test
+    void checkIfSubGoalsAreCompleteAfterUpdatingThem() {
+        final User user = userRepository.save(new User("TEST29", "TEST29", "TEST29"));
+        final Goal goal = goalRepository.save(new Goal(user, "TEST4", 29));
+        subGoalRepository.save(new SubGoal(goal, "TEST", 222));
+        final SubGoal subGoal = subGoalRepository.save(new SubGoal(goal, "TEST2",  111));
+        final GoalData data = goalService.completeSubGoal(subGoal.getId(), goal.getId(), user);
+        assertThat(data.subGoals().get(0).completed()).isEqualTo(Boolean.FALSE);
+        assertThat(data.subGoals().get(1).completed()).isEqualTo(Boolean.TRUE);
+    }
+
+    @Test
+    void deletingSubGoalsFromGoalThatDoesNotExistsThrows() {
+        final User user = userRepository.save(new User("TEST30", "TEST30", "TEST30"));
+        assertThatExceptionOfType(GoalNotFoundException.class).isThrownBy(() -> {
+            goalService.destroySubGoal(5, 5, user);
+        });
+    }
+
+    @Test
+    void deletingSubGoalsThatDoesNotExistsThrows() {
+        final User user = userRepository.save(new User("TEST31", "TEST31", "TEST31"));
+        final Goal goal = goalRepository.save(new Goal(user, "TEST4", 31));
+        assertThatExceptionOfType(GoalNotFoundException.class).isThrownBy(() -> {
+            goalService.destroySubGoal(5, goal.getId(), user);
+        });
+    }
+
+    @Test
+    void completingSubGoalsFromGoalThatDoesNotExistsThrows() {
+        final User user = userRepository.save(new User("TEST32", "TEST32", "TEST32"));
+        assertThatExceptionOfType(GoalNotFoundException.class).isThrownBy(() -> {
+            goalService.completeSubGoal(5, 5, user);
+        });
+    }
+
+    @Test
+    void completingSubGoalsThatDoesNotExistsThrows() {
+        final User user = userRepository.save(new User("TEST33", "TEST33", "TEST33"));
+        final Goal goal = goalRepository.save(new Goal(user, "TEST4", 33));
+        assertThatExceptionOfType(GoalNotFoundException.class).isThrownBy(() -> {
+            goalService.completeSubGoal(5, goal.getId(), user);
+        });
     }
 }
