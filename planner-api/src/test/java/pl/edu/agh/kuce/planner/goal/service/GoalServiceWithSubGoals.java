@@ -112,11 +112,11 @@ public class GoalServiceWithSubGoals {
         goalService.createSubGoal(goal.getId(), subGoalInputData1, user);
         final SubGoal subGoalToBeDeleted = subGoalRepository.save(new SubGoal(goal, "TEST2",  111));
         ListResponse goalList = goalService.list(user);
-        assertThat(goalList.goals().get(0).amount()).isEqualTo(333);
+        assertThat(goalList.goals().get(0).amount()).isEqualTo(211);
         final GoalData data = goalService.destroySubGoal(subGoalToBeDeleted.getId(), goal.getId(), user);
-        assertThat(data.amount()).isEqualTo(222);
+        assertThat(data.amount()).isEqualTo(100);
         goalList = goalService.list(user);
-        assertThat(goalList.goals().get(0).amount()).isEqualTo(222);
+        assertThat(goalList.goals().get(0).amount()).isEqualTo(100);
     }
 
     @Test
