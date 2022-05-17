@@ -37,13 +37,6 @@ public class SubGoal {
     public SubGoal() {
     }
 
-    public SubGoal(final Goal goal, final String title, final Integer amount, final Boolean completed) {
-        this.goal = goal;
-        this.title = title;
-        this.amount = amount;
-        this.completed = completed;
-    }
-
     public SubGoal(final Goal goal, final String title, final Integer amount) {
         this.goal = goal;
         this.title = title;
@@ -55,8 +48,7 @@ public class SubGoal {
         this(
                 goal,
                 data.title(),
-                data.amount(),
-                Boolean.FALSE
+                data.amount()
         );
     }
 

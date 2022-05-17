@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
 import pl.edu.agh.kuce.planner.goal.dto.GoalData;
@@ -33,19 +34,25 @@ public class GoalServiceWithSubGoals {
     @Autowired
     private final GoalService goalService = new GoalService(goalRepository, subGoalRepository);
 
+    private final User userData = new User("TEST", "TEST", "TEST");
+    private final SubGoalInputData subGoalInputData1 = new SubGoalInputData("TitleTest", 100);
+    private final SubGoalInputData subGoalInputData2 = new SubGoalInputData("TitleTest2", 200);
+
     @Test
+    @Transactional
     void checkIfSubGoalsAddsProperly() {
-        final User user = userRepository.save(new User("TEST21", "TEST21", "TEST21"));
+        final User user = userRepository.save(userData);
         final Goal goal = goalRepository.save(new Goal(user, "TEST1", 21));
         assertThat(subGoalRepository.getSubGoals(goal, user).size()).isEqualTo(0);
-        goalService.createSubGoal(goal.getId(), new SubGoalInputData("TitleTest", 100), user);
-        goalService.createSubGoal(goal.getId(), new SubGoalInputData("TitleTest2", 100), user);
+        goalService.createSubGoal(goal.getId(), subGoalInputData1, user);
+        goalService.createSubGoal(goal.getId(), subGoalInputData2, user);
         assertThat(subGoalRepository.getSubGoals(goal, user).size()).isEqualTo(2);
     }
 
     @Test
+    @Transactional
     void checkIfServiceReturnsProperGoalsList() {
-        final User user = userRepository.save(new User("TEST22", "TEST22", "TEST22"));
+        final User user = userRepository.save(userData);
         final Goal goal = goalRepository.save(new Goal(user, "TEST22", 22));
         final SubGoal subGoal1 = subGoalRepository.save(new SubGoal(goal, "TEST1", 200));
         final SubGoal subGoal2 = subGoalRepository.save(new SubGoal(goal, "TEST2", 100));
@@ -60,8 +67,9 @@ public class GoalServiceWithSubGoals {
     }
 
     @Test
+    @Transactional
     void checkIfSubGoalsDeletesWhenGoalIsDeleted() {
-        final User user = userRepository.save(new User("TEST23", "TEST23", "TEST23"));
+        final User user = userRepository.save(userData);
         final Goal goal = goalRepository.save(new Goal(user, "TEST3", 23));
         final SubGoal subGoal = subGoalRepository.save(new SubGoal(goal, "TEST", 100));
         assertThat(subGoalRepository.getSubGoalById(subGoal.getId(), user).get()).isEqualTo(subGoal);
@@ -70,8 +78,9 @@ public class GoalServiceWithSubGoals {
     }
 
     @Test
+    @Transactional
     void checkIfDeletingSubGoalWorksProperly() {
-        final User user = userRepository.save(new User("TEST24", "TEST24", "TEST24"));
+        final User user = userRepository.save(userData);
         final Goal goal = goalRepository.save(new Goal(user, "TEST4", 24));
         final SubGoal subGoal = subGoalRepository.save(new SubGoal(goal, "TEST", 100));
         final SubGoal subGoal2 = subGoalRepository.save(new SubGoal(goal, "TEST2", 100));
@@ -82,23 +91,25 @@ public class GoalServiceWithSubGoals {
     }
 
     @Test
+    @Transactional
     void checkIfGoalAmountCountsCorrectly() {
-        final User user = userRepository.save(new User("TEST25", "TEST25", "TEST25"));
+        final User user = userRepository.save(userData);
         final Goal goal = goalRepository.save(new Goal(user, "TEST4", 25));
-        subGoalRepository.save(new SubGoal(goal, "TEST", 222));
-        subGoalRepository.save(new SubGoal(goal, "TEST2",  111));
+        goalService.createSubGoal(goal.getId(), subGoalInputData1, user);
+        goalService.createSubGoal(goal.getId(), subGoalInputData2, user);
         ListResponse goalList = goalService.list(user);
-        assertThat(goalList.goals().get(0).amount()).isEqualTo(333);
-        subGoalRepository.save(new SubGoal(goal, "TEST3", 444));
+        assertThat(goalList.goals().get(0).amount()).isEqualTo(300);
+        goalService.createSubGoal(goal.getId(), subGoalInputData2, user);
         goalList = goalService.list(user);
-        assertThat(goalList.goals().get(0).amount()).isEqualTo(777);
+        assertThat(goalList.goals().get(0).amount()).isEqualTo(500);
     }
 
     @Test
+    @Transactional
     void checkIfProperGoalIsReturnedAfterSubGoalDeletion() {
-        final User user = userRepository.save(new User("TEST26", "TEST26", "TEST26"));
+        final User user = userRepository.save(userData);
         final Goal goal = goalRepository.save(new Goal(user, "TEST4", 26));
-        subGoalRepository.save(new SubGoal(goal, "TEST", 222));
+        goalService.createSubGoal(goal.getId(), subGoalInputData1, user);
         final SubGoal subGoalToBeDeleted = subGoalRepository.save(new SubGoal(goal, "TEST2",  111));
         ListResponse goalList = goalService.list(user);
         assertThat(goalList.goals().get(0).amount()).isEqualTo(333);
@@ -109,36 +120,37 @@ public class GoalServiceWithSubGoals {
     }
 
     @Test
+    @Transactional
     void checkIfProperGoalIsReturnedAfterSubGoalCreation() {
-        final User user = userRepository.save(new User("TEST27", "TEST27", "TEST27"));
+        final User user = userRepository.save(userData);
         final Goal goal = goalRepository.save(new Goal(user, "TEST4", 27));
-        subGoalRepository.save(new SubGoal(goal, "TEST", 222));
-        subGoalRepository.save(new SubGoal(goal, "TEST2",  111));
-        final SubGoalInputData subGoalToBeCreated = new SubGoalInputData("TEST2", 444);
+        goalService.createSubGoal(goal.getId(), subGoalInputData1, user);
+        goalService.createSubGoal(goal.getId(), subGoalInputData2, user);
         ListResponse goalList = goalService.list(user);
-        assertThat(goalList.goals().get(0).amount()).isEqualTo(333);
-        final GoalData data = goalService.createSubGoal(goal.getId(), subGoalToBeCreated, user);
-        assertThat(data.amount()).isEqualTo(777);
+        assertThat(goalList.goals().get(0).amount()).isEqualTo(300);
+        final GoalData data = goalService.createSubGoal(goal.getId(), subGoalInputData2, user);
+        assertThat(data.amount()).isEqualTo(500);
         goalList = goalService.list(user);
-        assertThat(goalList.goals().get(0).amount()).isEqualTo(777);
+        assertThat(goalList.goals().get(0).amount()).isEqualTo(500);
     }
 
     @Test
+    @Transactional
     void checkIfSubGoalsAreInCompleteOnTheResponseList() {
-        final User user = userRepository.save(new User("TEST28", "TEST28", "TEST28"));
+        final User user = userRepository.save(userData);
         final Goal goal = goalRepository.save(new Goal(user, "TEST4", 28));
-        subGoalRepository.save(new SubGoal(goal, "TEST", 322));
-        final SubGoalInputData subGoalToBeCreated = new SubGoalInputData("TEST2", 444);
-        final GoalData data = goalService.createSubGoal(goal.getId(), subGoalToBeCreated, user);
+        goalService.createSubGoal(goal.getId(), subGoalInputData1, user);
+        final GoalData data = goalService.createSubGoal(goal.getId(), subGoalInputData2, user);
         assertThat(data.subGoals().get(0).completed()).isEqualTo(Boolean.FALSE);
         assertThat(data.subGoals().get(1).completed()).isEqualTo(Boolean.FALSE);
     }
 
     @Test
+    @Transactional
     void checkIfSubGoalsAreCompleteAfterUpdatingThem() {
-        final User user = userRepository.save(new User("TEST29", "TEST29", "TEST29"));
+        final User user = userRepository.save(userData);
         final Goal goal = goalRepository.save(new Goal(user, "TEST4", 29));
-        subGoalRepository.save(new SubGoal(goal, "TEST", 222));
+        goalService.createSubGoal(goal.getId(), subGoalInputData1, user);
         final SubGoal subGoal = subGoalRepository.save(new SubGoal(goal, "TEST2",  111));
         final GoalData data = goalService.completeSubGoal(subGoal.getId(), goal.getId(), user);
         assertThat(data.subGoals().get(0).completed()).isEqualTo(Boolean.FALSE);
@@ -146,16 +158,18 @@ public class GoalServiceWithSubGoals {
     }
 
     @Test
+    @Transactional
     void deletingSubGoalsFromGoalThatDoesNotExistsThrows() {
-        final User user = userRepository.save(new User("TEST30", "TEST30", "TEST30"));
+        final User user = userRepository.save(userData);
         assertThatExceptionOfType(GoalNotFoundException.class).isThrownBy(() -> {
             goalService.destroySubGoal(5, 5, user);
         });
     }
 
     @Test
+    @Transactional
     void deletingSubGoalsThatDoesNotExistsThrows() {
-        final User user = userRepository.save(new User("TEST31", "TEST31", "TEST31"));
+        final User user = userRepository.save(userData);
         final Goal goal = goalRepository.save(new Goal(user, "TEST4", 31));
         assertThatExceptionOfType(GoalNotFoundException.class).isThrownBy(() -> {
             goalService.destroySubGoal(5, goal.getId(), user);
@@ -163,17 +177,19 @@ public class GoalServiceWithSubGoals {
     }
 
     @Test
+    @Transactional
     void completingSubGoalsFromGoalThatDoesNotExistsThrows() {
-        final User user = userRepository.save(new User("TEST32", "TEST32", "TEST32"));
+        final User user = userRepository.save(userData);
         assertThatExceptionOfType(GoalNotFoundException.class).isThrownBy(() -> {
             goalService.completeSubGoal(5, 5, user);
         });
     }
 
     @Test
+    @Transactional
     void completingSubGoalsThatDoesNotExistsThrows() {
-        final User user = userRepository.save(new User("TEST33", "TEST33", "TEST33"));
-        final Goal goal = goalRepository.save(new Goal(user, "TEST4", 33));
+        final User user = userRepository.save(userData);
+        final Goal goal = goalRepository.save(new Goal(user, "TEST4", 31));
         assertThatExceptionOfType(GoalNotFoundException.class).isThrownBy(() -> {
             goalService.completeSubGoal(5, goal.getId(), user);
         });
