@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import pl.edu.agh.kuce.planner.auth.Current;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
-import pl.edu.agh.kuce.planner.balance.dto.BalanceDto;
+import pl.edu.agh.kuce.planner.balance.dto.BalanceData;
 import pl.edu.agh.kuce.planner.balance.dto.SubBalanceData;
 import pl.edu.agh.kuce.planner.balance.dto.SubBalanceInputData;
 import pl.edu.agh.kuce.planner.balance.service.BalanceService;
@@ -29,20 +29,13 @@ public class BalanceController {
         this.balanceService = balanceService;
     }
 
-    // This mapping is not used because balance is created automatically while creating user profile
-    // but this could be usefull while adding subbalances
-    //     @PostMapping("")
-    //     public void create(@Current final User user, @Valid @RequestBody final Integer balance) {
-    //         balanceService.create(user, balance);
-    //     }
-
     @PutMapping("")
-    public void update(@Current final User user, @Valid @RequestBody final BalanceDto balanceDto) {
-        balanceService.update(user, balanceDto);
+    public void update(@Current final User user, @Valid @RequestBody final BalanceData balanceData) {
+        balanceService.update(user, balanceData);
     }
 
     @GetMapping("")
-    public BalanceDto list(@Current final User user) {
+    public BalanceData list(@Current final User user) {
         return balanceService.list(user);
     }
 

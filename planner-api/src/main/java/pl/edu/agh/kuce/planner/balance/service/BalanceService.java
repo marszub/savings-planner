@@ -3,7 +3,7 @@ package pl.edu.agh.kuce.planner.balance.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
-import pl.edu.agh.kuce.planner.balance.dto.BalanceDto;
+import pl.edu.agh.kuce.planner.balance.dto.BalanceData;
 import pl.edu.agh.kuce.planner.balance.dto.SubBalanceData;
 import pl.edu.agh.kuce.planner.balance.dto.SubBalanceInputData;
 import pl.edu.agh.kuce.planner.balance.persistence.Balance;
@@ -24,18 +24,17 @@ public class BalanceService {
         this.subBalanceRepository = subBalanceRepository;
     }
 
-    //TODO return create BalanceData and BalanceDataInput
-    public void create(final User user, final BalanceDto balanceDto) {
-        balanceRepository.save(new Balance(user, balanceDto.balance()));
+    public void create(final User user, final BalanceData balanceData) {
+        balanceRepository.save(new Balance(user, balanceData.balance()));
     }
 
     @Transactional
-    public void update(final User user, final BalanceDto newBalanceDto) {
-        balanceRepository.updateBalance(user, newBalanceDto.balance());
+    public void update(final User user, final BalanceData balanceData) {
+        balanceRepository.updateBalance(user, balanceData.balance());
     }
 
-    public BalanceDto list(final User user) {
-        return new BalanceDto(balanceRepository.findByUser(user));
+    public BalanceData list(final User user) {
+        return new BalanceData(balanceRepository.findByUser(user));
     }
 
 
