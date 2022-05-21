@@ -11,9 +11,12 @@ public record SubGoalData(
         String title,
 
         @NotNull
-        Integer amount
+        Integer amount,
+
+        @NotNull
+        Boolean completed
 ) {
     public SubGoalData(final SubGoal subGoal) {
-        this(subGoal.getId(), subGoal.getTitle(), subGoal.getAmount());
+        this(subGoal.getId(), subGoal.getTitle(), subGoal.getAmount(), subGoal.getCompleted());
     }
 }

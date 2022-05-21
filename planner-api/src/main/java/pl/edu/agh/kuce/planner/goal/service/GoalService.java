@@ -34,17 +34,14 @@ public class GoalService {
 
     public GoalData create(final GoalInputData data, final User user) {
         final Goal goal = goalRepository.save(new Goal(user, data));
-        return new GoalData(goal, subGoalRepository.getSubGoals(goal, user).stream()
-                                                                        .map(SubGoalData::new)
-                                                                        .toList());
+        return createGoalData(goal, user);
     }
 
     public GoalData createSubGoal(final Integer goalId, final SubGoalInputData data, final User user) {
         final Optional<Goal> goal = goalRepository.getGoalById(goalId, user);
         if (goal.isPresent()) {
             subGoalRepository.save(new SubGoal(goal.get(), data));
-            return new GoalData(goal.get(),
-                    transformSubGoals(subGoalRepository.getSubGoals(goal.get(), user)));
+            return createGoalData(goal.get(), user);
         }
         throw new GoalNotFoundException(goalNotFoundText);
     }
@@ -110,21 +107,37 @@ public class GoalService {
 
     @Transactional
     public GoalData destroySubGoal(final Integer subGoalId, final Integer goalId, final User user) {
+        final Goal goal = checkIfGoalAndSubGoalExists(goalId, subGoalId, user);
+        subGoalRepository.deleteSubGoal(subGoalId, goal);
+        return createGoalData(goal, user);
+    }
+
+    @Transactional
+    public GoalData completeSubGoal(final Integer subGoalId, final Integer goalId, final User user) {
+        final Goal goal = checkIfGoalAndSubGoalExists(goalId, subGoalId, user);
+        subGoalRepository.completeSubGoal(subGoalId, goal);
+        return createGoalData(goal, user);
+    }
+
+    private GoalData createGoalData(final Goal goal, final User user) {
+        return new GoalData(goal, transformSubGoals(subGoalRepository.getSubGoals(goal, user)));
+    }
+
+    private Goal checkIfGoalAndSubGoalExists(final Integer goalId, final Integer subGoalId, final User user) {
         final Optional<Goal> goal = goalRepository.getGoalById(goalId, user);
-        if (goal.isPresent()) {
-            final Optional<SubGoal> subGoal = subGoalRepository.getSubGoalById(subGoalId, user);
-            if (subGoal.isPresent()) {
-                subGoalRepository.deleteSubGoal(subGoalId, goal.get());
-                return new GoalData(goal.get(),
-                        transformSubGoals(subGoalRepository.getSubGoals(goal.get(), user)));
-            }
+        if (goal.isEmpty()) {
+            throw new GoalNotFoundException(goalNotFoundText);
         }
-        throw new GoalNotFoundException(goalNotFoundText);
+        final Optional<SubGoal> subGoal = subGoalRepository.getSubGoalById(subGoalId, user);
+        if (subGoal.isEmpty()) {
+            throw new GoalNotFoundException(goalNotFoundText);
+        }
+        return goal.get();
     }
 
     private List<SubGoalData> transformSubGoals(final List<SubGoal> subGoalList) {
         return subGoalList.stream()
-                          .map(SubGoalData::new)
-                          .toList();
+                .map(SubGoalData::new)
+                .toList();
     }
 }

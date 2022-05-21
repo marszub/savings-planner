@@ -309,6 +309,19 @@ paths:
           description: "User unauthorized"
         "404":
           description: "SubGoal with that ID does not exist"
+    patch:
+      summary: "completes the SubGoal"
+      responses:
+        "200":
+          description: "SubGoal successfully completed"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/GoalData"
+        "401":
+          description: "User unauthorized"
+        "404":
+          description: "SubGoal with that ID does not exist"
 
 components:
   schemas:
@@ -543,35 +556,7 @@ components:
         goals:
           type: "array"
           items:
-            type: "object"
-            properties:
-              id:
-                type: "integer"
-                format: "id of an object"
-                example: 1
-              title:
-                type: "string"
-                format: "goal name"
-                minLength: 1
-                maxLength: 200
-                example: "Car"
-              amount:
-                type: "integer"
-                format: "cost of fulfilling the goal"
-                example: 201
-              subGoals:
-                type: "array"
-                properties:
-                  id:
-                    type: "integer"
-                    format: "id of an subGoal"
-                    example: 1
-                  title:
-                    type: "string"
-                    format: "subGoal name"
-                    minLength: 1
-                    maxLength: 200
-                    example: "Winter tyres"
+              "$ref": "#/components/schemas/GoalData"
 
     GoalCreateRequest:
       type: "object"
@@ -619,19 +604,8 @@ components:
           example: 201
         subGoals:
           type: "array"
-          properties:
-            id:
-              type: "integer"
-              format: "id of an subGoal"
-              example: 1
-            title:
-              type: "string"
-              minLength: 1
-              maxLength: 200
-              example: "Winter tyres"
-            amount:
-              type: "integer"
-              example: 10000
+          items:
+            "$ref": "#/components/schemas/SubGoalData"
 
     SubGoalCreateRequest:
       type: "object"
@@ -660,3 +634,6 @@ components:
         amount:
           type: "integer"
           example: 10000
+        completed:
+          type: "boolean"
+          example: true

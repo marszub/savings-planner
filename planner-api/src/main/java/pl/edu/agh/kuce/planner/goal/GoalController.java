@@ -68,4 +68,11 @@ public class GoalController {
                         @PathVariable("subGoalId") final Integer subGoalId) {
         return goalService.destroySubGoal(subGoalId, goalId, user);
     }
+
+    @PatchMapping("/{id}/sub-goals/{subGoalId}")
+    public GoalData completeSubGoal(@PathVariable("id") final Integer goalId,
+                            @Current final User user,
+                            @PathVariable("subGoalId") final Integer subGoalId) {
+        return goalService.completeSubGoal(subGoalId, goalId, user);
+    }
 }
