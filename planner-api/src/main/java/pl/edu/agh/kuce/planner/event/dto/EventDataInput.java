@@ -16,7 +16,8 @@ public record EventDataInput(
 
         Long begin,
         Integer cycleBase,
-        Integer cycleLength) {
+        Integer cycleLength,
+        Integer cycleCount) {
 
     public boolean isValid() {
         if (isCyclic()) {

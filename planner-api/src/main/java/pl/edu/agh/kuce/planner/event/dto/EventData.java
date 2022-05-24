@@ -22,7 +22,8 @@ public record EventData(
 
         Long begin,
         Integer cycleBase,
-        Integer cycleLength) {
+        Integer cycleLength,
+        Integer cycleCount) {
     public EventData(final CyclicEvent cyclicEvent) {
         this(
                 cyclicEvent.getId(),
@@ -32,7 +33,8 @@ public record EventData(
                 null,
                 cyclicEvent.getBegin(),
                 cyclicEvent.getCycleBase(),
-                cyclicEvent.getCycleLength());
+                cyclicEvent.getCycleLength(),
+                cyclicEvent.getCycleCount());
     }
 
     public EventData(final OneTimeEvent oneTimeEvent) {
@@ -42,6 +44,7 @@ public record EventData(
                 oneTimeEvent.getAmount(),
                 Boolean.FALSE,
                 oneTimeEvent.getTimestamp(),
+                null,
                 null,
                 null,
                 null);

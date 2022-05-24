@@ -67,6 +67,10 @@ class EventServiceTest {
     private final Integer cycleLength2 = 1;
     private final Integer cycleLength3 = 2;
     private final Integer cycleLength4 = 1;
+    private final Integer cycleCount1 = 3;
+    private final Integer cycleCount2 = 1;
+    private final Integer cycleCount3 = 2;
+    private final Integer cycleCount4 = 1;
     private User user1 = new User(nick1, email1, password1);
     private User user2 = new User(nick2, email2, password2);
 
@@ -80,13 +84,13 @@ class EventServiceTest {
             new OneTimeEventDataInput(title4, amount4, timestampSpr4).getEventDataInput();
 
     private final EventDataInput cyclicEventDataInput1 =
-            new CyclicEventDataInput(title1, amount1, timestampSpr1, cycleBase1, cycleLength1).getEventDataInput();
+            new CyclicEventDataInput(title1, amount1, timestampSpr1, cycleBase1, cycleLength1, cycleCount1).getEventDataInput();
     private final EventDataInput cyclicEventDataInput2 =
-            new CyclicEventDataInput(title2, amount2, timestampSpr2, cycleBase2, cycleLength2).getEventDataInput();
+            new CyclicEventDataInput(title2, amount2, timestampSpr2, cycleBase2, cycleLength2, cycleCount2).getEventDataInput();
     private final EventDataInput cyclicEventDataInput3 =
-            new CyclicEventDataInput(title3, amount3, timestampSpr3, cycleBase3, cycleLength3).getEventDataInput();
+            new CyclicEventDataInput(title3, amount3, timestampSpr3, cycleBase3, cycleLength3, cycleCount3).getEventDataInput();
     private final EventDataInput cyclicEventDataInput4 =
-            new CyclicEventDataInput(title4, amount4, timestampSpr4, cycleBase4, cycleLength4).getEventDataInput();
+            new CyclicEventDataInput(title4, amount4, timestampSpr4, cycleBase4, cycleLength4, cycleCount4).getEventDataInput();
 
     @BeforeEach
     void setUp() {

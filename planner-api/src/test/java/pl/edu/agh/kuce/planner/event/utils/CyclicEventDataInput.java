@@ -18,7 +18,10 @@ public record CyclicEventDataInput(
         Integer cycleBase,
 
         @NotNull
-        Integer cycleLength) {
+        Integer cycleLength,
+
+        @NotNull
+        Integer cycleCount) {
 
     public EventDataInput getEventDataInput() {
         return new EventDataInput(
@@ -28,6 +31,7 @@ public record CyclicEventDataInput(
                 null,
                 begin,
                 cycleBase,
-                cycleLength);
+                cycleLength,
+                cycleCount);
     }
 }

@@ -440,7 +440,7 @@ components:
           example: -205
         isCyclic:
           type: "boolean"
-          description: "If set to true: fields begin, cycleBase and cycleLength must be set. If set to false: field timestamp must be set."
+          description: "If set to true: fields begin, cycleBase, cycleLength, cycleCount must be set. If set to false: field timestamp must be set."
           example: true
         timestamp:
           type: "integer"
@@ -459,6 +459,10 @@ components:
           type: "integer"
           description: "How many cycle bases are between consecutive events. For example: cycleBase=7, cycleLength=2 means that event takes place every 2 weeks"
           example: 2
+        cycleCount:
+          type: "integer"
+          description: "How many cycle will happen in future. For example 2 mean that in front of as there are still 2 events and so on. It will be decresed by one in every event day"
+          example: 3
 
     EventListResponse:
       type: "object"
@@ -487,7 +491,7 @@ components:
           example: -205
         isCyclic:
           type: "boolean"
-          description: "If set to true: fields begin, cycleBase and cycleLength must be set. If set to false: field timestamp must be set."
+          description: "If set to true: fields begin, cycleBase, cycleLength and cycleCount must be set. If set to false: field timestamp must be set."
           example: true
         timestamp:
           type: "integer"
@@ -506,6 +510,10 @@ components:
           type: "integer"
           description: "How many cycle bases are between consecutive events. For example: cycleBase=7, cycleLength=2 means that event takes place every 2 weeks"
           example: 2
+        cycleCount:
+          type: "integer"
+          description: "How many cycle will happen in future. For example 2 mean that in front of as there are still 2 events and so on. It will be decresed by one in every event day"
+          example: 3
 
 
     TimestampListRequest:

@@ -23,6 +23,9 @@ public class CyclicEvent extends Event {
     @Column(nullable = false)
     private Integer cycleLength;
 
+    @Column(nullable = false)
+    private Integer cycleCount;
+
     public CyclicEvent() { }
 
     public CyclicEvent(
@@ -31,11 +34,13 @@ public class CyclicEvent extends Event {
             final Integer amount,
             final Calendar begin,
             final Integer cycleBase,
-            final Integer cycleLength) {
+            final Integer cycleLength,
+            final Integer cycleCount) {
         super(user, title, amount);
         this.begin = begin;
         this.cycleBase = cycleBase;
         this.cycleLength = cycleLength;
+        this.cycleCount = cycleCount;
     }
 
     public CyclicEvent(final EventDataInput eventDataInput, final User user) {
@@ -45,7 +50,8 @@ public class CyclicEvent extends Event {
                 eventDataInput.amount(),
                 Calendar.getInstance(),
                 eventDataInput.cycleBase(),
-                eventDataInput.cycleLength()
+                eventDataInput.cycleLength(),
+                eventDataInput.cycleCount()
         );
         setBegin(eventDataInput.begin());
     }
@@ -72,6 +78,14 @@ public class CyclicEvent extends Event {
 
     public void setCycleLength(final Integer cycleLength) {
         this.cycleLength = cycleLength;
+    }
+
+    public Integer getCycleCount() {
+        return cycleCount;
+    }
+
+    public void setCycleCount(final Integer cycleCount) {
+        this.cycleCount = cycleCount;
     }
 
     public List<EventTimestamp> getFollowingN(final Long start, final Integer distinctEventsNum) {

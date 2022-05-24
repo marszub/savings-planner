@@ -14,6 +14,10 @@ public interface CyclicEventRepository extends JpaRepository<CyclicEvent, Intege
 
     Optional<CyclicEvent> findByIdAndUser(Integer id, User user);
 
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE CyclicEvent event SET event.cycleCount = ?3 WHERE event.id = ?1 AND event.user = ?2")
+    void updateCycleCount(Integer id, User user, Integer cycleCount);
+
     @Modifying
     @Query("DELETE FROM CyclicEvent event WHERE event.id = ?1 AND event.user = ?2")
     void deleteEvent(Integer id, User user);
