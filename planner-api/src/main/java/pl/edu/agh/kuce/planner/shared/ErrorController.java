@@ -40,4 +40,11 @@ public class ErrorController extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(new TextResponseDto(e.getMessage()));
     }
+
+    @ExceptionHandler({InvalidDataException.class})
+    public ResponseEntity<TextResponseDto> invalidData(final InvalidDataException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new TextResponseDto(e.getMessage()));
+    }
 }

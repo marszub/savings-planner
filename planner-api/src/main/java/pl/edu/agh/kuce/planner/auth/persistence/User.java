@@ -1,7 +1,7 @@
 package pl.edu.agh.kuce.planner.auth.persistence;
 
 import pl.edu.agh.kuce.planner.balance.persistence.Balance;
-import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
+import pl.edu.agh.kuce.planner.event.persistence.Event;
 import pl.edu.agh.kuce.planner.goal.persistence.Goal;
 
 import javax.persistence.Column;
@@ -32,7 +32,7 @@ public class User {
     private String passwordHash;
 
     @OneToMany(mappedBy = "user")
-    private List<OneTimeEvent> oneTimeEventList;
+    private List<Event> eventList;
 
     @OneToMany(mappedBy = "user")
     private List<Goal> goalList;

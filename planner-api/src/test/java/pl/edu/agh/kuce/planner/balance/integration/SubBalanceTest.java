@@ -91,11 +91,8 @@ public class SubBalanceTest {
         assertThat(result.get(0)).isEqualTo(subBalance);
         assertThat(result.get(1)).isEqualTo(subBalance2);
 
-        final List<Integer> ids = subBalanceRepository.findIdsOfSubBalancesByUser(user);
-        System.out.println(ids);
-
         final SubBalance subBalance3 = new SubBalance(user, balance.getBalance() * 2);
-        subBalanceRepository.updateSubBalanceById(user, ids.get(1), subBalance3.getSubBalance());
+        subBalanceRepository.updateSubBalanceByUserAndId(user, subBalance2.getId(), subBalance3.getSubBalance());
 
         final List<SubBalance> result2 = subBalanceRepository.findByUser(user);
         assertThat(result2.get(0)).isEqualTo(subBalance);
