@@ -30,6 +30,7 @@ public class BalanceController {
     }
 
     @PutMapping("")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void update(@Current final User user, @Valid @RequestBody final BalanceData balanceData) {
         balanceService.update(user, balanceData);
     }
@@ -53,7 +54,6 @@ public class BalanceController {
     }
 
     @GetMapping("/sub/{id}")
-    @ResponseStatus(HttpStatus.CREATED)
     public SubBalanceData listSub(@Current final User user, @PathVariable("id") final Integer subBalanceId) {
         return balanceService.listSub(user, subBalanceId);
     }
