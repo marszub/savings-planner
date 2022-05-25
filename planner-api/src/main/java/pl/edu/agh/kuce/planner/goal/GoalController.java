@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.edu.agh.kuce.planner.auth.Current;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.goal.dto.GoalData;
-import pl.edu.agh.kuce.planner.goal.dto.SubGoalData;
 import pl.edu.agh.kuce.planner.goal.dto.GoalInputData;
 import pl.edu.agh.kuce.planner.goal.dto.SubGoalInputData;
 import pl.edu.agh.kuce.planner.goal.dto.GoalPriorityUpdate;
@@ -39,7 +38,7 @@ public class GoalController {
 
     @PostMapping("/{id}/sub-goals")
     @ResponseStatus(HttpStatus.CREATED)
-    public SubGoalData create(@PathVariable("id") final Integer goalId,
+    public GoalData create(@PathVariable("id") final Integer goalId,
                            @Valid @RequestBody final SubGoalInputData data,
                            @Current final User user) {
         return goalService.createSubGoal(goalId, data, user);
@@ -64,10 +63,16 @@ public class GoalController {
     }
 
     @DeleteMapping("/{id}/sub-goals/{subGoalId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void destroy(@PathVariable("id") final Integer goalId,
+    public GoalData destroy(@PathVariable("id") final Integer goalId,
                         @Current final User user,
                         @PathVariable("subGoalId") final Integer subGoalId) {
-        goalService.destroySubGoal(subGoalId, goalId, user);
+        return goalService.destroySubGoal(subGoalId, goalId, user);
+    }
+
+    @PatchMapping("/{id}/sub-goals/{subGoalId}")
+    public GoalData completeSubGoal(@PathVariable("id") final Integer goalId,
+                            @Current final User user,
+                            @PathVariable("subGoalId") final Integer subGoalId) {
+        return goalService.completeSubGoal(subGoalId, goalId, user);
     }
 }

@@ -78,16 +78,72 @@ paths:
         "401":
           description: "User unauthorized"
 
+  "/api/balance/sub":
+    post:
+      summary: "Creates new single subBalance"
+      requestBody:
+        description: "SubBalance Data"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/SubBalanceInfo"
+      responses:
+        "201":
+          description: "Created user subBalance"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/SubBalanceData"
+        "401":
+          description: "User unauthorized"
+
+    delete:
+      summary: "Delete all subBalances"
+      responses:
+        "204":
+          description: "Deleted subBalance"
+        "401":
+          description: "User unauthorized"
+
+  "/api/balance/sub/{id}":
+    get:
+      summary: "Get single subBalance"
+      responses:
+        "200":
+          description: "Get user subBalance"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/SubBalanceData"
+        "401":
+          description: "User unauthorized"
+
+    put:
+      summary: "Update single subBalance"
+      requestBody:
+        description: "SubBalance Data"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/SubBalanceInfo"
+      responses:
+        "204":
+          description: "Updated subBalance"
+        "401":
+          description: "User unauthorized"
+
   "/api/events":
     post:
-      summary: "Creates new one-time event"
+      summary: "Creates new event"
       requestBody:
         description: "Event description"
         required: true
         content:
           "application/json":
             schema:
-              "$ref": "#/components/schemas/EventInfo"
+              "$ref": "#/components/schemas/EventDataInput"
       responses:
         "201":
           description: "Event has been created"
@@ -100,7 +156,7 @@ paths:
         "401":
           description: "User unauthorized"
     get:
-      summary: "Gets list of user's one-time events"
+      summary: "Gets list of user's events"
       responses:
         "200":
           description: "Got list of events"
@@ -111,17 +167,16 @@ paths:
         "401":
           description: "User unauthorized"
 
-
   "/api/events/{id}":
     put:
-      summary: "Updates one-time event"
+      summary: "Updates event"
       requestBody:
         description: "Event description"
         required: true
         content:
           "application/json":
             schema:
-              "$ref": "#/components/schemas/EventInfo"
+              "$ref": "#/components/schemas/EventDataInput"
       responses:
         "204":
           description: "Event has been updated"
@@ -131,7 +186,7 @@ paths:
           description: "User unauthorized"
 
     delete:
-      summary: "Deletes one-time event"
+      summary: "Deletes event"
       responses:
         "204":
           description: "Event successfully deleted"
@@ -139,6 +194,28 @@ paths:
           description: "User unauthorized"
         "404":
           description: "Event with that ID does not exist"
+
+  "/api/events/following-n":
+    get:
+      summary: "Lists up to eventsNum unique events that are directly after given date"
+      requestBody:
+        description: "Requested interval description"
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/TimestampListRequest"
+      responses:
+        "201":
+          description: "Lists up to eventsNum unique events that are directly after given date. If there is more than one timestamp at a time, all are returned, but are counted as one. In this case, list can contain more than eventsNum timestamps. If there are less than eventNum timestamps after start, returned list can be smaller than eventsNum."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/EventTimestampList"
+        "400":
+          description: "Invalid request body"
+        "401":
+          description: "User unauthorized"
 
   "/api/goals":
     post:
@@ -214,7 +291,7 @@ paths:
           content:
             "application/json":
               schema:
-                "$ref": "#/components/schemas/SubGoalData"
+                "$ref": "#/components/schemas/GoalData"
         "401":
           description: "User unauthorized"
 
@@ -222,8 +299,25 @@ paths:
     delete:
       summary: "Deletes SubGoal"
       responses:
-        "204":
+        "200":
           description: "SubGoal successfully deleted"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/GoalData"
+        "401":
+          description: "User unauthorized"
+        "404":
+          description: "SubGoal with that ID does not exist"
+    patch:
+      summary: "completes the SubGoal"
+      responses:
+        "200":
+          description: "SubGoal successfully completed"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/GoalData"
         "401":
           description: "User unauthorized"
         "404":
@@ -311,7 +405,27 @@ components:
           format: "positive or zero account balance"
           example: 0
 
-    EventInfo:
+    SubBalanceInfo:
+      type: "object"
+      properties:
+        balance:
+          type: "integer"
+          format: "positive or zero account balance"
+          example: 10000
+
+    SubBalanceData:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "nonegative"
+          example: 0
+        balance:
+          type: "integer"
+          format: "positive or zero"
+          example: 10000
+
+    EventDataInput:
       type: "object"
       properties:
         title:
@@ -324,9 +438,27 @@ components:
           type: "integer"
           format: "positive or negative money gain"
           example: -205
+        isCyclic:
+          type: "boolean"
+          description: "If set to true: fields begin, cycleBase and cycleLength must be set. If set to false: field timestamp must be set."
+          example: true
         timestamp:
           type: "integer"
-          example: "100000"
+          description: "Time of one-time event in epoch seconds"
+          example: 100000
+        begin:
+          type: "integer"
+          description: "Time of the begin of cyclic event in epoch seconds"
+          example: 100000
+        cycleBase:
+          type: "integer"
+          description: "Base of event cycle. 7 - day of week, 5 - day of month, 6 - day of year"
+          format: "[756]"
+          example: 7
+        cycleLength:
+          type: "integer"
+          description: "How many cycle bases are between consecutive events. For example: cycleBase=7, cycleLength=2 means that event takes place every 2 weeks"
+          example: 2
 
     EventListResponse:
       type: "object"
@@ -334,25 +466,7 @@ components:
         events:
           type: "array"
           items:
-            type: "object"
-            properties:
-              id:
-                type: "integer"
-                format: "id of an object"
-                example: 1
-              title:
-                type: "string"
-                format: "event name"
-                minLength: 1
-                maxLength: 200
-                example: "Repayment"
-              amount:
-                type: "integer"
-                format: "positive or negative money gain"
-                example: 201
-              timestamp:
-                type: "integer"
-                example: "100000"
+            $ref: '#/components/schemas/EventData'
 
     EventData:
       type: "object"
@@ -370,10 +484,71 @@ components:
         amount:
           type: "integer"
           format: "positive or negative money gain"
-          example: 201
+          example: -205
+        isCyclic:
+          type: "boolean"
+          description: "If set to true: fields begin, cycleBase and cycleLength must be set. If set to false: field timestamp must be set."
+          example: true
         timestamp:
           type: "integer"
-          example: "100000"
+          description: "Time of one-time event in epoch seconds"
+          example: 100000
+        begin:
+          type: "integer"
+          description: "Time of the begin of cyclic event in epoch seconds"
+          example: 100000
+        cycleBase:
+          type: "integer"
+          description: "Base of event cycle. 7 - day of week, 5 - day of month, 6 - day of year"
+          format: "[756]"
+          example: 7
+        cycleLength:
+          type: "integer"
+          description: "How many cycle bases are between consecutive events. For example: cycleBase=7, cycleLength=2 means that event takes place every 2 weeks"
+          example: 2
+
+
+    TimestampListRequest:
+      type: "object"
+      properties:
+        start:
+          type: "integer"
+          description: "Time before the first timestamp to return"
+          example: 10000
+        eventsNum:
+          type: "integer"
+          description: "How many unique events are requested"
+          example: 5
+
+    EventTimestampList:
+      type: "object"
+      properties:
+        timestamps:
+          type: "array"
+          items:
+            $ref: '#/components/schemas/EventTimestamp'
+
+    EventTimestamp:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "id of an object"
+          example: 1
+        title:
+          type: "string"
+          format: "event name"
+          minLength: 1
+          maxLength: 200
+          example: "Repayment"
+        amount:
+          type: "integer"
+          format: "positive or negative money gain"
+          example: -205
+        timestamp:
+          type: "integer"
+          description: "Time of one-time event in epoch seconds"
+          example: 100000
 
     GoalListResponse:
       type: "object"
@@ -381,35 +556,7 @@ components:
         goals:
           type: "array"
           items:
-            type: "object"
-            properties:
-              id:
-                type: "integer"
-                format: "id of an object"
-                example: 1
-              title:
-                type: "string"
-                format: "goal name"
-                minLength: 1
-                maxLength: 200
-                example: "Car"
-              amount:
-                type: "integer"
-                format: "cost of fulfilling the goal"
-                example: 201
-              subGoals:
-                type: "array"
-                properties:
-                  id:
-                    type: "integer"
-                    format: "id of an subGoal"
-                    example: 1
-                  title:
-                    type: "string"
-                    format: "subGoal name"
-                    minLength: 1
-                    maxLength: 200
-                    example: "Car"
+              "$ref": "#/components/schemas/GoalData"
 
     GoalCreateRequest:
       type: "object"
@@ -424,10 +571,6 @@ components:
                 minLength: 1
                 maxLength: 200
                 example: "Car"
-              amount:
-                type: "integer"
-                format: "cost of fulfilling the goal"
-                example: 201
 
     GoalPriorityUpdate:
       type: "object"
@@ -461,25 +604,20 @@ components:
           example: 201
         subGoals:
           type: "array"
-          properties:
-            id:
-              type: "integer"
-              format: "id of an subGoal"
-              example: 1
-            title:
-              type: "string"
-              minLength: 1
-              maxLength: 200
-              example: "Car"
+          items:
+            "$ref": "#/components/schemas/SubGoalData"
 
     SubGoalCreateRequest:
       type: "object"
       properties:
         title:
           type: "string"
-          example: "Bricks"
+          example: "Winter tyres"
           minLength: 1
           maxLength: 200
+        amount:
+          type: "integer"
+          example: 10000
 
     SubGoalData:
       type: "object"
@@ -492,4 +630,10 @@ components:
           type: "string"
           minLength: 1
           maxLength: 200
-          example: "Bricks"
+          example: "Winter tyres"
+        amount:
+          type: "integer"
+          example: 10000
+        completed:
+          type: "boolean"
+          example: true

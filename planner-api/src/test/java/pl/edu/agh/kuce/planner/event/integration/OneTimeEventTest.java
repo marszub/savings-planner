@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.kuce.planner.auth.persistence.User;
 import pl.edu.agh.kuce.planner.auth.persistence.UserRepository;
-import pl.edu.agh.kuce.planner.event.dto.OneTimeEventDataInput;
+import pl.edu.agh.kuce.planner.event.utils.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 
@@ -38,7 +38,7 @@ public class OneTimeEventTest {
     @Transactional
     void single_one_time_event_is_properly_saved_in_database() {
         user = userRepository.save(user);
-        event1 = new OneTimeEvent(eventData1, user);
+        event1 = new OneTimeEvent(eventData1.getEventDataInput(), user);
         oneTimeEventRepository.save(event1);
         final List<OneTimeEvent> result = oneTimeEventRepository.findByUser(user);
         assertThat(result.get(0)).isEqualTo(event1);
@@ -48,8 +48,8 @@ public class OneTimeEventTest {
     @Transactional
     void multiple_one_time_events_are_saved_properly_in_database() {
         user = userRepository.save(user);
-        event1 = new OneTimeEvent(eventData1, user);
-        event2 = new OneTimeEvent(eventData2, user);
+        event1 = new OneTimeEvent(eventData1.getEventDataInput(), user);
+        event2 = new OneTimeEvent(eventData2.getEventDataInput(), user);
         oneTimeEventRepository.save(event1);
         oneTimeEventRepository.save(event2);
         final List<OneTimeEvent> result = oneTimeEventRepository.findByUser(user);
@@ -61,8 +61,8 @@ public class OneTimeEventTest {
     @Transactional
     void findByIdAndUser_existingEvent() {
         user = userRepository.save(user);
-        event1 = new OneTimeEvent(eventData1, user);
-        event2 = new OneTimeEvent(eventData2, user);
+        event1 = new OneTimeEvent(eventData1.getEventDataInput(), user);
+        event2 = new OneTimeEvent(eventData2.getEventDataInput(), user);
         oneTimeEventRepository.save(event1);
         oneTimeEventRepository.save(event2);
         final List<OneTimeEvent> result = oneTimeEventRepository.findByUser(user);

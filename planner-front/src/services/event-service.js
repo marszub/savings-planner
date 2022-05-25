@@ -4,6 +4,7 @@ import { HTTP_OK } from "../utils/http-status";
 import { CreateEventRequest } from "../requests/create-event-request";
 import { moneyFormatter } from "../utils/money-formatter";
 import { INCOME_EVENT_TYPE } from "../utils/event-types";
+import {UpdateEventRequest} from "../requests/update-event-request";
 
 function changeTimestamp(EventData) {
   for (let event of EventData) {
@@ -44,6 +45,17 @@ export const eventService = {
 
     delete(id) {
         return httpService.delete(`/events/${id}`);
+    },
+
+    update(formModel) {
+        const body = new UpdateEventRequest(
+            formModel.title,
+            moneyFormatter.mapStringToPenniesNumber(
+                formModel.eventType == INCOME_EVENT_TYPE ? formModel.amount : -formModel.amount
+            ),
+            new Date(formModel.date).getTime()
+        );
+        return httpService.put(`/events/${formModel.id}`, body);
     },
 
   getEventsList() {

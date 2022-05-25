@@ -39,7 +39,7 @@ public class GoalTest {
     void singleGoalIsProperlySavedInDatabase() {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        final Goal testGoal = new Goal(user, "test", 11, 1);
+        final Goal testGoal = new Goal(user, "test", 1);
         goalRepository.save(testGoal);
 
         final List<Goal> result = goalRepository.findByUserOrderByPriorityDesc(user);
@@ -53,9 +53,9 @@ public class GoalTest {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         final List<Goal> testGoals = List.of(
-                new Goal(user, "test", 11, 1),
-                new Goal(user, "test", 112, 5),
-                new Goal(user, "test", 112, 2)
+                new Goal(user, "test", 1),
+                new Goal(user, "test",  5),
+                new Goal(user, "test",  2)
         );
         goalRepository.saveAll(testGoals);
 
@@ -70,9 +70,9 @@ public class GoalTest {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
         final List<Goal> testGoals = List.of(
-                new Goal(user, "test", 11, 1),
-                new Goal(user, "test", 112, 5),
-                new Goal(user, "test", 112, 2)
+                new Goal(user, "test", 1),
+                new Goal(user, "test", 5),
+                new Goal(user, "test", 2)
         );
         goalRepository.saveAll(testGoals);
 
@@ -86,7 +86,7 @@ public class GoalTest {
     void goalIsProperlyDeletedFromDatabase() {
         final User user = new User("TEST", "TEST", "TEST");
         userRepository.save(user);
-        final Goal testGoal = new Goal(user, "test", 11, 1);
+        final Goal testGoal = new Goal(user, "test", 1);
         goalRepository.save(testGoal);
 
         assertThat(goalRepository.getGoalById(testGoal.getId(), user)).isPresent();
@@ -102,8 +102,8 @@ public class GoalTest {
         userRepository.save(user1);
         userRepository.save(user2);
 
-        final Goal testGoal1 = new Goal(user1, "test", 11, 1);
-        final Goal testGoal2 = new Goal(user2, "test", 11, 1);
+        final Goal testGoal1 = new Goal(user1, "test", 1);
+        final Goal testGoal2 = new Goal(user2, "test", 1);
 
         assertThatNoException()
                 .isThrownBy(() -> {
@@ -119,8 +119,8 @@ public class GoalTest {
         final User user1 = new User("TEST", "TEST", "TEST");
         userRepository.save(user1);
 
-        final Goal testGoal1 = new Goal(user1, "test1", 1, 5);
-        final Goal testGoal2 = new Goal(user1, "test2", 2, 5);
+        final Goal testGoal1 = new Goal(user1, "test1", 5);
+        final Goal testGoal2 = new Goal(user1, "test2", 5);
 
         assertThatExceptionOfType(DataIntegrityViolationException.class)
                 .isThrownBy(() -> {

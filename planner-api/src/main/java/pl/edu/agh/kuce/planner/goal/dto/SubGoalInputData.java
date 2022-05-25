@@ -4,7 +4,10 @@ import javax.validation.constraints.NotNull;
 
 public record SubGoalInputData(
         @NotNull
-        String title
+        String title,
+
+        @NotNull
+        Integer amount
 ) { }
 
 

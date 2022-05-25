@@ -4,7 +4,10 @@ import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 
 import javax.validation.constraints.NotNull;
 
-public record OneTimeEventDataInput(
+public record EventTimestamp(
+        @NotNull
+        Integer id,
+
         @NotNull
         String title,
 
@@ -13,7 +16,8 @@ public record OneTimeEventDataInput(
 
         @NotNull
         Long timestamp) {
-    public OneTimeEventDataInput(final OneTimeEvent oneTimeEvent) {
-        this(oneTimeEvent.getTitle(), oneTimeEvent.getAmount(), oneTimeEvent.getTimestamp());
+    public EventTimestamp(final OneTimeEvent oneTimeEvent) {
+        this(oneTimeEvent.getId(), oneTimeEvent.getTitle(),
+                oneTimeEvent.getAmount(), oneTimeEvent.getTimestamp());
     }
 }

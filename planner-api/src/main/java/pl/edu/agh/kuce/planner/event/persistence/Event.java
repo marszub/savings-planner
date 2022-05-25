@@ -1,25 +1,22 @@
-package pl.edu.agh.kuce.planner.goal.persistence;
+package pl.edu.agh.kuce.planner.event.persistence;
 
 import pl.edu.agh.kuce.planner.auth.persistence.User;
-import pl.edu.agh.kuce.planner.goal.dto.GoalInputData;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.persistence.CascadeType;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "goals", uniqueConstraints = { @UniqueConstraint(columnNames = { "user_id", "priority" }) })
-public class Goal {
-
+@Table(name = "events")
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class Event {
     @Id
     @GeneratedValue
     private Integer id;
@@ -28,29 +25,18 @@ public class Goal {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "goal", cascade = CascadeType.REMOVE)
-    private List<SubGoal> subGoalList;
-
     @Column(nullable = false)
     private String title;
 
-    @Column(name = "priority", nullable = false)
-    private Integer priority;
+    @Column(nullable = false)
+    private Integer amount;
 
-    public Goal() { }
+    public Event() { }
 
-    public Goal(final User user, final String title, final Integer priority) {
+    public Event(final User user, final String title, final Integer amount) {
         this.user = user;
         this.title = title;
-        this.priority = priority;
-    }
-
-    public Goal(final User user, final GoalInputData data) {
-        this(
-                user,
-                data.title(),
-                data.priority()
-        );
+        this.amount = amount;
     }
 
     public Integer getId() {
@@ -77,12 +63,12 @@ public class Goal {
         this.title = title;
     }
 
-    public Integer getPriority() {
-        return priority;
+    public Integer getAmount() {
+        return amount;
     }
 
-    public void setPriority(final Integer priority) {
-        this.priority = priority;
+    public void setAmount(final Integer amount) {
+        this.amount = amount;
     }
 
     @Override
@@ -93,8 +79,8 @@ public class Goal {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final Goal target = (Goal) o;
-        return Objects.equals(id, target.id);
+        final Event event = (Event) o;
+        return Objects.equals(id, event.id);
     }
 
     @Override
