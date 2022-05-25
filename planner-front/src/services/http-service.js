@@ -1,4 +1,4 @@
-import { HTTP_NO_CONTENT, HTTP_UNAUTHORIZED } from "../utils/http-status";
+import {HTTP_BAD_REQUEST, HTTP_NO_CONTENT, HTTP_UNAUTHORIZED, isServerError} from "../utils/http-status";
 import { BACKEND_URL } from "../config";
 import { tokenStorage } from "./token-storage";
 import { userService } from "./user-service";
@@ -22,6 +22,10 @@ export const httpService = {
 
     delete(path, body) {
         return request(path, 'DELETE', body);
+    },
+
+    onUnexpectedHttpStatus(status) {
+        return Promise.reject(`Unexpected HTTP status ${status}`);
     }
 }
 
@@ -41,11 +45,15 @@ function request(path, method, body=null) {
 function onResponse(res) {
     if (res.status === HTTP_NO_CONTENT) {
         return new ResponseShort(res.status, res.body);
-    }
-    if (res.status === HTTP_UNAUTHORIZED && res.url !== `${BACKEND_URL}/auth/access-token`) {
+    } else if (res.status === HTTP_BAD_REQUEST) {
+        return Promise.reject("Bad request");
+    } else if (isServerError(res.status)) {
+        return Promise.reject("Server error");
+    } else if (res.status === HTTP_UNAUTHORIZED && res.url !== `${BACKEND_URL}/auth/access-token`) {
         console.log("User unauthorized");
         userService.signOut();
     }
+
     return new Promise((resolve, reject) => res.json()
             .then(body => resolve(new ResponseShort(res.status, body)))
             .catch(err => reject(err)));
