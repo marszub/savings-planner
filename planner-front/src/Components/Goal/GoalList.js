@@ -280,7 +280,7 @@ function Goal(props) {
     goalService.deleteSubGoal(props.goal.id, subGoalId)
         .then(res => {
           switch (res.status) {
-            case HTTP_NO_CONTENT:
+            case HTTP_OK:
               props.setAlertStatus(SUB_GOAL_DELETED_ALERT);
               props.setRefreshAlert(prev => !prev);
               break;

@@ -118,9 +118,7 @@ export const goalService = {
         .then(async res => {
           switch (res.status) {
             case HTTP_CREATED:
-              this._goals = this._goals.filter(goal => goal.id !== parentGoalId);
-              this._goals.push(res.body);
-              this._goals.sort(goalCompare);
+              this._replace_goal(parentGoalId, res.body);
               this._notifyChangeListeners();
               break;
             case HTTP_NOT_FOUND:
@@ -137,11 +135,8 @@ export const goalService = {
     return httpService.delete(`/goals/${parentGoalId}/sub-goals/${subGoalId}`)
         .then(async res => {
           switch (res.status) {
-            case HTTP_NO_CONTENT:
-              const parentGoal = this._goals
-                  .filter(goal => goal.id === parentGoalId)
-                  .at(0);
-              parentGoal.subGoals = parentGoal.subGoals.filter(subGoal => subGoal.id !== subGoalId);
+            case HTTP_OK:
+              this._replace_goal(parentGoalId, res.body);
               this._notifyChangeListeners();
               break;
             case HTTP_NOT_FOUND:
@@ -156,5 +151,10 @@ export const goalService = {
 
   _notifyChangeListeners() {
     this._changeListeners.forEach(onChange => onChange([...this._goals]));
+  },
+
+  _replace_goal(goalId, newGoal) {
+    const goalIndex = this._goals.findIndex(goal => goal.id === goalId);
+    this._goals[goalIndex] = newGoal;
   }
 }
