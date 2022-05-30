@@ -17,6 +17,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Snackbar from '@mui/material/Snackbar';
 import Tooltip from '@mui/material/Tooltip';
 import SportsScoreOutlinedIcon from '@mui/icons-material/SportsScoreOutlined';
+import LabelImportantIcon from '@mui/icons-material/LabelImportant';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -29,10 +30,13 @@ import {goalValidators} from '../../utils/goal-validators';
 import {moneyFormatter} from "../../utils/money-formatter";
 import {goalService} from "../../services/goal-service";
 import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
-import {CircularProgress, Collapse} from "@mui/material";
+import {CircularProgress, Collapse, ListItemIcon} from "@mui/material";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import "../../styles/Goals.css"
 import {useNavigate} from "react-router-dom";
+import {moneyValidators} from "../../utils/money-validators";
+import {SubGoalCreateForm} from "../../models/sub-goal-create-form";
+import InputAdornment from "@mui/material/InputAdornment";
 
 const theme = createTheme();
 
@@ -247,12 +251,13 @@ export default function GoalList() {
 
 function Goal(props) {
   const [goalRemovalOpen, setGoalRemovalOpen] = useState(false);
+  const [subGoalCreationOpen, setSubGoalCreationOpen] = useState(false);
   const [subGoalOpen, setSubGoalOpen] = useState(false);
 
-  const createSubGoal = title => {
+  const createSubGoal = model => {
     props.setLoading(true);
 
-    goalService.createSubGoal(props.goal.id, title)
+    goalService.createSubGoal(props.goal.id, model)
         .then(res => {
           switch (res.status) {
             case HTTP_CREATED:
@@ -296,19 +301,27 @@ function Goal(props) {
             margin: '0 1em'
           }}
       >
+        <ListItemIcon
+            edge="middle"
+            aria-label="delete"
+            size="small"
+        >
+          <LabelImportantIcon />
+        </ListItemIcon>
+        <ListItemText
+            primary={subGoal.title}
+            secondary={moneyFormatter.mapPenniesNumberToString(subGoal.amount) + ' PLN'}
+        />
         <Tooltip title="Delete">
           <IconButton
-              edge="start"
+              edge="middle"
               aria-label="delete"
               size="small"
               onClick={() => deleteSubGoal(subGoal.id)}
           >
-            <DeleteIcon/>
+            <DeleteIcon />
           </IconButton>
         </Tooltip>
-        <ListItemText
-            primary={subGoal.title}
-        />
       </ListItem>
   ));
 
@@ -355,8 +368,20 @@ function Goal(props) {
                 <List>
                   {subGoals}
                 </List>
-                <SubGoalCreationForm
-                  onCreate={createSubGoal}
+
+                <Button
+                    fullWidth
+                    variant="contained"
+                    sx={{mt: 3, mb: 2}}
+                    onClick={() => setSubGoalCreationOpen(true)}
+                >
+                  Add new sub-goal
+                </Button>
+
+                <SubGoalCreationDialog
+                    open={subGoalCreationOpen}
+                    onClose={() => setSubGoalCreationOpen(false)}
+                    create={createSubGoal}
                 />
               </Collapse>
               </>
@@ -367,60 +392,6 @@ function Goal(props) {
             <Divider/>
         }
       </>
-  );
-}
-
-function SubGoalCreationForm(props) {
-  const [subGoalErrorMessage, setSubGoalErrorMessage] = useState('');
-  const [title, setTitle] = useState('');
-
-  const handleSubmit = event => {
-    event.preventDefault();
-
-    const subGoalError = goalValidators.validateTitle(title);
-
-    setSubGoalErrorMessage(subGoalError);
-
-    if (subGoalError) {
-      return;
-    }
-
-    props.onCreate(title);
-    setTitle('');
-  };
-
-  return (
-      <Container
-          component="form"
-          onSubmit={handleSubmit}
-          sx={{
-            display: 'flex',
-            gap: '1em',
-            alignItems: 'stretch',
-            margin: '1em 0'
-          }}
-      >
-        <TextField
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            required
-            fullWidth
-            size="small"
-            id="sub-goal"
-            label="Sub-goal title"
-            name="sub-goal"
-            autoFocus
-            error={!!subGoalErrorMessage}
-            helperText={subGoalErrorMessage}
-        >
-        </TextField>
-        <Button
-            type="submit"
-            variant="contained"
-        >
-          Add
-        </Button>
-      </Container>
   );
 }
 
@@ -479,6 +450,101 @@ function GoalCreationDialog(props) {
                   autoFocus
                   error={!!titleErrorMessage}
                   helperText={titleErrorMessage}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button
+                  type="button"
+                  onClick={handleClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                  type="submit"
+                  variant="contained"
+              >
+                Create
+              </Button>
+            </DialogActions>
+          </Box>
+        </Box>
+      </Dialog>
+  );
+}
+
+function SubGoalCreationDialog(props) {
+  const [titleErrorMessage, setTitleErrorMessage] = useState("");
+  const [amountErrorMessage, setAmountErrorMessage] = useState("");
+
+  const handleClose = () => {
+    props.onClose();
+    setTitleErrorMessage('');
+    setAmountErrorMessage('');
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    const data = new FormData(event.currentTarget);
+    const formModel = new SubGoalCreateForm(
+        data.get('title'),
+        data.get('amount')
+    );
+
+    const titleError = goalValidators.validateTitle(formModel.title);
+    const amountError = moneyValidators.validateAmount(formModel.amount);
+
+    setTitleErrorMessage(titleError);
+    setAmountErrorMessage(amountError);
+
+    if (titleError || amountError) {
+      return;
+    }
+
+    props.create(formModel);
+    handleClose();
+  };
+
+  return (
+      <Dialog
+          maxWidth="xs"
+          open={props.open}
+          onClose={handleClose}
+      >
+        <Box
+            sx={{
+              margin: 1
+            }}
+        >
+          <DialogTitle>Create new sub-goal</DialogTitle>
+          <Box
+              component="form"
+              onSubmit={handleSubmit}
+          >
+            <DialogContent>
+              <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="title"
+                  label="Title"
+                  name="title"
+                  autoFocus
+                  error={!!titleErrorMessage}
+                  helperText={titleErrorMessage}
+              />
+              <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="amount"
+                  label="Amount"
+                  name="amount"
+                  error={!!amountErrorMessage}
+                  helperText={amountErrorMessage}
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">PLN</InputAdornment>,
+                  }}
               />
             </DialogContent>
             <DialogActions>

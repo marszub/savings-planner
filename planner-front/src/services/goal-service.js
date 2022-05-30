@@ -4,6 +4,8 @@ import {GoalPriorityUpdateModel} from "../models/goal-priority-update-model";
 import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../utils/http-status";
 import {goalCompare} from "../utils/goal-compare";
 import {MAX_INT32} from "../utils/money-validators";
+import {moneyFormatter} from "../utils/money-formatter";
+import {CreateSubGoalRequest} from "../requests/create-sub-goal-request";
 
 export const goalService = {
 
@@ -105,15 +107,20 @@ export const goalService = {
         });
   },
 
-  createSubGoal(parentGoalId, subGoalTitle) {
-    return httpService.post(`/goals/${parentGoalId}/sub-goals`, {title: subGoalTitle})
+  createSubGoal(parentGoalId, formModel) {
+    return httpService.post(
+        `/goals/${parentGoalId}/sub-goals`,
+          new CreateSubGoalRequest(
+              formModel.title,
+              moneyFormatter.mapStringToPenniesNumber(formModel.amount)
+          )
+        )
         .then(async res => {
           switch (res.status) {
             case HTTP_CREATED:
-              const parentGoal = this._goals
-                  .filter(goal => goal.id === parentGoalId)
-                  .at(0);
-              parentGoal.subGoals.push(res.body);
+              this._goals = this._goals.filter(goal => goal.id !== parentGoalId);
+              this._goals.push(res.body);
+              this._goals.sort(goalCompare);
               this._notifyChangeListeners();
               break;
             case HTTP_NOT_FOUND:
