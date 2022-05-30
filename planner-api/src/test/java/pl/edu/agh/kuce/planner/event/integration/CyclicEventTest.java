@@ -33,7 +33,8 @@ public class CyclicEventTest {
     private User user = new User("nick", "123@321.223", "password");
     private final CyclicEventDataInput eventData1 =
             new CyclicEventDataInput("Title1", 210, date1, Calendar.WEEK_OF_YEAR, 1, 8);
-    private final CyclicEventDataInput eventData2 = new CyclicEventDataInput("Title2", 310, date2, Calendar.MONTH, 2, 1);
+    private final CyclicEventDataInput eventData2 =
+            new CyclicEventDataInput("Title2", 310, date2, Calendar.MONTH, 2, 1);
     private CyclicEvent event1;
     private CyclicEvent event2;
 
