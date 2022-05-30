@@ -98,7 +98,7 @@ public class CyclicEvent extends Event {
         while (!iterator.after(startCalendar)) {
             iterator.add(cycleBase, cycleLength);
         }
-        for (int i = 0; i < distinctEventsNum; i++) {
+        for (int i = 0, j = 0; i < distinctEventsNum && j < this.cycleCount; i++, j++) {
             events.add(new EventTimestamp(getId(), getTitle(), getAmount(), iterator.getTimeInMillis() / 1000));
             iterator.add(cycleBase, cycleLength);
         }

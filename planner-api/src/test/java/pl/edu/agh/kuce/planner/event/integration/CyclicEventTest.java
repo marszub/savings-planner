@@ -32,7 +32,7 @@ public class CyclicEventTest {
 
     private User user = new User("nick", "123@321.223", "password");
     private final CyclicEventDataInput eventData1 =
-            new CyclicEventDataInput("Title1", 210, date1, Calendar.WEEK_OF_YEAR, 1, 1);
+            new CyclicEventDataInput("Title1", 210, date1, Calendar.WEEK_OF_YEAR, 1, 8);
     private final CyclicEventDataInput eventData2 = new CyclicEventDataInput("Title2", 310, date2, Calendar.MONTH, 2, 1);
     private CyclicEvent event1;
     private CyclicEvent event2;
@@ -41,6 +41,12 @@ public class CyclicEventTest {
     void getFollowingN_NotReturnsStartDate() {
         event1 = new CyclicEvent(eventData1.getEventDataInput(), user);
         assertThat(event1.getFollowingN(date1, 1).get(0).timestamp()).isGreaterThan(date1);
+    }
+
+    @Test
+    void cyclicEventFromInterval_returnLessBecauseOfSmallCycleCount() {
+        event2 = new CyclicEvent(eventData2.getEventDataInput(), user);
+        assertThat(event2.getFollowingN(date2, 8).size()).isEqualTo(1);
     }
 
     @Test
@@ -99,24 +105,5 @@ public class CyclicEventTest {
         user = userRepository.save(user);
         final Optional<CyclicEvent> foundByIdAndUser = cyclicEventRepository.findByIdAndUser(1, user);
         assertThat(foundByIdAndUser.isEmpty()).isTrue();
-    }
-
-    @Test
-    @Transactional
-    void updateCycleCount() {
-        user = userRepository.save(user);
-        event1 = new CyclicEvent(eventData1.getEventDataInput(), user);
-        cyclicEventRepository.save(event1);
-
-        final CyclicEvent tmpEvent1 = cyclicEventRepository.findByUser(user).get(0);
-
-        assertThat(tmpEvent1).isEqualTo(event1);
-
-        cyclicEventRepository.updateCycleCount(tmpEvent1.getId(), tmpEvent1.getUser(), tmpEvent1.getCycleCount() - 1);
-
-        final CyclicEvent tmpEvent2 = cyclicEventRepository.findByUser(user).get(0);
-
-        assertThat(tmpEvent2.getCycleCount()).isNotEqualTo(tmpEvent1.getCycleCount());
-        assertThat(tmpEvent2.getCycleCount()).isEqualTo(event1.getCycleCount() - 1);
     }
 }
