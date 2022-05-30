@@ -1,9 +1,9 @@
 import {httpService} from "./http-service";
 import {CreateGoalRequest} from "../requests/create-goal-request";
-import {moneyFormatter} from "../utils/money-formatter";
 import {GoalPriorityUpdateModel} from "../models/goal-priority-update-model";
 import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../utils/http-status";
 import {goalCompare} from "../utils/goal-compare";
+import {MAX_INT32} from "../utils/money-validators";
 
 export const goalService = {
 
@@ -34,12 +34,14 @@ export const goalService = {
         })
   },
 
-  create(formModel, priority) {
+  create(formModel) {
+    const lastGoal = this._goals[this._goals.length - 1];
+    const priority = lastGoal ? lastGoal.priority - 1 : MAX_INT32;
+
     return httpService.post(
         '/goals',
         new CreateGoalRequest(
             formModel.title,
-            moneyFormatter.mapStringToPenniesNumber(formModel.amount),
             priority
         )
     )

@@ -11,7 +11,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
@@ -27,7 +26,6 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import {GoalCreateForm} from '../../models/goal-create-form';
 import {goalValidators} from '../../utils/goal-validators';
-import {MAX_INT32, moneyValidators} from "../../utils/money-validators";
 import {moneyFormatter} from "../../utils/money-formatter";
 import {goalService} from "../../services/goal-service";
 import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
@@ -69,10 +67,7 @@ export default function GoalList() {
   const createGoal = model => {
     setLoading(true);
 
-    const lastGoal = goals[goals.length - 1];
-    const newPriority = lastGoal ? lastGoal.priority - 1 : MAX_INT32;
-
-    goalService.create(model, newPriority)
+    goalService.create(model)
         .then(res => {
           switch (res.status) {
             case HTTP_CREATED:
@@ -431,12 +426,10 @@ function SubGoalCreationForm(props) {
 
 function GoalCreationDialog(props) {
   const [titleErrorMessage, setTitleErrorMessage] = useState("");
-  const [amountErrorMessage, setAmountErrorMessage] = useState("");
 
   const handleClose = () => {
     props.onClose();
     setTitleErrorMessage('');
-    setAmountErrorMessage('');
   };
 
   const handleSubmit = (event) => {
@@ -445,16 +438,13 @@ function GoalCreationDialog(props) {
     const data = new FormData(event.currentTarget);
     const formModel = new GoalCreateForm(
         data.get('title'),
-        data.get('amount')
     );
 
     const titleError = goalValidators.validateTitle(formModel.title);
-    const amountError = moneyValidators.validateAmount(formModel.amount);
 
     setTitleErrorMessage(titleError);
-    setAmountErrorMessage(amountError);
 
-    if (titleError || amountError) {
+    if (titleError) {
       return;
     }
 
@@ -489,19 +479,6 @@ function GoalCreationDialog(props) {
                   autoFocus
                   error={!!titleErrorMessage}
                   helperText={titleErrorMessage}
-              />
-              <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="amount"
-                  label="Amount"
-                  name="amount"
-                  error={!!amountErrorMessage}
-                  helperText={amountErrorMessage}
-                  InputProps={{
-                    endAdornment: <InputAdornment position="end">PLN</InputAdornment>,
-                  }}
               />
             </DialogContent>
             <DialogActions>
