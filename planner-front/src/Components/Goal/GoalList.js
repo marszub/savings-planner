@@ -18,6 +18,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Tooltip from '@mui/material/Tooltip';
 import SportsScoreOutlinedIcon from '@mui/icons-material/SportsScoreOutlined';
 import LabelImportantIcon from '@mui/icons-material/LabelImportant';
+import CheckIcon from '@mui/icons-material/Check';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -47,6 +48,7 @@ const GOAL_404_ALERT = 'GOAL_404';
 const GOAL_409_ALERT = 'GOAL_409';
 const SUB_GOAL_DELETED_ALERT = 'SUB_GOAL_DELETED';
 const SUB_GOAL_CREATED_ALERT = 'SUB_GOAL_CREATED';
+const SUB_GOAL_COMPLETED_ALERT = 'SUB_GOAL_COMPLETED';
 
 export default function GoalList() {
   const [goals, setGoals] = useState([]);
@@ -274,6 +276,26 @@ function Goal(props) {
         .finally(() => props.setLoading(false));
   };
 
+  const completeSubGoal = subGoalId => {
+    props.setLoading(true);
+
+    goalService.completeSubGoal(props.goal.id, subGoalId)
+        .then(res => {
+          switch (res.status) {
+            case HTTP_OK:
+              props.setAlertStatus(SUB_GOAL_COMPLETED_ALERT);
+              props.setRefreshAlert(prev => !prev);
+              break;
+            case HTTP_NOT_FOUND:
+              props.setAlertStatus(GOAL_404_ALERT);
+              props.setRefreshAlert(prev => !prev);
+              break;
+          }
+        })
+        .catch(err => props.navigate(`/error?text=${err}`))
+        .finally(() => props.setLoading(false));
+  };
+
   const deleteSubGoal = subGoalId => {
     props.setLoading(true);
 
@@ -298,11 +320,10 @@ function Goal(props) {
       <ListItem
           key={subGoal.id.toString()}
           sx={{
-            margin: '0 1em'
+            opacity: subGoal.completed ? 0.5 : 1.0
           }}
       >
         <ListItemIcon
-            edge="middle"
             aria-label="delete"
             size="small"
         >
@@ -312,9 +333,21 @@ function Goal(props) {
             primary={subGoal.title}
             secondary={moneyFormatter.mapPenniesNumberToString(subGoal.amount) + ' PLN'}
         />
+        { !subGoal.completed &&
+          <Tooltip title="Complete">
+            <IconButton
+                edge="end"
+                aria-label="complete"
+                size="small"
+                onClick={() => completeSubGoal(subGoal.id)}
+            >
+              <CheckIcon/>
+            </IconButton>
+          </Tooltip>
+        }
         <Tooltip title="Delete">
           <IconButton
-              edge="middle"
+              edge="end"
               aria-label="delete"
               size="small"
               onClick={() => deleteSubGoal(subGoal.id)}
@@ -632,6 +665,11 @@ function GoalActionSnackbar(props) {
       case SUB_GOAL_CREATED_ALERT:
         setAlertSeverity('success');
         setAlertMessage('New sub-goal successfully created!');
+        setAlertOpen(true);
+        break;
+      case SUB_GOAL_COMPLETED_ALERT:
+        setAlertSeverity('info');
+        setAlertMessage('Sub-goal completed!');
         setAlertOpen(true);
         break;
       case SUB_GOAL_DELETED_ALERT:
