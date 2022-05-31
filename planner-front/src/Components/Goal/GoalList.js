@@ -11,13 +11,13 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Snackbar from '@mui/material/Snackbar';
 import Tooltip from '@mui/material/Tooltip';
 import SportsScoreOutlinedIcon from '@mui/icons-material/SportsScoreOutlined';
+import LabelImportantIcon from '@mui/icons-material/LabelImportant';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -27,14 +27,16 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import {GoalCreateForm} from '../../models/goal-create-form';
 import {goalValidators} from '../../utils/goal-validators';
-import {MAX_INT32, moneyValidators} from "../../utils/money-validators";
 import {moneyFormatter} from "../../utils/money-formatter";
 import {goalService} from "../../services/goal-service";
 import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../../utils/http-status";
-import {CircularProgress, Collapse} from "@mui/material";
+import {CircularProgress, Collapse, ListItemIcon} from "@mui/material";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import "../../styles/Goals.css"
 import {useNavigate} from "react-router-dom";
+import {moneyValidators} from "../../utils/money-validators";
+import {SubGoalCreateForm} from "../../models/sub-goal-create-form";
+import InputAdornment from "@mui/material/InputAdornment";
 
 const theme = createTheme();
 
@@ -69,10 +71,7 @@ export default function GoalList() {
   const createGoal = model => {
     setLoading(true);
 
-    const lastGoal = goals[goals.length - 1];
-    const newPriority = lastGoal ? lastGoal.priority - 1 : MAX_INT32;
-
-    goalService.create(model, newPriority)
+    goalService.create(model)
         .then(res => {
           switch (res.status) {
             case HTTP_CREATED:
@@ -252,12 +251,13 @@ export default function GoalList() {
 
 function Goal(props) {
   const [goalRemovalOpen, setGoalRemovalOpen] = useState(false);
+  const [subGoalCreationOpen, setSubGoalCreationOpen] = useState(false);
   const [subGoalOpen, setSubGoalOpen] = useState(false);
 
-  const createSubGoal = title => {
+  const createSubGoal = model => {
     props.setLoading(true);
 
-    goalService.createSubGoal(props.goal.id, title)
+    goalService.createSubGoal(props.goal.id, model)
         .then(res => {
           switch (res.status) {
             case HTTP_CREATED:
@@ -280,7 +280,7 @@ function Goal(props) {
     goalService.deleteSubGoal(props.goal.id, subGoalId)
         .then(res => {
           switch (res.status) {
-            case HTTP_NO_CONTENT:
+            case HTTP_OK:
               props.setAlertStatus(SUB_GOAL_DELETED_ALERT);
               props.setRefreshAlert(prev => !prev);
               break;
@@ -301,19 +301,27 @@ function Goal(props) {
             margin: '0 1em'
           }}
       >
+        <ListItemIcon
+            edge="middle"
+            aria-label="delete"
+            size="small"
+        >
+          <LabelImportantIcon />
+        </ListItemIcon>
+        <ListItemText
+            primary={subGoal.title}
+            secondary={moneyFormatter.mapPenniesNumberToString(subGoal.amount) + ' PLN'}
+        />
         <Tooltip title="Delete">
           <IconButton
-              edge="start"
+              edge="middle"
               aria-label="delete"
               size="small"
               onClick={() => deleteSubGoal(subGoal.id)}
           >
-            <DeleteIcon/>
+            <DeleteIcon />
           </IconButton>
         </Tooltip>
-        <ListItemText
-            primary={subGoal.title}
-        />
       </ListItem>
   ));
 
@@ -360,8 +368,20 @@ function Goal(props) {
                 <List>
                   {subGoals}
                 </List>
-                <SubGoalCreationForm
-                  onCreate={createSubGoal}
+
+                <Button
+                    fullWidth
+                    variant="contained"
+                    sx={{mt: 3, mb: 2}}
+                    onClick={() => setSubGoalCreationOpen(true)}
+                >
+                  Add new sub-goal
+                </Button>
+
+                <SubGoalCreationDialog
+                    open={subGoalCreationOpen}
+                    onClose={() => setSubGoalCreationOpen(false)}
+                    create={createSubGoal}
                 />
               </Collapse>
               </>
@@ -375,61 +395,84 @@ function Goal(props) {
   );
 }
 
-function SubGoalCreationForm(props) {
-  const [subGoalErrorMessage, setSubGoalErrorMessage] = useState('');
-  const [title, setTitle] = useState('');
+function GoalCreationDialog(props) {
+  const [titleErrorMessage, setTitleErrorMessage] = useState("");
 
-  const handleSubmit = event => {
+  const handleClose = () => {
+    props.onClose();
+    setTitleErrorMessage('');
+  };
+
+  const handleSubmit = (event) => {
     event.preventDefault();
 
-    const subGoalError = goalValidators.validateTitle(title);
+    const data = new FormData(event.currentTarget);
+    const formModel = new GoalCreateForm(
+        data.get('title'),
+    );
 
-    setSubGoalErrorMessage(subGoalError);
+    const titleError = goalValidators.validateTitle(formModel.title);
 
-    if (subGoalError) {
+    setTitleErrorMessage(titleError);
+
+    if (titleError) {
       return;
     }
 
-    props.onCreate(title);
-    setTitle('');
+    props.create(formModel);
+    handleClose();
   };
 
   return (
-      <Container
-          component="form"
-          onSubmit={handleSubmit}
-          sx={{
-            display: 'flex',
-            gap: '1em',
-            alignItems: 'stretch',
-            margin: '1em 0'
-          }}
+      <Dialog
+          maxWidth="xs"
+          open={props.open}
+          onClose={handleClose}
       >
-        <TextField
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            required
-            fullWidth
-            size="small"
-            id="sub-goal"
-            label="Sub-goal title"
-            name="sub-goal"
-            autoFocus
-            error={!!subGoalErrorMessage}
-            helperText={subGoalErrorMessage}
+        <Box
+            sx={{
+              margin: 1
+            }}
         >
-        </TextField>
-        <Button
-            type="submit"
-            variant="contained"
-        >
-          Add
-        </Button>
-      </Container>
+          <DialogTitle>Create new goal</DialogTitle>
+          <Box
+              component="form"
+              onSubmit={handleSubmit}
+          >
+            <DialogContent>
+              <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="title"
+                  label="Title"
+                  name="title"
+                  autoFocus
+                  error={!!titleErrorMessage}
+                  helperText={titleErrorMessage}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button
+                  type="button"
+                  onClick={handleClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                  type="submit"
+                  variant="contained"
+              >
+                Create
+              </Button>
+            </DialogActions>
+          </Box>
+        </Box>
+      </Dialog>
   );
 }
 
-function GoalCreationDialog(props) {
+function SubGoalCreationDialog(props) {
   const [titleErrorMessage, setTitleErrorMessage] = useState("");
   const [amountErrorMessage, setAmountErrorMessage] = useState("");
 
@@ -443,7 +486,7 @@ function GoalCreationDialog(props) {
     event.preventDefault();
 
     const data = new FormData(event.currentTarget);
-    const formModel = new GoalCreateForm(
+    const formModel = new SubGoalCreateForm(
         data.get('title'),
         data.get('amount')
     );
@@ -473,7 +516,7 @@ function GoalCreationDialog(props) {
               margin: 1
             }}
         >
-          <DialogTitle>Create new goal</DialogTitle>
+          <DialogTitle>Create new sub-goal</DialogTitle>
           <Box
               component="form"
               onSubmit={handleSubmit}

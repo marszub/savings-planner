@@ -1,6 +1,5 @@
 export class GoalCreateForm {
-    constructor(title, amount) {
+    constructor(title) {
         this.title = title;
-        this.amount = amount;
     }
 }

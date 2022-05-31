@@ -1,7 +1,6 @@
 export class CreateGoalRequest {
-    constructor(title, amount, priority) {
+    constructor(title, priority) {
         this.title = title;
-        this.amount = amount;
         this.priority = priority;
     }
 }

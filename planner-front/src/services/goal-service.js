@@ -1,9 +1,11 @@
 import {httpService} from "./http-service";
 import {CreateGoalRequest} from "../requests/create-goal-request";
-import {moneyFormatter} from "../utils/money-formatter";
 import {GoalPriorityUpdateModel} from "../models/goal-priority-update-model";
 import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../utils/http-status";
 import {goalCompare} from "../utils/goal-compare";
+import {MAX_INT32} from "../utils/money-validators";
+import {moneyFormatter} from "../utils/money-formatter";
+import {CreateSubGoalRequest} from "../requests/create-sub-goal-request";
 
 export const goalService = {
 
@@ -34,12 +36,14 @@ export const goalService = {
         })
   },
 
-  create(formModel, priority) {
+  create(formModel) {
+    const lastGoal = this._goals[this._goals.length - 1];
+    const priority = lastGoal ? lastGoal.priority - 1 : MAX_INT32;
+
     return httpService.post(
         '/goals',
         new CreateGoalRequest(
             formModel.title,
-            moneyFormatter.mapStringToPenniesNumber(formModel.amount),
             priority
         )
     )
@@ -103,15 +107,18 @@ export const goalService = {
         });
   },
 
-  createSubGoal(parentGoalId, subGoalTitle) {
-    return httpService.post(`/goals/${parentGoalId}/sub-goals`, {title: subGoalTitle})
+  createSubGoal(parentGoalId, formModel) {
+    return httpService.post(
+        `/goals/${parentGoalId}/sub-goals`,
+          new CreateSubGoalRequest(
+              formModel.title,
+              moneyFormatter.mapStringToPenniesNumber(formModel.amount)
+          )
+        )
         .then(async res => {
           switch (res.status) {
             case HTTP_CREATED:
-              const parentGoal = this._goals
-                  .filter(goal => goal.id === parentGoalId)
-                  .at(0);
-              parentGoal.subGoals.push(res.body);
+              this._replace_goal(parentGoalId, res.body);
               this._notifyChangeListeners();
               break;
             case HTTP_NOT_FOUND:
@@ -128,11 +135,8 @@ export const goalService = {
     return httpService.delete(`/goals/${parentGoalId}/sub-goals/${subGoalId}`)
         .then(async res => {
           switch (res.status) {
-            case HTTP_NO_CONTENT:
-              const parentGoal = this._goals
-                  .filter(goal => goal.id === parentGoalId)
-                  .at(0);
-              parentGoal.subGoals = parentGoal.subGoals.filter(subGoal => subGoal.id !== subGoalId);
+            case HTTP_OK:
+              this._replace_goal(parentGoalId, res.body);
               this._notifyChangeListeners();
               break;
             case HTTP_NOT_FOUND:
@@ -147,5 +151,10 @@ export const goalService = {
 
   _notifyChangeListeners() {
     this._changeListeners.forEach(onChange => onChange([...this._goals]));
+  },
+
+  _replace_goal(goalId, newGoal) {
+    const goalIndex = this._goals.findIndex(goal => goal.id === goalId);
+    this._goals[goalIndex] = newGoal;
   }
 }
