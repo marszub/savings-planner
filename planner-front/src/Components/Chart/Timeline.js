@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import { Container } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { goalService } from "../../services/goal-service";
+import { goalCalculateDates } from "../../utils/goal-calculate-dates";
 
 const theme = createTheme();
 
@@ -14,7 +15,6 @@ function compareDates(event1, event2) {
 
 export default function Timeline() {
   const [curIdx, setCurIdx] = useState(0);
-  const [prevIdx, setPrevIdx] = useState(-1);
   const [goals, setGoals] = useState([]);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function Timeline() {
               variant="h5"
               style={{ textAlign: "center" }}
           >
-              { curStatus ? `Goal progress: ${curStatus}`: 'Goal progress: no goals' }
+              { `Goal progress: ${ curStatus ? curStatus : 'no goals' }` }
           </Typography>
           <div
               style={{
@@ -52,10 +52,9 @@ export default function Timeline() {
                 }}
                 index={curIdx}
                 indexClick={(index) => {
-                  setPrevIdx(curIdx);
                   setCurIdx(index);
                 }}
-                values={ goals.map(goal => new Date()) }
+                values={ goalCalculateDates(goals) }
             /> }
           </div>
         </Container>
