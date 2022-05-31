@@ -35,12 +35,12 @@ public class CyclicEvent extends Event {
             final Calendar begin,
             final Integer cycleBase,
             final Integer cycleLength,
-            final Calendar cycleCount) {
+            final Calendar cycleEnd) {
         super(user, title, amount);
         this.begin = begin;
         this.cycleBase = cycleBase;
         this.cycleLength = cycleLength;
-        this.cycleEnd = cycleCount;
+        this.cycleEnd = cycleEnd;
     }
 
     public CyclicEvent(final EventDataInput eventDataInput, final User user) {
@@ -99,7 +99,7 @@ public class CyclicEvent extends Event {
         while (!iterator.after(startCalendar)) {
             iterator.add(cycleBase, cycleLength);
         }
-        for (int i = 0; i < distinctEventsNum && iterator.getTimeInMillis() < this.cycleEnd.getTimeInMillis(); i++) {
+        for (int i = 0; i < distinctEventsNum && iterator.getTimeInMillis() <= this.cycleEnd.getTimeInMillis(); i++) {
             events.add(new EventTimestamp(getId(), getTitle(), getAmount(), iterator.getTimeInMillis() / 1000));
             iterator.add(cycleBase, cycleLength);
         }

@@ -28,7 +28,7 @@ public class CyclicEventTest {
     private UserRepository userRepository;
 
     private final Long date1 = Instant.parse("2022-03-23T00:00:01.00Z").getEpochSecond();
-    private final Long date2 = Instant.parse("2022-05-11T00:00:01.00Z").getEpochSecond();
+    private final Long date2 = Instant.parse("2022-05-09T00:00:01.00Z").getEpochSecond();
 
     private User user = new User("nick", "123@321.223", "password");
     private final CyclicEventDataInput eventData1 =
@@ -47,7 +47,7 @@ public class CyclicEventTest {
     @Test
     void cyclicEventFromInterval_returnLessBecauseOfEndOfEvent() {
         event1 = new CyclicEvent(eventData1.getEventDataInput(), user);
-        assertThat(event1.getFollowingN(date1, 8).size()).isEqualTo(7);
+        assertThat(event1.getFollowingN(date1, 8).size()).isEqualTo(6);
     }
 
     @Test
