@@ -1,4 +1,4 @@
-import {InputAdornment, TextField, ThemeProvider} from "@mui/material";
+import { InputAdornment, TextField, ThemeProvider } from "@mui/material";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
@@ -16,7 +16,6 @@ import Container from "@mui/material/Container";
 import { createTheme } from "@mui/material/styles";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
-
 
 const theme = createTheme();
 
@@ -41,6 +40,11 @@ export default function BalanceField() {
     }
 
     useEffect(() => {
+        const changeListener = updatedBalance => setBalance(updatedBalance);
+        balanceService.addChangeListener(changeListener);
+
+        console.log('balance field');
+
         balanceService.getValue()
             .then(res => {
                 if (res.status !== HTTP_OK) {
@@ -50,6 +54,8 @@ export default function BalanceField() {
                 setBalance(res.body.balance);
             })
             .catch(err => console.log(err));
+
+        return () => balanceService.removeChangeListener(changeListener);
     }, []);
 
     const editBalance = model => {
