@@ -51,7 +51,7 @@ public class EventController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void update(@PathVariable("id") final Integer eventId,
-                                   @Valid @RequestBody final EventData eventData,
+                                   @Valid @RequestBody final EventDataInput eventData,
                                    @Current final User user) {
         eventService.update(eventData, eventId, user);
     }
