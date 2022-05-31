@@ -61,7 +61,7 @@ class EventServiceTest {
     private final Long timestampSprEnd1 = 1651262000L;
     private final Long timestampSprEnd2 = 1651989137L;
     private final Long timestampSprEnd3 = 1651389137L;
-    private final Long timestampSprEnd4 = 1651589137L;
+    private final Long timestampSprEnd4 = 1651589138L;
     private final Integer cycleBase1 = DAY_OF_MONTH;
     private final Integer cycleBase2 = DAY_OF_WEEK;
     private final Integer cycleBase3 = DAY_OF_WEEK;
