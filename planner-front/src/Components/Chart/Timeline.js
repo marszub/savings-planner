@@ -1,91 +1,64 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import HorizontalTimeline from "react-horizontal-timeline";
 import Typography from "@mui/material/Typography";
 import { Container } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { goalService } from "../../services/goal-service";
 
 const theme = createTheme();
-
-const fakeGoals = [
-  {
-    name: "Zakup laptopa",
-    price: 5000,
-    date: "2022-05-21",
-  },
-  {
-    name: "Remont mieszkania",
-    price: 50000,
-    date: "2024-01-21",
-  },
-  {
-    name: "Zakup samochodu",
-    price: 30000,
-    date: "2023-01-26",
-  },
-  {
-    name: "Wyjazd na Malediwy",
-    price: 10000,
-    date: "2022-12-03",
-  },
-  {
-    name: "Kurs nurkowania",
-    price: 3000,
-    date: "2022-04-20",
-  },
-];
 
 function compareDates(event1, event2) {
   if (event1.date < event2.date) return -1;
   else return 1;
 }
 
-export default class Timeline extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      curIdx: 0,
-      prevIdx: -1,
-    };
-  }
+export default function Timeline() {
+  const [curIdx, setCurIdx] = useState(0);
+  const [prevIdx, setPrevIdx] = useState(-1);
+  const [goals, setGoals] = useState([]);
 
-  render() {
-    fakeGoals.sort(compareDates);
-    const { curIdx } = this.state;
-    const curStatus = fakeGoals[curIdx].name;
+  useEffect(() => {
+    const changeListener = updatedGoals => setGoals(updatedGoals);
+    goalService.addChangeListener(changeListener);
 
-    return (
+    return () => goalService.removeChangeListener(changeListener);
+  }, []);
+
+  goals.sort(compareDates);
+  const curStatus = goals[curIdx]?.title;
+
+  return (
       <ThemeProvider theme={theme}>
         <Container>
           <Typography
-            component="h1"
-            variant="h5"
-            style={{ textAlign: "center" }}
+              component="h1"
+              variant="h5"
+              style={{ textAlign: "center" }}
           >
-            Realizacja celu: {curStatus}
+              { curStatus ? `Goal progress: ${curStatus}`: 'Goal progress: no goals' }
           </Typography>
           <div
-            style={{
-              height: "100px",
-              marginTop: "35px",
-              fontSize: "13px",
-            }}
+              style={{
+                height: "100px",
+                marginTop: "35px",
+                fontSize: "13px",
+              }}
           >
-            <HorizontalTimeline
-              styles={{
-                background: "#ffffff",
-                foreground: "#1976d2",
-                outline: "#dfdfdf",
-              }}
-              index={this.state.curIdx}
-              indexClick={(index) => {
-                const curIdx = this.state.curIdx;
-                this.setState({ curIdx: index, prevIdx: curIdx });
-              }}
-              values={fakeGoals.map((x) => x.date)}
-            />
+              { goals.length > 0 && <HorizontalTimeline
+                styles={{
+                  background: "#ffffff",
+                  foreground: "#1976d2",
+                  outline: "#dfdfdf",
+                }}
+                index={curIdx}
+                indexClick={(index) => {
+                  setPrevIdx(curIdx);
+                  setCurIdx(index);
+                }}
+                values={ goals.map(goal => new Date()) }
+            /> }
           </div>
         </Container>
       </ThemeProvider>
-    );
-  }
+  );
 }
