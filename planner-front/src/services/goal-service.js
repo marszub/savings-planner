@@ -2,7 +2,7 @@ import {httpService} from "./http-service";
 import {CreateGoalRequest} from "../requests/create-goal-request";
 import {GoalPriorityUpdateModel} from "../models/goal-priority-update-model";
 import {HTTP_CONFLICT, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK} from "../utils/http-status";
-import {goalCompare} from "../utils/goal-compare";
+import {goalCompare, subGoalCompare} from "../utils/goal-compare";
 import {MAX_INT32} from "../utils/money-validators";
 import {moneyFormatter} from "../utils/money-formatter";
 import {CreateSubGoalRequest} from "../requests/create-sub-goal-request";
@@ -27,6 +27,8 @@ export const goalService = {
           switch (res.status) {
             case HTTP_OK:
               this._goals = res.body.goals;
+              this._goals.sort(goalCompare);
+              this._goals.forEach(goal => goal.subGoals.sort(subGoalCompare));
               this._notifyChangeListeners();
               break;
             default:
@@ -131,6 +133,24 @@ export const goalService = {
         });
   },
 
+  completeSubGoal(parentGoalId, subGoalId) {
+    return httpService.patch(`/goals/${parentGoalId}/sub-goals/${subGoalId}`)
+        .then(async res => {
+          switch (res.status) {
+            case HTTP_OK:
+              this._replace_goal(parentGoalId, res.body);
+              this._notifyChangeListeners();
+              break;
+            case HTTP_NOT_FOUND:
+              await this.getList();
+              break;
+            default:
+              return httpService.onUnexpectedHttpStatus(res.status);
+          }
+          return res;
+        });
+  },
+
   deleteSubGoal(parentGoalId, subGoalId) {
     return httpService.delete(`/goals/${parentGoalId}/sub-goals/${subGoalId}`)
         .then(async res => {
@@ -156,5 +176,6 @@ export const goalService = {
   _replace_goal(goalId, newGoal) {
     const goalIndex = this._goals.findIndex(goal => goal.id === goalId);
     this._goals[goalIndex] = newGoal;
+    newGoal.subGoals.sort(subGoalCompare);
   }
 }
