@@ -131,6 +131,24 @@ export const goalService = {
         });
   },
 
+  completeSubGoal(parentGoalId, subGoalId) {
+    return httpService.patch(`/goals/${parentGoalId}/sub-goals/${subGoalId}`)
+        .then(async res => {
+          switch (res.status) {
+            case HTTP_OK:
+              this._replace_goal(parentGoalId, res.body);
+              this._notifyChangeListeners();
+              break;
+            case HTTP_NOT_FOUND:
+              await this.getList();
+              break;
+            default:
+              return httpService.onUnexpectedHttpStatus(res.status);
+          }
+          return res;
+        });
+  },
+
   deleteSubGoal(parentGoalId, subGoalId) {
     return httpService.delete(`/goals/${parentGoalId}/sub-goals/${subGoalId}`)
         .then(async res => {
