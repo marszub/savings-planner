@@ -59,6 +59,10 @@ class EventServiceTest {
     private final Long timestampSpr2 = 1650980000L;
     private final Long timestampSpr3 = 1650980032L;
     private final Long timestampSpr4 = 1650980564L;
+    private final Long timestampSprEnd1 = 1651262000L;
+    private final Long timestampSprEnd2 = 1651989137L;
+    private final Long timestampSprEnd3 = 1651389137L;
+    private final Long timestampSprEnd4 = 1651589137L;
     private final Integer cycleBase1 = DAY_OF_MONTH;
     private final Integer cycleBase2 = DAY_OF_WEEK;
     private final Integer cycleBase3 = DAY_OF_WEEK;
@@ -67,10 +71,6 @@ class EventServiceTest {
     private final Integer cycleLength2 = 1;
     private final Integer cycleLength3 = 2;
     private final Integer cycleLength4 = 1;
-    private final Integer cycleCount1 = 3;
-    private final Integer cycleCount2 = 2;
-    private final Integer cycleCount3 = 2;
-    private final Integer cycleCount4 = 1;
     private User user1 = new User(nick1, email1, password1);
     private User user2 = new User(nick2, email2, password2);
 
@@ -84,16 +84,16 @@ class EventServiceTest {
             new OneTimeEventDataInput(title4, amount4, timestampSpr4).getEventDataInput();
 
     private final EventDataInput cyclicEventDataInput1 =
-            new CyclicEventDataInput(title1, amount1, timestampSpr1, cycleBase1, cycleLength1, cycleCount1)
+            new CyclicEventDataInput(title1, amount1, timestampSpr1, cycleBase1, cycleLength1, timestampSprEnd1)
                     .getEventDataInput();
     private final EventDataInput cyclicEventDataInput2 =
-            new CyclicEventDataInput(title2, amount2, timestampSpr2, cycleBase2, cycleLength2, cycleCount2)
+            new CyclicEventDataInput(title2, amount2, timestampSpr2, cycleBase2, cycleLength2, timestampSprEnd2)
                     .getEventDataInput();
     private final EventDataInput cyclicEventDataInput3 =
-            new CyclicEventDataInput(title3, amount3, timestampSpr3, cycleBase3, cycleLength3, cycleCount3)
+            new CyclicEventDataInput(title3, amount3, timestampSpr3, cycleBase3, cycleLength3, timestampSprEnd3)
                     .getEventDataInput();
     private final EventDataInput cyclicEventDataInput4 =
-            new CyclicEventDataInput(title4, amount4, timestampSpr4, cycleBase4, cycleLength4, cycleCount4)
+            new CyclicEventDataInput(title4, amount4, timestampSpr4, cycleBase4, cycleLength4, timestampSprEnd4)
                     .getEventDataInput();
 
     @BeforeEach

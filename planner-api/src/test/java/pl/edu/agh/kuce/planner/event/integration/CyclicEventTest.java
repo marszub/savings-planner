@@ -32,9 +32,9 @@ public class CyclicEventTest {
 
     private User user = new User("nick", "123@321.223", "password");
     private final CyclicEventDataInput eventData1 =
-            new CyclicEventDataInput("Title1", 210, date1, Calendar.WEEK_OF_YEAR, 1, 8);
+            new CyclicEventDataInput("Title1", 210, date1, Calendar.WEEK_OF_YEAR, 1, date2);
     private final CyclicEventDataInput eventData2 =
-            new CyclicEventDataInput("Title2", 310, date2, Calendar.MONTH, 2, 1);
+            new CyclicEventDataInput("Title2", 310, date2, Calendar.MONTH, 2, date2);
     private CyclicEvent event1;
     private CyclicEvent event2;
 
@@ -45,15 +45,15 @@ public class CyclicEventTest {
     }
 
     @Test
-    void cyclicEventFromInterval_returnLessBecauseOfSmallCycleCount() {
-        event2 = new CyclicEvent(eventData2.getEventDataInput(), user);
-        assertThat(event2.getFollowingN(date2, 8).size()).isEqualTo(1);
+    void cyclicEventFromInterval_returnLessBecauseOfEndOfEvent() {
+        event1 = new CyclicEvent(eventData1.getEventDataInput(), user);
+        assertThat(event1.getFollowingN(date1, 8).size()).isEqualTo(7);
     }
 
     @Test
-    void cyclicEventFromInterval_returnsCorrectAmount() {
+    void cyclicEventFromInterval_returnsWantedNumberOfEvents() {
         event1 = new CyclicEvent(eventData1.getEventDataInput(), user);
-        assertThat(event1.getFollowingN(date1, 8).size()).isEqualTo(8);
+        assertThat(event1.getFollowingN(date1, 6).size()).isEqualTo(6);
     }
 
     @Test

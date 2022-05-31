@@ -23,7 +23,7 @@ public record EventData(
         Long begin,
         Integer cycleBase,
         Integer cycleLength,
-        Integer cycleCount) {
+        Long cycleEnd) {
     public EventData(final CyclicEvent cyclicEvent) {
         this(
                 cyclicEvent.getId(),
@@ -34,7 +34,7 @@ public record EventData(
                 cyclicEvent.getBegin(),
                 cyclicEvent.getCycleBase(),
                 cyclicEvent.getCycleLength(),
-                cyclicEvent.getCycleCount());
+                cyclicEvent.getCycleEnd());
     }
 
     public EventData(final OneTimeEvent oneTimeEvent) {
@@ -52,7 +52,7 @@ public record EventData(
 
     public boolean isValid() {
         if (isCyclic()) {
-            return begin != null && cycleBase != null && cycleLength != null;
+            return begin != null && cycleBase != null && cycleLength != null && cycleEnd != null;
         }
         return timestamp != null;
     }
