@@ -16,11 +16,12 @@ public record EventDataInput(
 
         Long begin,
         Integer cycleBase,
-        Integer cycleLength) {
+        Integer cycleLength,
+        Long cycleEnd) {
 
     public boolean isValid() {
         if (isCyclic()) {
-            return begin != null && cycleBase != null && cycleLength != null;
+            return begin != null && cycleBase != null && cycleLength != null && cycleEnd != null;
         }
         return timestamp != null;
     }

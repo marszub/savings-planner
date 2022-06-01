@@ -23,6 +23,9 @@ public class CyclicEvent extends Event {
     @Column(nullable = false)
     private Integer cycleLength;
 
+    @Column(nullable = false)
+    private Calendar cycleEnd;
+
     public CyclicEvent() { }
 
     public CyclicEvent(
@@ -31,11 +34,13 @@ public class CyclicEvent extends Event {
             final Integer amount,
             final Calendar begin,
             final Integer cycleBase,
-            final Integer cycleLength) {
+            final Integer cycleLength,
+            final Calendar cycleEnd) {
         super(user, title, amount);
         this.begin = begin;
         this.cycleBase = cycleBase;
         this.cycleLength = cycleLength;
+        this.cycleEnd = cycleEnd;
     }
 
     public CyclicEvent(final EventDataInput eventDataInput, final User user) {
@@ -45,9 +50,11 @@ public class CyclicEvent extends Event {
                 eventDataInput.amount(),
                 Calendar.getInstance(),
                 eventDataInput.cycleBase(),
-                eventDataInput.cycleLength()
+                eventDataInput.cycleLength(),
+                Calendar.getInstance()
         );
         setBegin(eventDataInput.begin());
+        setCycleEnd(eventDataInput.cycleEnd());
     }
 
     public Long getBegin() {
@@ -74,6 +81,14 @@ public class CyclicEvent extends Event {
         this.cycleLength = cycleLength;
     }
 
+    public Long getCycleEnd() {
+        return this.cycleEnd.getTimeInMillis() / 1000;
+    }
+
+    public void setCycleEnd(final Long timestamp) {
+        this.cycleEnd.setTimeInMillis(timestamp * 1000);
+    }
+
     public List<EventTimestamp> getFollowingN(final Long start, final Integer distinctEventsNum) {
         final List<EventTimestamp> events = new LinkedList<>();
         final Calendar iterator = (Calendar) begin.clone();
@@ -84,7 +99,7 @@ public class CyclicEvent extends Event {
         while (!iterator.after(startCalendar)) {
             iterator.add(cycleBase, cycleLength);
         }
-        for (int i = 0; i < distinctEventsNum; i++) {
+        for (int i = 0; i < distinctEventsNum && iterator.getTimeInMillis() <= this.cycleEnd.getTimeInMillis(); i++) {
             events.add(new EventTimestamp(getId(), getTitle(), getAmount(), iterator.getTimeInMillis() / 1000));
             iterator.add(cycleBase, cycleLength);
         }
