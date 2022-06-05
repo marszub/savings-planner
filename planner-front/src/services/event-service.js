@@ -47,7 +47,7 @@ export const eventService = {
         const body = new CreateEventRequest(
             formModel.title,
             moneyFormatter.mapStringToPenniesNumber(
-                formModel.eventType === INCOME_EVENT_TYPE ? formModel.amount : -formModel.amount
+                formModel.eventType == INCOME_EVENT_TYPE ? formModel.amount : -formModel.amount
             ),
             new Date(formModel.date).getTime()
         );
@@ -88,7 +88,7 @@ export const eventService = {
       const body = new UpdateEventRequest(
           formModel.title,
           moneyFormatter.mapStringToPenniesNumber(
-              formModel.eventType === INCOME_EVENT_TYPE ? formModel.amount : -formModel.amount
+              formModel.eventType == INCOME_EVENT_TYPE ? formModel.amount : -formModel.amount
           ),
           new Date(formModel.date).getTime()
       );
