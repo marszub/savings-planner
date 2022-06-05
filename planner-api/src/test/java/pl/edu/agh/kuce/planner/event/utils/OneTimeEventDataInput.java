@@ -22,6 +22,7 @@ public record OneTimeEventDataInput(
                 timestamp,
                 null,
                 null,
+                null,
                 null);
     }
 }
