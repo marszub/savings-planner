@@ -43,18 +43,6 @@ export default function BalanceField() {
         const changeListener = updatedBalance => setBalance(updatedBalance);
         balanceService.addChangeListener(changeListener);
 
-        console.log('balance field');
-
-        balanceService.getValue()
-            .then(res => {
-                if (res.status !== HTTP_OK) {
-                    return;
-                }
-
-                setBalance(res.body.balance);
-            })
-            .catch(err => console.log(err));
-
         return () => balanceService.removeChangeListener(changeListener);
     }, []);
 

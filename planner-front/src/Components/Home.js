@@ -8,15 +8,23 @@ import GoalList from "./Goal/GoalList";
 import EventList from "./Event/EventList";
 import BalanceField from "./Balance/BalanceField";
 import Header from "./Header";
+import {goalService} from "../services/goal-service";
+import {useNavigate} from "react-router-dom";
+import {balanceService} from "../services/balance-service";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    function fetchData() {
-      eventService.getEventsList().then((res) => setLoading(false));
-    }
-    fetchData();
+    const goalPromise = goalService.getList();
+    const eventPromise = eventService.getList();
+    const balancePromise = balanceService.getValue();
+
+    Promise.all([goalPromise, eventPromise, balancePromise])
+        .catch(err => navigate(`/error?text=${err}`))
+        .finally(() => setLoading(false));
   });
 
   const displayHomePage = () => {

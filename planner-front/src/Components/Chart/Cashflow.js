@@ -1,44 +1,61 @@
 import React, {useEffect, useState} from "react";
 import {Line} from "react-chartjs-2";
-import {EventStorge} from "../../services/events-storage";
 import {DateService} from "../../services/date-service";
 import {createTheme, ThemeProvider} from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import {Container} from "@mui/material";
 import {balanceService} from "../../services/balance-service";
+import { Chart as ChartJS } from "chart.js/auto"
+import { Chart }            from "react-chartjs-2"
+import {eventService} from "../../services/event-service";
+import {moneyFormatter} from "../../utils/money-formatter";
 
 const theme = createTheme();
 
 export default function Cashflow() {
+  const [events, setEvents] = useState([]);
+
   const [chartData, setChartData] = useState({});
   const [optionData, setOptionData] = useState({});
   const [pluginData, setPluginData] = useState({});
 
-  const [eventData, setEventData] = useState({});
   const [cash, setCash] = useState([]);
 
-  const [balance, setBalance] = useState();
+  const [balance, setBalance] = useState(0);
 
-  const fetchData = () => {
-    if (EventStorge.accessEvents.length > 0) {
-      setEventData(EventStorge.accessEvents);
-    }
+  useEffect(() => {
+    const changeListener = updatedEvents => setEvents(updatedEvents);
+    eventService.addChangeListener(changeListener);
 
-    if (Object.keys(eventData).length !== 0) {
-      setCash(createCashflow(eventData, balance));
+    return () => eventService.removeChangeListener(changeListener);
+  }, []);
 
+  useEffect(() => {
+    const changeListener = updatedBalance => setBalance(updatedBalance);
+    balanceService.addChangeListener(changeListener);
+
+    return () => balanceService.removeChangeListener(changeListener);
+  }, []);
+
+  useEffect(() => {
+    createCashflow(events, balance);
+  }, [events, balance]);
+
+  useEffect(() => {
+    updateChart();
+  }, [cash]);
+
+  const updateChart = () => {
       setChartData({
-        labels: eventData.map(
-            (data) =>
-                DateService.getMonth(data.timestamp.getMonth()) +
-                " " +
-                data.timestamp.getDate() +
-                " " +
-                data.timestamp.getFullYear()
+        labels: events.map(
+            event => {
+              const date = new Date(event.timestamp);
+              return `${DateService.getMonth(date.getMonth())} ${date.getDate()} ${date.getFullYear()}`
+            }
         ),
         datasets: [
           {
-            data: cash.map(data => data),
+            data: cash,
             borderColor: "#1976d2",
             responsive: true,
             borderWidth: 2,
@@ -72,10 +89,10 @@ export default function Cashflow() {
           tooltip: {
             callbacks: {
               title: function (tooltipItem) {
-                return eventData[tooltipItem[0].dataIndex].title;
+                return events[tooltipItem[0].dataIndex].title;
               },
               label: function (tooltipItem) {
-                return eventData[tooltipItem.dataIndex].amount + " PLN";
+                return moneyFormatter.mapPenniesNumberToString(events[tooltipItem.dataIndex].amount) + " PLN";
               },
             },
           },
@@ -86,7 +103,7 @@ export default function Cashflow() {
         id: "moveData",
 
         afterEvent(chart, evt, opts) {
-          if (evt.event.type == "click")
+          if (evt.event.type === "click")
             moveChart(chart, evt.event.x, evt.event.y);
         },
 
@@ -131,50 +148,27 @@ export default function Cashflow() {
           drawCircleLeft.draw(ctx, left, 5);
 
           const drawCircleRight = new CircleChevron();
-          drawCircleLeft.draw(ctx, right, -5);
+          drawCircleRight.draw(ctx, right, -5);
 
-          // moveChart(chart)
+          moveChart(chart)
         },
       });
-
-      if (
-          cash.length !== 0 &&
-          Object.keys(chartData).length !== 0 &&
-          Object.keys(optionData).length !== 0 &&
-          Object.keys(pluginData.length !== 0)
-      ) {
-        console.log(cash);
-      }
-    }
   }
 
-  useEffect(() => {
-    const changeListener = updatedBalance => setBalance(updatedBalance);
-    balanceService.addChangeListener(changeListener);
-
-    return () => balanceService.removeChangeListener(changeListener);
-  }, []);
-
-  useEffect(() => {
-    console.log('cashflow use effect 2');
-
-    fetchData();
-
-  }, [balance]);
-
-  const createCashflow = (data, balance) => {
-    console.log('createCashflow');
-    const cashData = [];
-    for (let i = 0; i < data.length; i++) {
-      if (cashData.length === 0) {
-        cashData.push(balance + data[i].amount);
-      } else {
-        let currentBalance = cashData[i - 1] + data[i].amount;
-        cashData.push(currentBalance);
-      }
+  const createCashflow = (events, balance) => {
+    if (events.length === 0) {
+      setCash([]);
+      return;
     }
-    console.log(cashData);
-    return cashData;
+
+    const cashData = [];
+    cashData.push((balance + events[0].amount) / 100);
+
+    for (let i = 1; i < events.length; i++) {
+      cashData.push(cashData[i - 1] + (events[i].amount / 100));
+    }
+
+    setCash(cashData);
   }
 
   const moveChart = (chart, ex, ey) => {
@@ -186,12 +180,7 @@ export default function Cashflow() {
     const x = ex - rect.left;
     const y = ey - rect.top;
 
-    console.log(rect);
-    console.log(x, y);
-    console.log(right, left);
-
     if (x >= 715 && x <= 745 && y >= 65 && y <= 95) {
-      console.log("right");
       chart.options.scales.x.min = chart.options.scales.x.min + 5;
       chart.options.scales.x.max = chart.options.scales.x.max + 5;
       if (chart.options.scales.x.max >= chart.data.datasets[0].data.length) {
@@ -200,7 +189,6 @@ export default function Cashflow() {
       }
       chart.update();
     } else if (x >= 0 && x <= 30 && y >= 65 && y <= 95) {
-      console.log("left");
       chart.options.scales.x.min = chart.options.scales.x.min - 5;
       chart.options.scales.x.max = chart.options.scales.x.max - 5;
       if (chart.options.scales.x.min <= 0) {
