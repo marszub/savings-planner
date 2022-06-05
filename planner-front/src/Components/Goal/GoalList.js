@@ -253,6 +253,7 @@ export default function GoalList() {
 
 function Goal(props) {
   const [goalRemovalOpen, setGoalRemovalOpen] = useState(false);
+  const [subGoalRemovalOpen, setSubGoalRemovalOpen] = useState(false);
   const [subGoalCreationOpen, setSubGoalCreationOpen] = useState(false);
   const [subGoalOpen, setSubGoalOpen] = useState(false);
 
@@ -350,11 +351,17 @@ function Goal(props) {
               edge="end"
               aria-label="delete"
               size="small"
-              onClick={() => deleteSubGoal(subGoal.id)}
+              onClick={() => setSubGoalRemovalOpen(true)}
           >
             <DeleteIcon />
           </IconButton>
         </Tooltip>
+        <RemovalConfirmationDialog
+            open={subGoalRemovalOpen}
+            onClose={() => setSubGoalRemovalOpen(false)}
+            delete={() => deleteSubGoal(subGoal.id)}
+            title={subGoal.title}
+        />
       </ListItem>
   ));
 
@@ -390,11 +397,11 @@ function Goal(props) {
                     <DeleteIcon/>
                   </IconButton>
                 </Tooltip>
-                <GoalRemovalConfirmationDialog
+                <RemovalConfirmationDialog
                     open={goalRemovalOpen}
                     onClose={() => setGoalRemovalOpen(false)}
                     delete={() => props.handleDelete(props.goal.id)}
-                    goal={props.goal}
+                    title={props.goal.title}
                 />
               </ListItem>
               <Collapse in={subGoalOpen} timeout="auto" unmountOnExit>
@@ -600,7 +607,7 @@ function SubGoalCreationDialog(props) {
   );
 }
 
-function GoalRemovalConfirmationDialog(props) {
+function RemovalConfirmationDialog(props) {
   const handleDelete = () => {
     props.delete();
     props.onClose();
@@ -619,7 +626,7 @@ function GoalRemovalConfirmationDialog(props) {
         >
           <DialogTitle>Confirmation</DialogTitle>
           <DialogContent>
-            This action cannot be undone. Are you sure you want to delete the goal <strong>{props.goal.title}</strong>?
+            This action cannot be undone. Are you sure you want to delete <strong>{props.title}</strong>?
           </DialogContent>
           <DialogActions>
             <Button
