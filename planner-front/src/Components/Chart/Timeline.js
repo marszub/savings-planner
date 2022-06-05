@@ -8,11 +8,6 @@ import { goalCalculateDates } from "../../utils/goal-calculate-dates";
 
 const theme = createTheme();
 
-function compareDates(event1, event2) {
-  if (event1.date < event2.date) return -1;
-  else return 1;
-}
-
 export default function Timeline() {
   const [curIdx, setCurIdx] = useState(0);
   const [goals, setGoals] = useState([]);
@@ -24,8 +19,18 @@ export default function Timeline() {
     return () => goalService.removeChangeListener(changeListener);
   }, []);
 
-  goals.sort(compareDates);
-  const curStatus = goals[curIdx]?.title;
+  const getIndex = index => {
+    if (goals.length === 0) {
+      return 0;
+    } else if (index < goals.length) {
+      return index;
+    } else {
+      setCurIdx(goals.length - 1);
+      return goals.length - 1;
+    }
+  }
+
+  const curStatus = goals[getIndex(curIdx)]?.title;
 
   return (
       <ThemeProvider theme={theme}>
@@ -50,10 +55,8 @@ export default function Timeline() {
                   foreground: "#1976d2",
                   outline: "#dfdfdf",
                 }}
-                index={curIdx}
-                indexClick={(index) => {
-                  setCurIdx(index);
-                }}
+                index={getIndex(curIdx)}
+                indexClick={i => setCurIdx(i)}
                 values={ goalCalculateDates(goals) }
             /> }
           </div>
