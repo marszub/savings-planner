@@ -62,11 +62,6 @@ export default function GoalList() {
     const changeListener = updatedGoals => setGoals(updatedGoals);
     goalService.addChangeListener(changeListener);
 
-    setLoading(true);
-    goalService.getList()
-        .catch(err => navigate(`/error?text=${err}`))
-        .finally(() => setLoading(false));
-
     return () => goalService.removeChangeListener(changeListener);
   }, []);
 
