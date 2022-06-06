@@ -58,7 +58,7 @@ public class EventService {
         return new EventTimestampList(pickFirstNDistinct(eventTimestamps, request.eventsNum()));
     }
 
-    public void update(final EventData eventData, final Integer eventId, final User user) {
+    public void update(final EventDataInput eventData, final Integer eventId, final User user) {
         if (eventData.isCyclic()) {
             updateCyclic(eventData, eventId, user);
         } else {
@@ -122,7 +122,7 @@ public class EventService {
         return timestamps;
     }
 
-    private void updateCyclic(final EventData eventData, final Integer eventId, final User user) {
+    private void updateCyclic(final EventDataInput eventData, final Integer eventId, final User user) {
         final CyclicEvent eventToUpdate = cyclicEventRepository
                 .findByIdAndUser(eventId, user).orElseThrow(EventNotFoundException::new);
 
@@ -134,7 +134,7 @@ public class EventService {
         cyclicEventRepository.save(eventToUpdate);
     }
 
-    private void updateOneTime(final EventData eventData, final Integer eventId, final User user) {
+    private void updateOneTime(final EventDataInput eventData, final Integer eventId, final User user) {
         final OneTimeEvent eventToUpdate = oneTimeEventRepository
                 .findByIdAndUser(eventId, user).orElseThrow(EventNotFoundException::new);
 

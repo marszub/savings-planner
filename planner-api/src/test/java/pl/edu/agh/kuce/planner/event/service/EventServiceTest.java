@@ -16,7 +16,6 @@ import pl.edu.agh.kuce.planner.event.dto.TimestampListRequest;
 import pl.edu.agh.kuce.planner.event.utils.CyclicEventDataInput;
 import pl.edu.agh.kuce.planner.event.utils.OneTimeEventDataInput;
 import pl.edu.agh.kuce.planner.event.persistence.CyclicEventRepository;
-import pl.edu.agh.kuce.planner.event.persistence.OneTimeEvent;
 import pl.edu.agh.kuce.planner.event.persistence.OneTimeEventRepository;
 
 import java.util.Objects;
@@ -59,6 +58,10 @@ class EventServiceTest {
     private final Long timestampSpr2 = 1650980000L;
     private final Long timestampSpr3 = 1650980032L;
     private final Long timestampSpr4 = 1650980564L;
+    private final Long timestampSprEnd1 = 1651262000L;
+    private final Long timestampSprEnd2 = 1651989137L;
+    private final Long timestampSprEnd3 = 1651389137L;
+    private final Long timestampSprEnd4 = 1651589138L;
     private final Integer cycleBase1 = DAY_OF_MONTH;
     private final Integer cycleBase2 = DAY_OF_WEEK;
     private final Integer cycleBase3 = DAY_OF_WEEK;
@@ -80,13 +83,17 @@ class EventServiceTest {
             new OneTimeEventDataInput(title4, amount4, timestampSpr4).getEventDataInput();
 
     private final EventDataInput cyclicEventDataInput1 =
-            new CyclicEventDataInput(title1, amount1, timestampSpr1, cycleBase1, cycleLength1).getEventDataInput();
+            new CyclicEventDataInput(title1, amount1, timestampSpr1, cycleBase1, cycleLength1, timestampSprEnd1)
+                    .getEventDataInput();
     private final EventDataInput cyclicEventDataInput2 =
-            new CyclicEventDataInput(title2, amount2, timestampSpr2, cycleBase2, cycleLength2).getEventDataInput();
+            new CyclicEventDataInput(title2, amount2, timestampSpr2, cycleBase2, cycleLength2, timestampSprEnd2)
+                    .getEventDataInput();
     private final EventDataInput cyclicEventDataInput3 =
-            new CyclicEventDataInput(title3, amount3, timestampSpr3, cycleBase3, cycleLength3).getEventDataInput();
+            new CyclicEventDataInput(title3, amount3, timestampSpr3, cycleBase3, cycleLength3, timestampSprEnd3)
+                    .getEventDataInput();
     private final EventDataInput cyclicEventDataInput4 =
-            new CyclicEventDataInput(title4, amount4, timestampSpr4, cycleBase4, cycleLength4).getEventDataInput();
+            new CyclicEventDataInput(title4, amount4, timestampSpr4, cycleBase4, cycleLength4, timestampSprEnd4)
+                    .getEventDataInput();
 
     @BeforeEach
     void setUp() {
@@ -149,7 +156,7 @@ class EventServiceTest {
     void updateOneTimeEvent() {
         user1 = userRepository.save(user1);
         final EventData eventData = eventService.create(oneTimeEventDataInput1, user1);
-        eventService.update(new EventData(new OneTimeEvent(oneTimeEventDataInput2, user1)), eventData.id(), user1);
+        eventService.update(oneTimeEventDataInput2, eventData.id(), user1);
         final EventData updated = eventService.list(user1).events().get(0);
         assertThat(updated.id()).isEqualTo(eventData.id());
         assertThat(updated.amount()).isEqualTo(amount2);

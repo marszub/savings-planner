@@ -28,12 +28,13 @@ public class CyclicEventTest {
     private UserRepository userRepository;
 
     private final Long date1 = Instant.parse("2022-03-23T00:00:01.00Z").getEpochSecond();
-    private final Long date2 = Instant.parse("2022-05-11T00:00:01.00Z").getEpochSecond();
+    private final Long date2 = Instant.parse("2022-05-09T00:00:01.00Z").getEpochSecond();
 
     private User user = new User("nick", "123@321.223", "password");
     private final CyclicEventDataInput eventData1 =
-            new CyclicEventDataInput("Title1", 210, date1, Calendar.WEEK_OF_YEAR, 1);
-    private final CyclicEventDataInput eventData2 = new CyclicEventDataInput("Title2", 310, date2, Calendar.MONTH, 2);
+            new CyclicEventDataInput("Title1", 210, date1, Calendar.WEEK_OF_YEAR, 1, date2);
+    private final CyclicEventDataInput eventData2 =
+            new CyclicEventDataInput("Title2", 310, date2, Calendar.MONTH, 2, date2);
     private CyclicEvent event1;
     private CyclicEvent event2;
 
@@ -44,9 +45,15 @@ public class CyclicEventTest {
     }
 
     @Test
-    void cyclicEventFromInterval_returnsCorrectAmount() {
+    void cyclicEventFromInterval_returnLessBecauseOfEndOfEvent() {
         event1 = new CyclicEvent(eventData1.getEventDataInput(), user);
-        assertThat(event1.getFollowingN(date1, 8).size()).isEqualTo(8);
+        assertThat(event1.getFollowingN(date1, 8).size()).isEqualTo(6);
+    }
+
+    @Test
+    void cyclicEventFromInterval_returnsWantedNumberOfEvents() {
+        event1 = new CyclicEvent(eventData1.getEventDataInput(), user);
+        assertThat(event1.getFollowingN(date1, 6).size()).isEqualTo(6);
     }
 
     @Test
