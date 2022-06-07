@@ -183,6 +183,7 @@ export default function Cashflow() {
 
     while(i<events.length){
       datePrev = new Date(events[i].timestamp)
+      if(datePrev > new Date()){
       if(i != events.length-1)
         dateCurr = new Date(events[i+1].timestamp)
 
@@ -197,14 +198,14 @@ export default function Cashflow() {
         datePrev = new Date(events[i].timestamp);
         dateCurr = new Date(events[i+1].timestamp);
       }
-      i++;
       joinedEvents.push(eventsOneDate);
       if(j==-1)
         cashData.push((balance + amountOneDate) / 100);
       else
         cashData.push(cashData[j] + (amountOneDate/ 100))
       j++;
-
+    }
+    i++;
     }
 
     setDates(datesUnique);
