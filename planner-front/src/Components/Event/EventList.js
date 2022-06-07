@@ -39,7 +39,7 @@ import { HTTP_BAD_REQUEST, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_O
 import { eventService } from "../../services/event-service";
 import { INCOME_EVENT_TYPE, OUTGO_EVENT_TYPE } from "../../utils/event-types";
 import { dateFormatter } from "../../utils/date-formatter";
-import { DAY, MONTH, YEAR } from "../../utils/time-units";
+import {DAY, MONTH, timeFormatted, timeUnitFormatted, YEAR} from "../../utils/time-units";
 import { eventValidators } from "../../utils/event-validators";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -268,26 +268,37 @@ function Event(props) {
 
             <Collapse in={nestedListOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                    { props.event.isCyclic &&
-                        <ListItem sx={{ pl: 7 }}>
-                            <ListItemIcon>
-                                <LoopIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Cyclic" />
-                        </ListItem>
-                    }
                     <ListItem sx={{ pl: 7 }}>
                         <ListItemIcon>
                             <SavingsOutlinedIcon />
                         </ListItemIcon>
                         <ListItemText primary={moneyFormatter.mapPenniesNumberToString(props.event.amount) + ' PLN'} />
                     </ListItem>
-                    <ListItem sx={{ pl: 7 }}>
-                        <ListItemIcon>
-                            <EventOutlinedIcon />
-                        </ListItemIcon>
-                        <ListItemText primary={dateFormatter.formatDate(new Date(props.event.timestamp))} />
-                    </ListItem>
+                    { props.event.isCyclic && <>
+                        <ListItem sx={{ pl: 7 }}>
+                            <ListItemIcon>
+                                <EventOutlinedIcon />
+                            </ListItemIcon>
+                            <ListItemText primary={
+                                `${dateFormatter.formatDate(new Date(props.event.begin))} - 
+                                ${dateFormatter.formatDate(new Date(props.event.cycleEnd))}`
+                            } />
+                        </ListItem>
+                        <ListItem sx={{ pl: 7 }}>
+                            <ListItemIcon>
+                                <LoopIcon />
+                            </ListItemIcon>
+                            <ListItemText primary={timeFormatted(props.event.cycleLength, props.event.cycleBase)} />
+                        </ListItem>
+                    </>}
+                    { !props.event.isCyclic &&
+                        <ListItem sx={{ pl: 7 }}>
+                            <ListItemIcon>
+                                <EventOutlinedIcon />
+                            </ListItemIcon>
+                            <ListItemText primary={dateFormatter.formatDate(new Date(props.event.timestamp))} />
+                        </ListItem>
+                    }
                 </List>
             </Collapse>
 
