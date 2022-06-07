@@ -26,6 +26,17 @@ export default function Cashflow() {
 
   const [balance, setBalance] = useState(0);
 
+  const filter3Years = event => {
+    if (event.isCyclic) {
+      return event;
+    }
+
+    const now = (new Date()).getTime();
+    const nowPlus3Years = new Date(now + (3 * 365 * 24 * 60 * 60 * 1000)).getTime();
+
+    return event.timestamp <= nowPlus3Years;
+  };
+
   const cyclicToOneTime = event => {
     if (!event.isCyclic) {
       return [event];
@@ -44,11 +55,11 @@ export default function Cashflow() {
 
     const baseMillis = days * 24 * 60 * 60 * 1000;
     const now = (new Date()).getTime();
-    const nowPlus3Months = new Date(now + (3 * 30 * 24 * 60 * 60 * 1000)).getTime();
+    const nowPlus3Years = new Date(now + (3 * 365 * 24 * 60 * 60 * 1000)).getTime();
 
     let nextTime = event.begin;
 
-    while (nextTime <= nowPlus3Months) {
+    while (nextTime <= nowPlus3Years) {
       events.push({
         ...event,
         timestamp: nextTime
@@ -67,6 +78,7 @@ export default function Cashflow() {
   useEffect(() => {
     const changeListener = (updatedEvents) => setEvents(
         updatedEvents
+            .filter(filter3Years)
             .flatMap(cyclicToOneTime)
             .sort(sort)
     );
