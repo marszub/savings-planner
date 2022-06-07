@@ -18,6 +18,8 @@ export default function Cashflow() {
   const [chartData, setChartData] = useState({});
   const [optionData, setOptionData] = useState({});
   const [pluginData, setPluginData] = useState({});
+  const [joinedEvents, setJoinedEvents] = useState([]);
+  const [dates, setDates] = useState([]);
 
   const [cash, setCash] = useState([]);
 
@@ -47,9 +49,9 @@ export default function Cashflow() {
 
   const updateChart = () => {
       setChartData({
-        labels: events.map(
-            event => {
-              const date = new Date(event.timestamp);
+        labels: dates.map(
+            date => {
+              // const date = new Date(event.timestamp);
               return `${DateService.getMonth(date.getMonth())} ${date.getDate()} ${date.getFullYear()}`
             }
         ),
@@ -89,10 +91,10 @@ export default function Cashflow() {
           tooltip: {
             callbacks: {
               title: function (tooltipItem) {
-                return events[tooltipItem[0].dataIndex].title;
+                return joinedEvents[tooltipItem[0].dataIndex];
               },
               label: function (tooltipItem) {
-                return moneyFormatter.mapPenniesNumberToString(events[tooltipItem.dataIndex].amount) + " PLN";
+                return cash[tooltipItem.dataIndex] + " PLN";
               },
             },
           },
@@ -158,16 +160,55 @@ export default function Cashflow() {
   const createCashflow = (events, balance) => {
     if (events.length === 0) {
       setCash([]);
+      setJoinedEvents([]);
+      setDates([]);
+      return;
+    }
+    else if(events.length===1){
+      setCash([(balance + events[0].amount)/100]);
+      setJoinedEvents([events[0].title]);
+      setDates([new Date(events[0].timestamp)]);
       return;
     }
 
+    const joinedEvents = [];
     const cashData = [];
-    cashData.push((balance + events[0].amount) / 100);
+    const datesUnique =[];
+    var datePrev;
+    var dateCurr;
+    var eventsOneDate;
+    var amountOneDate;
+    var j=-1;
+    var i=0;
 
-    for (let i = 1; i < events.length; i++) {
-      cashData.push(cashData[i - 1] + (events[i].amount / 100));
+    while(i<events.length){
+      datePrev = new Date(events[i].timestamp)
+      if(i != events.length-1)
+        dateCurr = new Date(events[i+1].timestamp)
+
+      datesUnique.push(datePrev);
+
+      eventsOneDate = [events[i].title]
+      amountOneDate = events[i].amount;
+      while(datePrev.getFullYear() == dateCurr.getFullYear() && datePrev.getMonth() == dateCurr.getMonth() && datePrev.getDate() == dateCurr.getDate() && i+1<events.length){
+        amountOneDate+=events[i+1].amount;
+        eventsOneDate.push(events[i+1].title);
+        i++;
+        datePrev = new Date(events[i].timestamp);
+        dateCurr = new Date(events[i+1].timestamp);
+      }
+      i++;
+      joinedEvents.push(eventsOneDate);
+      if(j==-1)
+        cashData.push((balance + amountOneDate) / 100);
+      else
+        cashData.push(cashData[j] + (amountOneDate/ 100))
+      j++;
+
     }
 
+    setDates(datesUnique);
+    setJoinedEvents(joinedEvents);
     setCash(cashData);
   }
 
@@ -179,6 +220,7 @@ export default function Cashflow() {
     const rect = canvas.getBoundingClientRect();
     const x = ex;
     const y = ey;
+    console.log(ex, ey, rect)
 
     if (x >= rect.width-30 && x <= rect.width+30 && y >= rect.height/2-30 && y <= rect.height/2+30 ) {
       chart.options.scales.x.min = chart.options.scales.x.min + 5;
@@ -188,7 +230,7 @@ export default function Cashflow() {
         chart.options.scales.x.min = chart.data.datasets[0].data.length - 6;
       }
       chart.update();
-    } else if (x >= rect.left-30 && x <= rect.left+30 && y >= rect.height/2-30 && y <= rect.height/2+30) {
+    } else if (x >= rect.left-60 && x <= rect.left+60 && y >= rect.height/2-30 && y <= rect.height/2+30) {
       chart.options.scales.x.min = chart.options.scales.x.min - 5;
       chart.options.scales.x.max = chart.options.scales.x.max - 5;
       if (chart.options.scales.x.min <= 0) {
