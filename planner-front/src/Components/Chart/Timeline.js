@@ -5,12 +5,16 @@ import { Container } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { goalService } from "../../services/goal-service";
 import { goalCalculateDates } from "../../utils/goal-calculate-dates";
+import {eventService} from "../../services/event-service";
+import {balanceService} from "../../services/balance-service";
 
 const theme = createTheme();
 
 export default function Timeline() {
   const [curIdx, setCurIdx] = useState(0);
   const [goals, setGoals] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [balance, setBalance] = useState(0);
 
   useEffect(() => {
     const changeListener = updatedGoals => setGoals(updatedGoals);
@@ -18,6 +22,20 @@ export default function Timeline() {
 
     return () => goalService.removeChangeListener(changeListener);
   }, []);
+
+  useEffect(() => {
+      const changeListener = updatedEvents => setEvents(updatedEvents);
+      eventService.addChangeListener(changeListener);
+
+      return () => eventService.removeChangeListener(changeListener);
+  }, []);
+
+    useEffect(() => {
+        const changeListener = updatedBalance => setBalance(updatedBalance);
+        balanceService.addChangeListener(changeListener);
+
+        return () => balanceService.removeChangeListener(changeListener);
+    }, []);
 
   const getIndex = index => {
     if (goals.length === 0) {
@@ -57,7 +75,7 @@ export default function Timeline() {
                 }}
                 index={getIndex(curIdx)}
                 indexClick={i => setCurIdx(i)}
-                values={ goalCalculateDates(goals) }
+                values={ goalCalculateDates(goals, balance, events) }
             /> }
           </div>
         </Container>
