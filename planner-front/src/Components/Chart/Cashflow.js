@@ -72,7 +72,7 @@ export default function Cashflow() {
         scales: {
           x: {
             min: 0,
-            max: 4,
+            max: 5,
           },
           y: {
             beginAtZero: false,
@@ -177,18 +177,18 @@ export default function Cashflow() {
       chartArea: { left, right, top, down, width, height }
     } = chart;
     const rect = canvas.getBoundingClientRect();
-    const x = ex - rect.left;
-    const y = ey - rect.top;
+    const x = ex;
+    const y = ey;
 
-    if (x >= 715 && x <= 745 && y >= 65 && y <= 95) {
+    if (x >= rect.width-30 && x <= rect.width+30 && y >= rect.height/2-30 && y <= rect.height/2+30 ) {
       chart.options.scales.x.min = chart.options.scales.x.min + 5;
       chart.options.scales.x.max = chart.options.scales.x.max + 5;
       if (chart.options.scales.x.max >= chart.data.datasets[0].data.length) {
         chart.options.scales.x.max = chart.data.datasets[0].data.length;
-        chart.options.scales.x.min = chart.data.datasets[0].data.length - 5;
+        chart.options.scales.x.min = chart.data.datasets[0].data.length - 6;
       }
       chart.update();
-    } else if (x >= 0 && x <= 30 && y >= 65 && y <= 95) {
+    } else if (x >= rect.left-30 && x <= rect.left+30 && y >= rect.height/2-30 && y <= rect.height/2+30) {
       chart.options.scales.x.min = chart.options.scales.x.min - 5;
       chart.options.scales.x.max = chart.options.scales.x.max - 5;
       if (chart.options.scales.x.min <= 0) {
