@@ -34,15 +34,15 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
-import {Collapse, FormControlLabel, ListItemButton, ListItemIcon, MenuItem, Switch} from "@mui/material";
-import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import { Collapse, FormControlLabel, ListItemIcon, MenuItem, Switch } from "@mui/material";
+import LoopIcon from '@mui/icons-material/Loop';
 import "../../styles/Events.css";
 import { HTTP_BAD_REQUEST, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK } from "../../utils/http-status";
 import { eventService } from "../../services/event-service";
 import { INCOME_EVENT_TYPE, OUTGO_EVENT_TYPE } from "../../utils/event-types";
 import { dateFormatter } from "../../utils/date-formatter";
 import { DAY, MONTH, YEAR } from "../../utils/time-units";
-import {eventValidators} from "../../utils/event-validators";
+import { eventValidators } from "../../utils/event-validators";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
@@ -270,6 +270,14 @@ function Event(props) {
 
             <Collapse in={nestedListOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
+                    { props.event.isCyclic &&
+                        <ListItem sx={{ pl: 7 }}>
+                            <ListItemIcon>
+                                <LoopIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Cyclic" />
+                        </ListItem>
+                    }
                     <ListItem sx={{ pl: 7 }}>
                         <ListItemIcon>
                             <SavingsOutlinedIcon />
