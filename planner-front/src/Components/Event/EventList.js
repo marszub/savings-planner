@@ -24,7 +24,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import { EventCreateForm } from "../../models/event-create-form";
+import { OneTimeEventCreateForm, CyclicEventCreateForm } from "../../models/event-create-form";
 import { EventUpdateForm } from "../../models/event-update-form";
 import { goalValidators } from '../../utils/goal-validators';
 import { moneyValidators } from "../../utils/money-validators";
@@ -34,13 +34,15 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
-import { Collapse, ListItemButton, ListItemIcon, MenuItem } from "@mui/material";
+import {Collapse, FormControlLabel, ListItemButton, ListItemIcon, MenuItem, Switch} from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import "../../styles/Events.css";
 import { HTTP_BAD_REQUEST, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK } from "../../utils/http-status";
 import { eventService } from "../../services/event-service";
 import { INCOME_EVENT_TYPE, OUTGO_EVENT_TYPE } from "../../utils/event-types";
 import { dateFormatter } from "../../utils/date-formatter";
+import { DAY, MONTH, YEAR } from "../../utils/time-units";
+import {eventValidators} from "../../utils/event-validators";
 
 
 const theme = createTheme();
@@ -58,6 +60,21 @@ const eventTypes = [
     {
         value: OUTGO_EVENT_TYPE,
         label: 'Outgo',
+    },
+];
+
+const timeUnits = [
+    {
+        value: DAY,
+        label: 'Days',
+    },
+    {
+        value: MONTH,
+        label: 'Months',
+    },
+    {
+        value: YEAR,
+        label: 'Years',
     },
 ];
 
@@ -91,8 +108,8 @@ export default function EventList() {
             .catch(err => console.log(err));
     }, []);
 
-    const createEvent = model => {
-        eventService.create(model)
+    const createEvent = (cyclic, model) => {
+        eventService.create(cyclic, model)
             .then(res => {
                 if (res.status !== HTTP_CREATED) {
                     if (res.status === HTTP_BAD_REQUEST) console.log("Invalid request body");
@@ -272,11 +289,11 @@ function Event(props) {
 function EventCreationDialog(props) {
     const [titleErrorMessage, setTitleErrorMessage] = useState("");
     const [amountErrorMessage, setAmountErrorMessage] = useState("");
+    const [cycleLengthErrorMessage, setCycleLengthErrorMessage] = useState("");
     const [eventType, setEventType] = useState(INCOME_EVENT_TYPE);
-
-    const handleChange = (event) => {
-        setEventType(event.target.value);
-    };
+    const [beginEndErrorMessage, setBeginEndErrorMessage] = useState("");
+    const [cyclic, setCyclic] = useState(false);
+    const [cycleBase, setCycleBase] = useState(DAY);
 
     const handleClose = () => {
         props.onClose();
@@ -289,25 +306,52 @@ function EventCreationDialog(props) {
         event.preventDefault();
 
         const data = new FormData(event.currentTarget);
-        const formModel = new EventCreateForm(
-            data.get('title'),
-            data.get('event-type'),
-            data.get('amount'),
-            data.get('date')
-        );
 
-        const titleError = goalValidators.validateTitle(formModel.title);
+        let formModel;
+        if (cyclic) {
+            formModel = new CyclicEventCreateForm(
+                data.get('title'),
+                data.get('event-type'),
+                data.get('amount'),
+                data.get('begins'),
+                data.get('ends'),
+                data.get('cycle-length'),
+                data.get('cycle-base')
+            );
+        } else {
+            formModel = new OneTimeEventCreateForm(
+                data.get('title'),
+                data.get('event-type'),
+                data.get('amount'),
+                data.get('date'),
+            );
+        }
+
+        const titleError = eventValidators.validateTitle(formModel.title);
         const amountError = moneyValidators.validateAmount(formModel.amount);
-        const dateError = Object.values(event.currentTarget.date)[1]['aria-invalid'];
-
         setTitleErrorMessage(titleError);
         setAmountErrorMessage(amountError);
 
-        if (titleError || amountError || dateError) {
-            return;
+        if (cyclic) {
+            const beginsError = Object.values(event.currentTarget.begins)[1]['aria-invalid'];
+            const endsError = Object.values(event.currentTarget.ends)[1]['aria-invalid'];
+            const cycleLengthError = eventValidators.validateCycleLength(formModel.cycleLength);
+            const beginEndError = eventValidators.validateBeginEnd(formModel.begins, formModel.ends);
+            setCycleLengthErrorMessage(cycleLengthError);
+            setBeginEndErrorMessage(beginEndError);
+
+            if (titleError || amountError || beginsError || endsError || cycleLengthError || beginEndError) {
+                return;
+            }
+        } else {
+            const dateError = Object.values(event.currentTarget.date)[1]['aria-invalid'];
+
+            if (titleError || amountError || dateError) {
+                return;
+            }
         }
 
-        props.create(formModel);
+        props.create(cyclic, formModel);
         handleClose();
     };
 
@@ -347,7 +391,7 @@ function EventCreationDialog(props) {
                             select
                             label="Select type"
                             value={eventType}
-                            onChange={handleChange}
+                            onChange={e => setEventType(e.target.value)}
                         >
                             {eventTypes.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
@@ -368,7 +412,72 @@ function EventCreationDialog(props) {
                                 endAdornment: <InputAdornment position="end">PLN</InputAdornment>,
                             }}
                         />
-                        <BasicDatePicker />
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={cyclic}
+                                    onChange={e => setCyclic(e.target.checked)}
+                                    inputProps={{ 'aria-label': 'controlled' }}
+                                />
+                            }
+                            label="Cyclic"
+                            labelPlacement="end"
+                        />
+                        <BasicDatePicker
+                            name={cyclic ? 'begins' : 'date'}
+                            label={cyclic ? 'Begins' : 'Date'}
+                        />
+                        { cyclic &&
+                            <>
+                            <BasicDatePicker
+                                name="ends"
+                                label="Ends"
+                            />
+                            <Box sx={{
+                                display: 'flex',
+                                gap: '8px'
+                            }}>
+                                <TextField
+                                    sx={{
+                                        flexBasis: '70%'
+                                    }}
+                                    type="number"
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id="cycle-length"
+                                    name="cycle-length"
+                                    label="Cycle length"
+                                    error={!!cycleLengthErrorMessage}
+                                    helperText={cycleLengthErrorMessage}
+                                />
+                                <TextField
+                                    sx={{
+                                        flexBasis: '30%'
+                                    }}
+                                    margin="normal"
+                                    fullWidth
+                                    id="cycle-base"
+                                    name="cycle-base"
+                                    select
+                                    label="Cycle base"
+                                    value={cycleBase}
+                                    onChange={e => setCycleBase(e.target.value)}
+                                >
+                                    {timeUnits.map((option) => (
+                                        <MenuItem key={option.value} value={option.value}>
+                                            {option.label}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </Box>
+                            <Box sx={{
+                                color: 'red'
+                            }}>
+                                {beginEndErrorMessage}
+                            </Box>
+                            </>
+                        }
                     </DialogContent>
                     <DialogActions>
                         <Button
@@ -390,13 +499,13 @@ function EventCreationDialog(props) {
     );
 }
 
-function BasicDatePicker() {
+function BasicDatePicker(props) {
     const [value, setValue] = useState(null);
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DatePicker
-                label="Date"
+                label={props.label}
                 value={value}
                 onChange={(newValue) => {
                     setValue(newValue);
@@ -404,7 +513,7 @@ function BasicDatePicker() {
                 renderInput={
                     (params) => <TextField
                         id="date"
-                        name="date"
+                        name={props.name}
                         {...params}
                         required
                         fullWidth
