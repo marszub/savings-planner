@@ -222,7 +222,7 @@ export default function Cashflow() {
     const y = ey;
     console.log(ex, ey, rect)
 
-    if (x >= rect.width-30 && x <= rect.width+30 && y >= rect.height/2-30 && y <= rect.height/2+30 ) {
+    if (x >= rect.width/2+30 && x <= rect.width+60 && y >= rect.height/2-30 && y <= rect.height/2+30 ) {
       chart.options.scales.x.min = chart.options.scales.x.min + 5;
       chart.options.scales.x.max = chart.options.scales.x.max + 5;
       if (chart.options.scales.x.max >= chart.data.datasets[0].data.length) {
@@ -230,7 +230,7 @@ export default function Cashflow() {
         chart.options.scales.x.min = chart.data.datasets[0].data.length - 6;
       }
       chart.update();
-    } else if (x >= rect.left-60 && x <= rect.left+60 && y >= rect.height/2-30 && y <= rect.height/2+30) {
+    } else if (x >= 0 && x <= rect.width/2-30 && y >= rect.height/2-30 && y <= rect.height/2+30) {
       chart.options.scales.x.min = chart.options.scales.x.min - 5;
       chart.options.scales.x.max = chart.options.scales.x.max - 5;
       if (chart.options.scales.x.min <= 0) {
