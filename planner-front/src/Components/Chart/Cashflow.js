@@ -9,6 +9,7 @@ import { Chart as ChartJS } from "chart.js/auto";
 import { Chart } from "react-chartjs-2";
 import { eventService } from "../../services/event-service";
 import { moneyFormatter } from "../../utils/money-formatter";
+import {DAY, MONTH, YEAR} from "../../utils/time-units";
 
 const theme = createTheme();
 
@@ -25,8 +26,50 @@ export default function Cashflow() {
 
   const [balance, setBalance] = useState(0);
 
+  const cyclicToOneTime = event => {
+    if (!event.isCyclic) {
+      return [event];
+    }
+
+    const events = [];
+
+    let days;
+    if (event.cycleBase === DAY) {
+      days = 1;
+    } else if (event.cycleBase === MONTH) {
+      days = 30;
+    } else {
+      days = 365;
+    }
+
+    const baseMillis = days * 24 * 60 * 60 * 1000;
+    const now = (new Date()).getTime();
+    const nowPlus3Months = new Date(now + (3 * 30 * 24 * 60 * 60 * 1000)).getTime();
+
+    let nextTime = event.begin;
+
+    while (nextTime <= nowPlus3Months) {
+      events.push({
+        ...event,
+        timestamp: nextTime
+      });
+
+      nextTime = new Date(nextTime + (event.cycleLength * baseMillis)).getTime();
+    }
+
+    return events;
+  };
+
+  const sort = (e1, e2) => {
+    return e1.timestamp - e2.timestamp;
+  }
+
   useEffect(() => {
-    const changeListener = (updatedEvents) => setEvents(updatedEvents);
+    const changeListener = (updatedEvents) => setEvents(
+        updatedEvents
+            .flatMap(cyclicToOneTime)
+            .sort(sort)
+    );
     eventService.addChangeListener(changeListener);
 
     return () => eventService.removeChangeListener(changeListener);
