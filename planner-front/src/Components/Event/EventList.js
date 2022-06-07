@@ -43,6 +43,8 @@ import { INCOME_EVENT_TYPE, OUTGO_EVENT_TYPE } from "../../utils/event-types";
 import { dateFormatter } from "../../utils/date-formatter";
 import { DAY, MONTH, YEAR } from "../../utils/time-units";
 import {eventValidators} from "../../utils/event-validators";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 
 const theme = createTheme();
@@ -221,14 +223,18 @@ function Event(props) {
     const [eventUpdateOpen, setEventUpdateOpen] = useState(false);
     const [nestedListOpen, setNestedListOpen] = useState(false);
 
-    const handleClick = () => {
-        setNestedListOpen(!nestedListOpen);
-    }
-
     return (
         <>
-            <ListItemButton onClick={handleClick}>
-                { nestedListOpen ? <ExpandLess /> : <ExpandMore /> }
+            <ListItem>
+                <Tooltip title={nestedListOpen ? 'Collapse' : 'Expand'}>
+                    <IconButton
+                        edge="start"
+                        aria-label="expand"
+                        onClick={() => setNestedListOpen(prev => !prev)}
+                    >
+                        {nestedListOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    </IconButton>
+                </Tooltip>
                 <ListItemText primary={props.event.title} sx={{ pl: 1 }} />
                 <Tooltip title="Edit" sx={{ mr: 0.2 }}>
                     <IconButton
@@ -260,7 +266,7 @@ function Event(props) {
                     delete={() => props.handleDelete(props.event.id)}
                     event={props.event}
                 />
-            </ListItemButton>
+            </ListItem>
 
             <Collapse in={nestedListOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
