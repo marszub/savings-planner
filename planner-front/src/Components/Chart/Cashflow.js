@@ -68,9 +68,11 @@ export default function Cashflow() {
         timestamp: nextTime
       });
       // console.log(monthDays[startMonth])
-      baseMillis = monthDays[startMonth] *24*60*60*1000;
+      if(event.cycleBase === MONTH)
+        baseMillis = monthDays[startMonth] *24*60*60*1000;
       nextTime = new Date(nextTime + (event.cycleLength * baseMillis)).getTime();
-      startMonth = (startMonth + 1) %12;
+      if(event.cycleBase === MONTH)
+        startMonth = (startMonth + 1) %12;
     }
 
     return events;
