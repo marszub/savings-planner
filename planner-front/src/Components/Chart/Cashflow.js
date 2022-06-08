@@ -53,19 +53,24 @@ export default function Cashflow() {
       days = 365;
     }
 
-    const baseMillis = days * 24 * 60 * 60 * 1000;
+    const monthDays =[31,28,31,30,31,30,31,31,30,31,30,31]
+    var baseMillis = days * 24 * 60 * 60 * 1000;
     const now = (new Date()).getTime();
     const nowPlus3Years = new Date(now + (3 * 365 * 24 * 60 * 60 * 1000)).getTime();
 
     let nextTime = event.begin;
+    var startMonth = new Date(event.begin).getMonth();
+    console.log(startMonth, event)
 
-    while (nextTime <= nowPlus3Years) {
+    while (nextTime <= nowPlus3Years && nextTime <= event.cycleEnd) {
       events.push({
         ...event,
         timestamp: nextTime
       });
-
+      // console.log(monthDays[startMonth])
+      baseMillis = monthDays[startMonth] *24*60*60*1000;
       nextTime = new Date(nextTime + (event.cycleLength * baseMillis)).getTime();
+      startMonth = (startMonth + 1) %12;
     }
 
     return events;
@@ -105,7 +110,6 @@ export default function Cashflow() {
   const updateChart = () => {
     setChartData({
       labels: dates.map((date) => {
-        // const date = new Date(event.timestamp);
         return `${DateService.getMonth(
           date.getMonth()
         )} ${date.getDate()} ${date.getFullYear()}`;
@@ -230,7 +234,8 @@ export default function Cashflow() {
 
     while (i < events.length) {
       datePrev = new Date(events[i].timestamp);
-      if (datePrev > new Date()) {
+      var now = new Date();
+      if (datePrev.getFullYear() >= now.getFullYear() && datePrev.getMonth() >= now.getMonth() && datePrev.getDate() >= now.getDate()) {
         if (i != events.length - 1)
           dateCurr = new Date(events[i + 1].timestamp);
 
