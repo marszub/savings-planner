@@ -62,7 +62,7 @@ export default function Cashflow() {
     var startMonth = new Date(event.begin).getMonth();
     // console.log(startMonth, event)
 
-    while (nextTime <= nowPlus3Years ) {
+    while (nextTime <= nowPlus3Years && nextTime <= event.cycleEnd ) {
       events.push({
         ...event,
         timestamp: nextTime
