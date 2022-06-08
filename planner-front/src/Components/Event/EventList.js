@@ -24,9 +24,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import { EventCreateForm } from "../../models/event-create-form";
-import { EventUpdateForm } from "../../models/event-update-form";
-import { goalValidators } from '../../utils/goal-validators';
+import { OneTimeEventCreateForm, CyclicEventCreateForm } from "../../models/event-create-form";
 import { moneyValidators } from "../../utils/money-validators";
 import { moneyFormatter } from "../../utils/money-formatter";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -34,13 +32,17 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
-import { Collapse, ListItemButton, ListItemIcon, MenuItem } from "@mui/material";
-import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import { Collapse, FormControlLabel, ListItemIcon, MenuItem, Switch } from "@mui/material";
+import LoopIcon from '@mui/icons-material/Loop';
 import "../../styles/Events.css";
 import { HTTP_BAD_REQUEST, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK } from "../../utils/http-status";
 import { eventService } from "../../services/event-service";
 import { INCOME_EVENT_TYPE, OUTGO_EVENT_TYPE } from "../../utils/event-types";
 import { dateFormatter } from "../../utils/date-formatter";
+import {DAY, MONTH, timeFormatted, timeUnitFormatted, YEAR} from "../../utils/time-units";
+import { eventValidators } from "../../utils/event-validators";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 
 const theme = createTheme();
@@ -58,6 +60,21 @@ const eventTypes = [
     {
         value: OUTGO_EVENT_TYPE,
         label: 'Outgo',
+    },
+];
+
+const timeUnits = [
+    {
+        value: DAY,
+        label: 'Days',
+    },
+    {
+        value: MONTH,
+        label: 'Months',
+    },
+    {
+        value: YEAR,
+        label: 'Years',
     },
 ];
 
@@ -91,8 +108,8 @@ export default function EventList() {
             .catch(err => console.log(err));
     }, []);
 
-    const createEvent = model => {
-        eventService.create(model)
+    const createEvent = (cyclic, model) => {
+        eventService.create(cyclic, model)
             .then(res => {
                 if (res.status !== HTTP_CREATED) {
                     if (res.status === HTTP_BAD_REQUEST) console.log("Invalid request body");
@@ -126,8 +143,8 @@ export default function EventList() {
             .catch(err => console.log(err));
     };
 
-    const updateEvent = (model) => {
-        eventService.update(model)
+    const updateEvent = (id, cyclic, model) => {
+        eventService.update(id, cyclic, model)
             .then(res => {
                 if (res.status !== HTTP_NO_CONTENT) {
                     if (res.status === HTTP_BAD_REQUEST) console.log("Invalid request body");
@@ -204,14 +221,18 @@ function Event(props) {
     const [eventUpdateOpen, setEventUpdateOpen] = useState(false);
     const [nestedListOpen, setNestedListOpen] = useState(false);
 
-    const handleClick = () => {
-        setNestedListOpen(!nestedListOpen);
-    }
-
     return (
         <>
-            <ListItemButton onClick={handleClick}>
-                { nestedListOpen ? <ExpandLess /> : <ExpandMore /> }
+            <ListItem>
+                <Tooltip title={nestedListOpen ? 'Collapse' : 'Expand'}>
+                    <IconButton
+                        edge="start"
+                        aria-label="expand"
+                        onClick={() => setNestedListOpen(prev => !prev)}
+                    >
+                        {nestedListOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    </IconButton>
+                </Tooltip>
                 <ListItemText primary={props.event.title} sx={{ pl: 1 }} />
                 <Tooltip title="Edit" sx={{ mr: 0.2 }}>
                     <IconButton
@@ -234,7 +255,7 @@ function Event(props) {
                 <EventUpdateDialog
                     open={eventUpdateOpen}
                     onClose={() => setEventUpdateOpen(false)}
-                    update={(model) => props.handleUpdate(model)}
+                    update={props.handleUpdate}
                     event={props.event}
                 />
                 <EventRemovalConfirmationDialog
@@ -243,7 +264,7 @@ function Event(props) {
                     delete={() => props.handleDelete(props.event.id)}
                     event={props.event}
                 />
-            </ListItemButton>
+            </ListItem>
 
             <Collapse in={nestedListOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
@@ -253,12 +274,31 @@ function Event(props) {
                         </ListItemIcon>
                         <ListItemText primary={moneyFormatter.mapPenniesNumberToString(props.event.amount) + ' PLN'} />
                     </ListItem>
-                    <ListItem sx={{ pl: 7 }}>
-                        <ListItemIcon>
-                            <EventOutlinedIcon />
-                        </ListItemIcon>
-                        <ListItemText primary={dateFormatter.formatDate(new Date(props.event.timestamp))} />
-                    </ListItem>
+                    { props.event.isCyclic && <>
+                        <ListItem sx={{ pl: 7 }}>
+                            <ListItemIcon>
+                                <EventOutlinedIcon />
+                            </ListItemIcon>
+                            <ListItemText primary={
+                                `${dateFormatter.formatDate(new Date(props.event.begin))} - 
+                                ${dateFormatter.formatDate(new Date(props.event.cycleEnd))}`
+                            } />
+                        </ListItem>
+                        <ListItem sx={{ pl: 7 }}>
+                            <ListItemIcon>
+                                <LoopIcon />
+                            </ListItemIcon>
+                            <ListItemText primary={timeFormatted(props.event.cycleLength, props.event.cycleBase)} />
+                        </ListItem>
+                    </>}
+                    { !props.event.isCyclic &&
+                        <ListItem sx={{ pl: 7 }}>
+                            <ListItemIcon>
+                                <EventOutlinedIcon />
+                            </ListItemIcon>
+                            <ListItemText primary={dateFormatter.formatDate(new Date(props.event.timestamp))} />
+                        </ListItem>
+                    }
                 </List>
             </Collapse>
 
@@ -272,42 +312,75 @@ function Event(props) {
 function EventCreationDialog(props) {
     const [titleErrorMessage, setTitleErrorMessage] = useState("");
     const [amountErrorMessage, setAmountErrorMessage] = useState("");
+    const [cycleLengthErrorMessage, setCycleLengthErrorMessage] = useState("");
+    const [beginEndErrorMessage, setBeginEndErrorMessage] = useState("");
     const [eventType, setEventType] = useState(INCOME_EVENT_TYPE);
-
-    const handleChange = (event) => {
-        setEventType(event.target.value);
-    };
+    const [cyclic, setCyclic] = useState(false);
+    const [cycleBase, setCycleBase] = useState(DAY);
 
     const handleClose = () => {
         props.onClose();
+
         setTitleErrorMessage('');
         setAmountErrorMessage('');
+        setCycleLengthErrorMessage('');
+        setBeginEndErrorMessage('');
         setEventType(INCOME_EVENT_TYPE);
+        setCyclic(false);
+        setCycleBase(DAY);
     };
 
     const handleSubmit = (event) => {
         event.preventDefault();
 
         const data = new FormData(event.currentTarget);
-        const formModel = new EventCreateForm(
-            data.get('title'),
-            data.get('event-type'),
-            data.get('amount'),
-            data.get('date')
-        );
 
-        const titleError = goalValidators.validateTitle(formModel.title);
+        let formModel;
+        if (cyclic) {
+            formModel = new CyclicEventCreateForm(
+                data.get('title'),
+                data.get('event-type'),
+                data.get('amount'),
+                data.get('begins'),
+                data.get('ends'),
+                data.get('cycle-length'),
+                data.get('cycle-base')
+            );
+        } else {
+            formModel = new OneTimeEventCreateForm(
+                data.get('title'),
+                data.get('event-type'),
+                data.get('amount'),
+                data.get('date'),
+            );
+        }
+
+        const titleError = eventValidators.validateTitle(formModel.title);
         const amountError = moneyValidators.validateAmount(formModel.amount);
-        const dateError = Object.values(event.currentTarget.date)[1]['aria-invalid'];
-
         setTitleErrorMessage(titleError);
         setAmountErrorMessage(amountError);
 
-        if (titleError || amountError || dateError) {
-            return;
+        if (cyclic) {
+            const beginsError = Object.values(event.currentTarget.begins)[1]['aria-invalid'];
+            const endsError = Object.values(event.currentTarget.ends)[1]['aria-invalid'];
+            const cycleLengthError = eventValidators.validateCycleLength(formModel.cycleLength);
+            const beginEndError = eventValidators.validateBeginEnd(new Date(formModel.begins), new Date(formModel.ends));
+            setCycleLengthErrorMessage(cycleLengthError);
+            setBeginEndErrorMessage(beginEndError);
+            console.log(formModel.begins);
+
+            if (titleError || amountError || beginsError || endsError || cycleLengthError || beginEndError) {
+                return;
+            }
+        } else {
+            const dateError = Object.values(event.currentTarget.date)[1]['aria-invalid'];
+
+            if (titleError || amountError || dateError) {
+                return;
+            }
         }
 
-        props.create(formModel);
+        props.create(cyclic, formModel);
         handleClose();
     };
 
@@ -347,7 +420,7 @@ function EventCreationDialog(props) {
                             select
                             label="Select type"
                             value={eventType}
-                            onChange={handleChange}
+                            onChange={e => setEventType(e.target.value)}
                         >
                             {eventTypes.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
@@ -368,7 +441,74 @@ function EventCreationDialog(props) {
                                 endAdornment: <InputAdornment position="end">PLN</InputAdornment>,
                             }}
                         />
-                        <BasicDatePicker />
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={cyclic}
+                                    onChange={e => setCyclic(e.target.checked)}
+                                    inputProps={{ 'aria-label': 'controlled' }}
+                                />
+                            }
+                            label="Cyclic"
+                            labelPlacement="end"
+                        />
+                        <BasicDatePicker
+                            name={cyclic ? 'begins' : 'date'}
+                            label={cyclic ? 'Begins' : 'Date'}
+                            value={null}
+                        />
+                        { cyclic &&
+                            <>
+                            <BasicDatePicker
+                                name="ends"
+                                label="Ends"
+                                value={null}
+                            />
+                            <Box sx={{
+                                display: 'flex',
+                                gap: '8px'
+                            }}>
+                                <TextField
+                                    sx={{
+                                        flexBasis: '70%'
+                                    }}
+                                    type="number"
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id="cycle-length"
+                                    name="cycle-length"
+                                    label="Cycle length"
+                                    error={!!cycleLengthErrorMessage}
+                                    helperText={cycleLengthErrorMessage}
+                                />
+                                <TextField
+                                    sx={{
+                                        flexBasis: '30%'
+                                    }}
+                                    margin="normal"
+                                    fullWidth
+                                    id="cycle-base"
+                                    name="cycle-base"
+                                    select
+                                    label="Cycle base"
+                                    value={cycleBase}
+                                    onChange={e => setCycleBase(e.target.value)}
+                                >
+                                    {timeUnits.map((option) => (
+                                        <MenuItem key={option.value} value={option.value}>
+                                            {option.label}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </Box>
+                            <Box sx={{
+                                color: 'red'
+                            }}>
+                                {beginEndErrorMessage}
+                            </Box>
+                            </>
+                        }
                     </DialogContent>
                     <DialogActions>
                         <Button
@@ -390,13 +530,13 @@ function EventCreationDialog(props) {
     );
 }
 
-function BasicDatePicker() {
-    const [value, setValue] = useState(null);
+function BasicDatePicker(props) {
+    const [value, setValue] = useState(props.value);
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DatePicker
-                label="Date"
+                label={props.label}
                 value={value}
                 onChange={(newValue) => {
                     setValue(newValue);
@@ -404,7 +544,7 @@ function BasicDatePicker() {
                 renderInput={
                     (params) => <TextField
                         id="date"
-                        name="date"
+                        name={props.name}
                         {...params}
                         required
                         fullWidth
@@ -419,42 +559,70 @@ function BasicDatePicker() {
 function EventUpdateDialog(props) {
     const [titleErrorMessage, setTitleErrorMessage] = useState("");
     const [amountErrorMessage, setAmountErrorMessage] = useState("");
-    const [eventType, setEventType] = useState(props.event.amount < 0 ? OUTGO_EVENT_TYPE : INCOME_EVENT_TYPE);
-
-    const handleChange = (event) => {
-        setEventType(event.target.value);
-    };
+    const [cycleLengthErrorMessage, setCycleLengthErrorMessage] = useState("");
+    const [eventType, setEventType] = useState(props.event.amount > 0 ? INCOME_EVENT_TYPE : OUTGO_EVENT_TYPE);
+    const [beginEndErrorMessage, setBeginEndErrorMessage] = useState("");
+    const [cycleBase, setCycleBase] = useState(props.event.isCyclic ? props.event.cycleBase : 0);
 
     const handleClose = () => {
         props.onClose();
+
         setTitleErrorMessage('');
         setAmountErrorMessage('');
+        setCycleLengthErrorMessage('');
+        setBeginEndErrorMessage('');
     };
 
     const handleSubmit = (event) => {
         event.preventDefault();
 
         const data = new FormData(event.currentTarget);
-        const formModel = new EventUpdateForm(
-            props.event.id,
-            data.get('title'),
-            data.get('event-type'),
-            data.get('amount'),
-            data.get('date')
-        );
 
-        const titleError = goalValidators.validateTitle(formModel.title);
+        let formModel;
+        if (props.event.isCyclic) {
+            formModel = new CyclicEventCreateForm(
+                data.get('title'),
+                data.get('event-type'),
+                data.get('amount'),
+                data.get('begins'),
+                data.get('ends'),
+                data.get('cycle-length'),
+                data.get('cycle-base')
+            );
+        } else {
+            formModel = new OneTimeEventCreateForm(
+                data.get('title'),
+                data.get('event-type'),
+                data.get('amount'),
+                data.get('date'),
+            );
+        }
+
+        const titleError = eventValidators.validateTitle(formModel.title);
         const amountError = moneyValidators.validateAmount(formModel.amount);
-        const dateError = Object.values(event.currentTarget.date)[1]['aria-invalid'];
-
         setTitleErrorMessage(titleError);
         setAmountErrorMessage(amountError);
 
-        if (titleError || amountError || dateError) {
-            return;
+        if (props.event.isCyclic) {
+            const beginsError = Object.values(event.currentTarget.begins)[1]['aria-invalid'];
+            const endsError = Object.values(event.currentTarget.ends)[1]['aria-invalid'];
+            const cycleLengthError = eventValidators.validateCycleLength(formModel.cycleLength);
+            const beginEndError = eventValidators.validateBeginEnd(new Date(formModel.begins), new Date(formModel.ends));
+            setCycleLengthErrorMessage(cycleLengthError);
+            setBeginEndErrorMessage(beginEndError);
+
+            if (titleError || amountError || beginsError || endsError || cycleLengthError || beginEndError) {
+                return;
+            }
+        } else {
+            const dateError = Object.values(event.currentTarget.date)[1]['aria-invalid'];
+
+            if (titleError || amountError || dateError) {
+                return;
+            }
         }
 
-        props.update(formModel);
+        props.update(props.event.id, props.event.isCyclic, formModel);
         handleClose();
     };
 
@@ -469,20 +637,20 @@ function EventUpdateDialog(props) {
                     margin: 1
                 }}
             >
-                <DialogTitle>Edit the event</DialogTitle>
+                <DialogTitle>Create new event</DialogTitle>
                 <Box
                     component="form"
                     onSubmit={handleSubmit}
                 >
                     <DialogContent>
                         <TextField
-                            defaultValue={props.event.title}
                             margin="normal"
                             required
                             fullWidth
                             id="title"
                             label="Title"
                             name="title"
+                            defaultValue={props.event.title}
                             autoFocus
                             error={!!titleErrorMessage}
                             helperText={titleErrorMessage}
@@ -495,7 +663,7 @@ function EventUpdateDialog(props) {
                             select
                             label="Select type"
                             value={eventType}
-                            onChange={handleChange}
+                            onChange={e => setEventType(e.target.value)}
                         >
                             {eventTypes.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
@@ -504,22 +672,77 @@ function EventUpdateDialog(props) {
                             ))}
                         </TextField>
                         <TextField
-                            defaultValue={moneyFormatter.mapPenniesNumberToString(Math.abs(props.event.amount))}
                             margin="normal"
                             required
                             fullWidth
                             id="amount"
                             label="Amount"
                             name="amount"
+                            defaultValue={moneyFormatter.mapPenniesNumberToString(Math.abs(props.event.amount))}
                             error={!!amountErrorMessage}
                             helperText={amountErrorMessage}
                             InputProps={{
                                 endAdornment: <InputAdornment position="end">PLN</InputAdornment>,
                             }}
                         />
-                        <BasicDateEditor
-                            event={props.event}
+                        <BasicDatePicker
+                            name={props.event.isCyclic ? 'begins' : 'date'}
+                            label={props.event.isCyclic ? 'Begins' : 'Date'}
+                            value={props.event.isCyclic ? new Date(props.event.begin) : new Date(props.event.timestamp)}
                         />
+                        { props.event.isCyclic &&
+                            <>
+                                <BasicDatePicker
+                                    name="ends"
+                                    label="Ends"
+                                    value={new Date(props.event.cycleEnd)}
+                                />
+                                <Box sx={{
+                                    display: 'flex',
+                                    gap: '8px'
+                                }}>
+                                    <TextField
+                                        sx={{
+                                            flexBasis: '70%'
+                                        }}
+                                        type="number"
+                                        margin="normal"
+                                        required
+                                        fullWidth
+                                        id="cycle-length"
+                                        name="cycle-length"
+                                        label="Cycle length"
+                                        defaultValue={props.event.cycleLength}
+                                        error={!!cycleLengthErrorMessage}
+                                        helperText={cycleLengthErrorMessage}
+                                    />
+                                    <TextField
+                                        sx={{
+                                            flexBasis: '30%'
+                                        }}
+                                        margin="normal"
+                                        fullWidth
+                                        id="cycle-base"
+                                        name="cycle-base"
+                                        select
+                                        label="Cycle base"
+                                        value={cycleBase}
+                                        onChange={e => setCycleBase(e.target.value)}
+                                    >
+                                        {timeUnits.map((option) => (
+                                            <MenuItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
+                                </Box>
+                                <Box sx={{
+                                    color: 'red'
+                                }}>
+                                    {beginEndErrorMessage}
+                                </Box>
+                            </>
+                        }
                     </DialogContent>
                     <DialogActions>
                         <Button
@@ -538,32 +761,6 @@ function EventUpdateDialog(props) {
                 </Box>
             </Box>
         </Dialog>
-    );
-}
-
-function BasicDateEditor(props) {
-    const [value, setValue] = useState(props.event.date);
-
-    return (
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DatePicker
-                label="Date"
-                value={value}
-                onChange={(newValue) => {
-                    setValue(newValue);
-                }}
-                renderInput={
-                    (params) => <TextField
-                        id="date"
-                        name="date"
-                        {...params}
-                        required
-                        fullWidth
-                        sx={{ mt: 2, mb: 1 }}
-                    />
-                }
-            />
-        </LocalizationProvider>
     );
 }
 

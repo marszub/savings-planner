@@ -9,6 +9,7 @@ import { Chart as ChartJS } from "chart.js/auto";
 import { Chart } from "react-chartjs-2";
 import { eventService } from "../../services/event-service";
 import { moneyFormatter } from "../../utils/money-formatter";
+import {DAY, MONTH, YEAR} from "../../utils/time-units";
 
 const theme = createTheme();
 
@@ -25,8 +26,67 @@ export default function Cashflow() {
 
   const [balance, setBalance] = useState(0);
 
+  const filter3Years = event => {
+    if (event.isCyclic) {
+      return event;
+    }
+
+    const now = (new Date()).getTime();
+    const nowPlus3Years = new Date(now + (3 * 365 * 24 * 60 * 60 * 1000)).getTime();
+
+    return event.timestamp <= nowPlus3Years;
+  };
+
+  const cyclicToOneTime = event => {
+    if (!event.isCyclic) {
+      return [event];
+    }
+
+    const events = [];
+
+    let days;
+    if (event.cycleBase === DAY) {
+      days = 1;
+    } else if (event.cycleBase === MONTH) {
+      days = 30;
+    } else {
+      days = 365;
+    }
+
+    const monthDays =[31,28,31,30,31,30,31,31,30,31,30,31]
+    var baseMillis = days * 24 * 60 * 60 * 1000;
+    const now = (new Date()).getTime();
+    const nowPlus3Years = new Date(now + (3 * 365 * 24 * 60 * 60 * 1000)).getTime();
+
+    let nextTime = event.begin;
+    var startMonth = new Date(event.begin).getMonth();
+    // console.log(startMonth, event)
+
+    while (nextTime <= nowPlus3Years && nextTime <= event.cycleEnd ) {
+      events.push({
+        ...event,
+        timestamp: nextTime
+      });
+      // console.log(monthDays[startMonth])
+      baseMillis = monthDays[startMonth] *24*60*60*1000;
+      nextTime = new Date(nextTime + (event.cycleLength * baseMillis)).getTime();
+      startMonth = (startMonth + 1) %12;
+    }
+
+    return events;
+  };
+
+  const sort = (e1, e2) => {
+    return e1.timestamp - e2.timestamp;
+  }
+
   useEffect(() => {
-    const changeListener = (updatedEvents) => setEvents(updatedEvents);
+    const changeListener = (updatedEvents) => setEvents(
+        updatedEvents
+            .filter(filter3Years)
+            .flatMap(cyclicToOneTime)
+            .sort(sort)
+    );
     eventService.addChangeListener(changeListener);
 
     return () => eventService.removeChangeListener(changeListener);
@@ -50,7 +110,6 @@ export default function Cashflow() {
   const updateChart = () => {
     setChartData({
       labels: dates.map((date) => {
-        // const date = new Date(event.timestamp);
         return `${DateService.getMonth(
           date.getMonth()
         )} ${date.getDate()} ${date.getFullYear()}`;
@@ -175,7 +234,10 @@ export default function Cashflow() {
 
     while (i < events.length) {
       datePrev = new Date(events[i].timestamp);
-      if (datePrev > new Date()) {
+      const today = new Date();
+      const yesterday = new Date();
+      yesterday.setDate(today.getDate() - 1);
+      if (datePrev>yesterday) {
         if (i != events.length - 1)
           dateCurr = new Date(events[i + 1].timestamp);
 

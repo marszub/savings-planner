@@ -43,9 +43,6 @@ export default function Home() {
                 <div className="container" style={{ height: "15vw" }}>
                   <BalanceField></BalanceField>
                 </div>
-                <div className="container" style={{ marginTop: "15px" }}>
-                  <a>cashflow options</a>
-                </div>
               </Grid>
               <Grid item xs={8}>
                 <div className="container ">
