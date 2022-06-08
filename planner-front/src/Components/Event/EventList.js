@@ -364,9 +364,10 @@ function EventCreationDialog(props) {
             const beginsError = Object.values(event.currentTarget.begins)[1]['aria-invalid'];
             const endsError = Object.values(event.currentTarget.ends)[1]['aria-invalid'];
             const cycleLengthError = eventValidators.validateCycleLength(formModel.cycleLength);
-            const beginEndError = eventValidators.validateBeginEnd(formModel.begins, formModel.ends);
+            const beginEndError = eventValidators.validateBeginEnd(new Date(formModel.begins), new Date(formModel.ends));
             setCycleLengthErrorMessage(cycleLengthError);
             setBeginEndErrorMessage(beginEndError);
+            console.log(formModel.begins);
 
             if (titleError || amountError || beginsError || endsError || cycleLengthError || beginEndError) {
                 return;
@@ -606,7 +607,7 @@ function EventUpdateDialog(props) {
             const beginsError = Object.values(event.currentTarget.begins)[1]['aria-invalid'];
             const endsError = Object.values(event.currentTarget.ends)[1]['aria-invalid'];
             const cycleLengthError = eventValidators.validateCycleLength(formModel.cycleLength);
-            const beginEndError = eventValidators.validateBeginEnd(formModel.begins, formModel.ends);
+            const beginEndError = eventValidators.validateBeginEnd(new Date(formModel.begins), new Date(formModel.ends));
             setCycleLengthErrorMessage(cycleLengthError);
             setBeginEndErrorMessage(beginEndError);
 
